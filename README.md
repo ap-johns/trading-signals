@@ -1,5 +1,7 @@
 # OTT Signal Dashboard
 
+**[View Dashboard](https://ap-johns.github.io/trading-signals/)**
+
 Automated stock/crypto signal alerts using the [Optimized Trend Tracker (OTT)](https://www.tradingview.com/script/zVhoDQME/) indicator by KivancOzbilgic.
 
 ## What it does
