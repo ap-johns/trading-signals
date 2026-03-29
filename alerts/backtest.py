@@ -274,6 +274,7 @@ def backtest_crypto_cycle(config):
         datetime(2013, 10, 1),   # ~1 month before Nov 2013 peak
         datetime(2017, 11, 1),   # ~1 month before Dec 2017 peak
         datetime(2021, 10, 1),   # ~1 month before Nov 2021 peak
+        datetime(2025, 9, 1),    # ~1 month before Oct 2025 peak
     ]
     future_dt = datetime.strptime(future_sell, "%Y-%m-%d")
     cycle_sell_dates.append(future_dt - timedelta(days=alert_months * 30))
