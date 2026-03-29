@@ -1,0 +1,39 @@
+{
+    "telegram": {
+        "bot_token": "",
+        "chat_id": ""
+    },
+    "ott": {
+        "period": 10,
+        "percent": 3.0
+    },
+    "ema_period": 200,
+    "timeframes": ["daily", "4h", "weekly"],
+    "alert_timeframes": ["daily"],
+    "watchlist": {
+        "Crypto": {
+            "BTC-USD": "BTCUSD",
+            "SOL-USD": "SOLUSD"
+        },
+        "Indices": {
+            "^GSPC": "SPX",
+            "QQQ": "QQQ",
+            "MAGS": "MAGS"
+        },
+        "Stocks": {
+            "ALAB": "ALAB",
+            "TSM": "TSM",
+            "AMD": "AMD",
+            "AVGO": "AVGO",
+            "TSLA": "TSLA",
+            "PLTR": "PLTR",
+            "GOOG": "GOOG",
+            "NVDA": "NVDA",
+            "ASML": "ASML",
+            "MU": "MU",
+            "MRVL": "MRVL",
+            "MSFT": "MSFT",
+            "META": "META"
+        }
+    }
+}

@@ -1,0 +1,43 @@
+name: Update OTT Dashboard
+
+on:
+  schedule:
+    # 5pm UK time (BST=16:00 UTC, GMT=17:00 UTC). Use 17:00 to cover both.
+    - cron: '0 17 * * 1-5'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run signal checker (Telegram alerts)
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        working-directory: alerts
+        run: python signal_checker.py
+
+      - name: Generate dashboard
+        working-directory: alerts
+        run: python dashboard.py
+
+      - name: Commit and push updated dashboard
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add docs/index.html
+          git diff --staged --quiet || git commit -m "Update dashboard $(date -u +%Y-%m-%d)"
+          git push
