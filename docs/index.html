@@ -242,7 +242,7 @@
 </head>
 <body>
     <h1>OTT Signal Dashboard</h1>
-    <div class="updated">Last updated: 2026-03-29 20:40:15.315217</div>
+    <div class="updated">Last updated: 2026-03-29 20:50:14.616976</div>
     <div class="params">OTT Period: 10 | OTT Percent: 3.0 | Source: Open | MA Type: VAR | EMA: 200</div>
     <div class="controls">
         <div class="tf-toggle">
@@ -277,18 +277,18 @@
                             <td class="ticker"><span class="trend-icon bearish">&#9660;</span> SOLUSD</td>
                             <td class="signals"><span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$13.43</span></span> <span class="strat-label">-32% from 200w EMA | Next window: 1 Dec 26 (246d)</span></td>
                         </tr>
-<tr class="category-row"><td colspan="6">Indices <span class="strat-label">Always-In: sell above 200 SMA, buy back on OTT or 5% dip</span></td></tr>
-<tr class="" data-tf="daily">
+<tr class="category-row"><td colspan="6">Indices <span class="strat-label">Always-In: sell on any OTT sell, buy back on OTT buy or 5% dip from sell</span></td></tr>
+<tr class="recent-sell-row" data-tf="daily">
                             <td class="ticker"><span class="trend-icon bearish">&#9660;</span> SPX</td>
-                            <td class="signals"><span class="signal-pill buy-signal">6 May 25<br><span class="sig-price">$5.6k</span></span></td>
+                            <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('SPX_idx').classList.toggle('show')">23 Mar 26<br><span class="sig-price">$6.6k</span></span><span id="SPX_idx" class="older-signals"> <span class="signal-pill buy-signal">6 May 25<br><span class="sig-price">$5.6k</span></span> <span class="signal-pill buy-signal">3 Apr 25<br><span class="sig-price">$5.4k</span></span> <span class="signal-pill sell-signal">7 Mar 25<br><span class="sig-price">$5.8k</span></span></span></td>
                         </tr>
 <tr class="recent-buy-row" data-tf="daily">
                             <td class="ticker"><span class="trend-icon bearish">&#9660;</span> QQQ</td>
-                            <td class="signals"><span class="signal-pill clickable buy-signal recent-signal" onclick="document.getElementById('QQQ_idx').classList.toggle('show')">27 Mar 26<br><span class="sig-price">$562.58</span></span><span id="QQQ_idx" class="older-signals"> <span class="signal-pill sell-signal">19 Mar 26<br><span class="sig-price">$592.27</span></span> <span class="signal-pill buy-signal">2 May 25<br><span class="sig-price">$486.48</span></span></span></td>
+                            <td class="signals"><span class="signal-pill clickable buy-signal recent-signal" onclick="document.getElementById('QQQ_idx').classList.toggle('show')">27 Mar 26<br><span class="sig-price">$562.58</span></span><span id="QQQ_idx" class="older-signals"> <span class="signal-pill sell-signal">19 Mar 26<br><span class="sig-price">$592.27</span></span> <span class="signal-pill buy-signal">2 May 25<br><span class="sig-price">$486.48</span></span> <span class="signal-pill buy-signal">10 Mar 25<br><span class="sig-price">$469.75</span></span> <span class="signal-pill sell-signal">5 Mar 25<br><span class="sig-price">$498.85</span></span></span></td>
                         </tr>
 <tr class="" data-tf="daily">
                             <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MAGS</td>
-                            <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MAGS_idx').classList.toggle('show')">20 Mar 26<br><span class="sig-price">$58.37</span></span><span id="MAGS_idx" class="older-signals"> <span class="signal-pill sell-signal">12 Feb 26<br><span class="sig-price">$61.73</span></span> <span class="signal-pill buy-signal">7 May 25<br><span class="sig-price">$46.29</span></span></span></td>
+                            <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MAGS_idx').classList.toggle('show')">20 Mar 26<br><span class="sig-price">$58.37</span></span><span id="MAGS_idx" class="older-signals"> <span class="signal-pill sell-signal">12 Feb 26<br><span class="sig-price">$61.73</span></span> <span class="signal-pill buy-signal">7 May 25<br><span class="sig-price">$46.29</span></span> <span class="signal-pill buy-signal">10 Mar 25<br><span class="sig-price">$45.66</span></span> <span class="signal-pill sell-signal">28 Feb 25<br><span class="sig-price">$50.47</span></span></span></td>
                         </tr>
 <tr class="category-row"><td colspan="6">Stocks <span class="strat-label">OTT + SMA: buy on OTT or 50 SMA cross, sell on OTT above 200 SMA</span></td></tr>
 <tr class="" data-tf="daily">

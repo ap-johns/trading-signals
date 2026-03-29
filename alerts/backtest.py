@@ -115,9 +115,12 @@ def backtest_ticker(df, ott_period, ott_percent, strategy=None):
                 take_sell = ott_sell and not above_200
             elif strategy == "contra":
                 take_sell = ott_sell and above_200
-            elif is_hybrid or strategy == "always_in":
-                # Hybrid and always_in: only sell above 200 SMA
+            elif is_hybrid:
+                # Hybrid: only sell above 200 SMA
                 take_sell = ott_sell and above_200
+            elif strategy == "always_in":
+                # Always-in: sell on any OTT sell signal
+                take_sell = ott_sell
 
             if take_sell:
                 ret = (price - buy_price) / buy_price * 100

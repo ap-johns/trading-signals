@@ -143,8 +143,8 @@ def check_signals(config: dict) -> list:
                             "reason": reason,
                         })
 
-                    # SELL: OTT sell AND above 200 SMA
-                    if ott_signal == -1 and above_200:
+                    # SELL: any OTT sell signal
+                    if ott_signal == -1:
                         signals.append({
                             "type": "SELL",
                             "ticker": display_name,
@@ -154,7 +154,7 @@ def check_signals(config: dict) -> list:
                             "sma_200": sma200_val,
                             "sma_relation": sma200_relation,
                             "date": date_str,
-                            "reason": "OTT sell signal (above 200 SMA)",
+                            "reason": "OTT sell signal",
                         })
 
                 else:

@@ -155,7 +155,7 @@ def generate_html(all_data, config):
 
     strategy_labels = {
         "Crypto": "4yr Cycle: buy on cycle timing or -10/-20/-30% below 200w EMA, sell near cycle peak",
-        "Indices": "Always-In: sell above 200 SMA, buy back on OTT or 5% dip",
+        "Indices": "Always-In: sell on any OTT sell, buy back on OTT buy or 5% dip from sell",
         "Stocks": "OTT + SMA: buy on OTT or 50 SMA cross, sell on OTT above 200 SMA",
     }
 
@@ -314,14 +314,17 @@ def generate_html(all_data, config):
                             s = sma_200.iloc[i]
                             a200 = p > s if pd.notna(s) else False
 
-                            if sig == -1 and a200:
+                            # SELL: any OTT sell signal
+                            if sig == -1:
                                 index_signals.append({"date": df.index[i].strftime("%-d %b %y"), "type": "SELL", "price": p})
                                 last_sell_price = p
+                            # BUY: OTT buy or 5% dip from sell
                             elif sig == 1:
                                 index_signals.append({"date": df.index[i].strftime("%-d %b %y"), "type": "BUY", "price": p})
                             elif last_sell_price and p < last_sell_price * 0.95:
                                 index_signals.append({"date": df.index[i].strftime("%-d %b %y"), "type": "BUY", "price": p})
                                 last_sell_price = None
+
 
                         # Build pills (most recent first)
                         index_signals.reverse()
