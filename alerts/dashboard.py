@@ -153,9 +153,16 @@ def generate_html(all_data, config):
     """Generate the dashboard HTML."""
     now = datetime.now().strftime("%-d %b %y %H:%M")
 
+    strategy_labels = {
+        "Crypto": "4yr Cycle: buy below 200w SMA near cycle low, sell near cycle peak",
+        "Indices": "Always-In: sell above 200 SMA, buy back on OTT or 5% dip",
+        "Stocks": "OTT + SMA: buy on OTT or 50 SMA cross, sell on OTT above 200 SMA",
+    }
+
     rows = ""
     for category, tickers in config["watchlist"].items():
-        rows += f'<tr class="category-row"><td colspan="6">{category}</td></tr>\n'
+        strat_label = strategy_labels.get(category, "")
+        rows += f'<tr class="category-row"><td colspan="6">{category} <span class="strat-label">{strat_label}</span></td></tr>\n'
 
         for yf_ticker, display_name in tickers.items():
             data = all_data.get(yf_ticker, {})
@@ -362,6 +369,14 @@ def generate_html(all_data, config):
     }}
     .category-row {{
         background: #0f3460 !important;
+    }}
+    .strat-label {{
+        font-weight: 400;
+        font-size: 10px;
+        color: #888;
+        text-transform: none;
+        letter-spacing: 0;
+        margin-left: 8px;
     }}
     .category-row td {{
         font-weight: 700;

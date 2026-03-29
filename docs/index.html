@@ -115,6 +115,14 @@
     .category-row {
         background: #0f3460 !important;
     }
+    .strat-label {
+        font-weight: 400;
+        font-size: 10px;
+        color: #888;
+        text-transform: none;
+        letter-spacing: 0;
+        margin-left: 8px;
+    }
     .category-row td {
         font-weight: 700;
         color: #fff;
@@ -234,7 +242,7 @@
 </head>
 <body>
     <h1>OTT Signal Dashboard</h1>
-    <div class="updated">Last updated: 2026-03-29 18:49:19.718877</div>
+    <div class="updated">Last updated: 2026-03-29 19:56:49.076097</div>
     <div class="params">OTT Period: 10 | OTT Percent: 3.0 | Source: Open | MA Type: VAR | EMA: 200</div>
     <div class="controls">
         <div class="tf-toggle">
@@ -250,62 +258,62 @@
                 <th class="clickable-header" onclick="toggleRecentOnly(document.getElementById('recent-filter-btn'))">Ticker <span class="expand-all-btn" id="recent-filter-btn">&#9654;</span></th>
                 <th class="signals-header clickable-header" onclick="toggleAllSignals(document.getElementById('signals-expand-btn'))">Signals <span class="expand-all-btn" id="signals-expand-btn">&#9654;</span></th>
                 <th class="detail-col">Price</th>
-                <th class="detail-col">200 EMA</th>
+                <th class="detail-col">200 SMA</th>
                 <th class="detail-col">MAvg</th>
                 <th class="detail-col">OTT Line</th>
             </tr>
         </thead>
         <tbody>
-            <tr class="category-row"><td colspan="6">Crypto</td></tr>
+            <tr class="category-row"><td colspan="6">Crypto <span class="strat-label">4yr Cycle: buy below 200w SMA near cycle low, sell near cycle peak</span></td></tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> BTCUSD</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('BTCUSD_daily').classList.toggle('show')">26 Jan 26<br><span class="sig-price">$88.3k</span></span><span id="BTCUSD_daily" class="older-signals"> <span class="signal-pill buy-signal">14 Jan 26<br><span class="sig-price">$96.9k</span></span> <span class="signal-pill sell-signal">16 Oct 25<br><span class="sig-price">$108.2k</span></span> <span class="signal-pill buy-signal">4 Oct 25<br><span class="sig-price">$122.4k</span></span> <span class="signal-pill sell-signal">25 Sep 25<br><span class="sig-price">$109.0k</span></span></span></td>
-                    <td class="detail-col price">$66.3k</td>
-                    <td class="detail-col ema below-ema">$85.4k (Below)</td>
+                    <td class="detail-col price">$66.4k</td>
+                    <td class="detail-col ema below-ema">$91.1k (Below)</td>
                     <td class="detail-col mavg">$70.9k</td>
                     <td class="detail-col ott">$72.0k</td>
                 </tr>
 <tr class="" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> BTCUSD</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('BTCUSD_4h').classList.toggle('show')">19 Mar 26 12:00<br><span class="sig-price">$69.5k</span></span><span id="BTCUSD_4h" class="older-signals"> <span class="signal-pill buy-signal">10 Mar 26 16:00<br><span class="sig-price">$70.0k</span></span> <span class="signal-pill sell-signal">7 Mar 26 08:00<br><span class="sig-price">$68.0k</span></span> <span class="signal-pill buy-signal">3 Mar 26 08:00<br><span class="sig-price">$67.1k</span></span> <span class="signal-pill sell-signal">28 Feb 26 08:00<br><span class="sig-price">$63.8k</span></span></span></td>
-                    <td class="detail-col price">$66.3k</td>
-                    <td class="detail-col ema below-ema">$70.0k (Below)</td>
+                    <td class="detail-col price">$66.4k</td>
+                    <td class="detail-col ema below-ema">$69.3k (Below)</td>
                     <td class="detail-col mavg">$67.3k</td>
                     <td class="detail-col ott">$68.3k</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> BTCUSD</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('BTCUSD_weekly').classList.toggle('show')">30 Nov 25<br><span class="sig-price">$90.4k</span></span><span id="BTCUSD_weekly" class="older-signals"> <span class="signal-pill buy-signal">18 May 25<br><span class="sig-price">$106.4k</span></span> <span class="signal-pill sell-signal">13 Apr 25<br><span class="sig-price">$83.7k</span></span></span></td>
-                    <td class="detail-col price">$66.3k</td>
-                    <td class="detail-col ema below-ema">$82.8k (Below)</td>
+                    <td class="detail-col price">$66.4k</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$79.6k</td>
                     <td class="detail-col ott">$83.2k</td>
                 </tr>
 <tr class="recent-sell-row" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> SOLUSD</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('SOLUSD_daily').classList.toggle('show')">22 Mar 26<br><span class="sig-price">$86.13</span></span><span id="SOLUSD_daily" class="older-signals"> <span class="signal-pill buy-signal">18 Mar 26<br><span class="sig-price">$90.07</span></span> <span class="signal-pill sell-signal">24 Jan 26<br><span class="sig-price">$127.05</span></span> <span class="signal-pill buy-signal">7 Jan 26<br><span class="sig-price">$136.31</span></span> <span class="signal-pill sell-signal">11 Oct 25<br><span class="sig-price">$178.05</span></span></span></td>
-                    <td class="detail-col price">$81.50</td>
-                    <td class="detail-col ema below-ema">$124.25 (Below)</td>
+                    <td class="detail-col price">$81.74</td>
+                    <td class="detail-col ema below-ema">$141.20 (Below)</td>
                     <td class="detail-col mavg">$90.09</td>
                     <td class="detail-col ott">$91.52</td>
                 </tr>
 <tr class="recent-sell-row" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> SOLUSD</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('SOLUSD_4h').classList.toggle('show')">26 Mar 26 12:00<br><span class="sig-price">$87.57</span></span><span id="SOLUSD_4h" class="older-signals"> <span class="signal-pill buy-signal recent-signal">26 Mar 26 04:00<br><span class="sig-price">$89.11</span></span> <span class="signal-pill sell-signal">19 Mar 26 16:00<br><span class="sig-price">$88.85</span></span> <span class="signal-pill buy-signal">10 Mar 26 16:00<br><span class="sig-price">$85.97</span></span> <span class="signal-pill sell-signal">7 Mar 26 08:00<br><span class="sig-price">$84.73</span></span></span></td>
-                    <td class="detail-col price">$81.50</td>
-                    <td class="detail-col ema below-ema">$88.41 (Below)</td>
+                    <td class="detail-col price">$81.74</td>
+                    <td class="detail-col ema below-ema">$87.13 (Below)</td>
                     <td class="detail-col mavg">$84.53</td>
                     <td class="detail-col ott">$85.86</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> SOLUSD</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('SOLUSD_weekly').classList.toggle('show')">23 Nov 25<br><span class="sig-price">$130.71</span></span><span id="SOLUSD_weekly" class="older-signals"> <span class="signal-pill buy-signal">25 May 25<br><span class="sig-price">$175.73</span></span> <span class="signal-pill sell-signal">16 Mar 25<br><span class="sig-price">$125.99</span></span></span></td>
-                    <td class="detail-col price">$81.50</td>
-                    <td class="detail-col ema below-ema">$172.89 (Below)</td>
+                    <td class="detail-col price">$81.74</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$109.21</td>
                     <td class="detail-col ott">$117.06</td>
                 </tr>
-<tr class="category-row"><td colspan="6">Indices</td></tr>
+<tr class="category-row"><td colspan="6">Indices <span class="strat-label">Always-In: sell above 200 SMA, buy back on OTT or 5% dip</span></td></tr>
 <tr class="recent-sell-row" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> SPX</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('SPX_daily').classList.toggle('show')">23 Mar 26<br><span class="sig-price">$6.6k</span></span><span id="SPX_daily" class="older-signals"> <span class="signal-pill buy-signal">6 May 25<br><span class="sig-price">$5.6k</span></span> <span class="signal-pill sell-signal">7 Mar 25<br><span class="sig-price">$5.8k</span></span></span></td>
@@ -318,7 +326,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> SPX</td>
                     <td class="signals"><span class="signal-pill sell-signal recent-signal">23 Mar 26 09:00<br><span class="sig-price">$6.6k</span></span></td>
                     <td class="detail-col price">$6.4k</td>
-                    <td class="detail-col ema below-ema">$6.8k (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$6.6k</td>
                     <td class="detail-col ott">$6.7k</td>
                 </tr>
@@ -326,7 +334,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> SPX</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('SPX_weekly').classList.toggle('show')">22 Jun 25<br><span class="sig-price">$6.0k</span></span><span id="SPX_weekly" class="older-signals"> <span class="signal-pill sell-signal">13 Apr 25<br><span class="sig-price">$5.4k</span></span></span></td>
                     <td class="detail-col price">$6.4k</td>
-                    <td class="detail-col ema above-ema">$5.5k (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$6.7k</td>
                     <td class="detail-col ott">$6.6k</td>
                 </tr>
@@ -334,7 +342,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> QQQ</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('QQQ_daily').classList.toggle('show')">19 Mar 26<br><span class="sig-price">$592.27</span></span><span id="QQQ_daily" class="older-signals"> <span class="signal-pill buy-signal">2 May 25<br><span class="sig-price">$486.48</span></span> <span class="signal-pill sell-signal">5 Mar 25<br><span class="sig-price">$498.85</span></span></span></td>
                     <td class="detail-col price">$562.58</td>
-                    <td class="detail-col ema below-ema">$586.96 (Below)</td>
+                    <td class="detail-col ema below-ema">$592.58 (Below)</td>
                     <td class="detail-col mavg">$598.14</td>
                     <td class="detail-col ott">$609.53</td>
                 </tr>
@@ -342,7 +350,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> QQQ</td>
                     <td class="signals"><span class="signal-pill sell-signal recent-signal">27 Mar 26 09:00<br><span class="sig-price">$564.19</span></span></td>
                     <td class="detail-col price">$562.50</td>
-                    <td class="detail-col ema below-ema">$608.81 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$586.95</td>
                     <td class="detail-col ott">$590.86</td>
                 </tr>
@@ -350,7 +358,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> QQQ</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('QQQ_weekly').classList.toggle('show')">15 Jun 25<br><span class="sig-price">$524.42</span></span><span id="QQQ_weekly" class="older-signals"> <span class="signal-pill sell-signal">13 Apr 25<br><span class="sig-price">$452.21</span></span></span></td>
                     <td class="detail-col price">$562.58</td>
-                    <td class="detail-col ema above-ema">$471.41 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$595.57</td>
                     <td class="detail-col ott">$586.57</td>
                 </tr>
@@ -358,7 +366,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MAGS</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('MAGS_daily').classList.toggle('show')">12 Feb 26<br><span class="sig-price">$61.73</span></span><span id="MAGS_daily" class="older-signals"> <span class="signal-pill buy-signal">7 May 25<br><span class="sig-price">$46.29</span></span> <span class="signal-pill sell-signal">28 Feb 25<br><span class="sig-price">$50.47</span></span></span></td>
                     <td class="detail-col price">$55.45</td>
-                    <td class="detail-col ema below-ema">$60.75 (Below)</td>
+                    <td class="detail-col ema below-ema">$61.68 (Below)</td>
                     <td class="detail-col mavg">$60.49</td>
                     <td class="detail-col ott">$62.35</td>
                 </tr>
@@ -366,7 +374,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MAGS</td>
                     <td class="signals"><span class="signal-pill sell-signal">16 Mar 26 13:00<br><span class="sig-price">$60.85</span></span></td>
                     <td class="detail-col price">$55.46</td>
-                    <td class="detail-col ema below-ema">$63.38 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$59.00</td>
                     <td class="detail-col ott">$60.59</td>
                 </tr>
@@ -374,16 +382,16 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> MAGS</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MAGS_weekly').classList.toggle('show')">15 Jun 25<br><span class="sig-price">$52.38</span></span><span id="MAGS_weekly" class="older-signals"> <span class="signal-pill sell-signal">30 Mar 25<br><span class="sig-price">$45.36</span></span></span></td>
                     <td class="detail-col price">$55.45</td>
-                    <td class="detail-col ema above-ema">$45.33 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$61.80</td>
                     <td class="detail-col ott">$61.60</td>
                 </tr>
-<tr class="category-row"><td colspan="6">Stocks</td></tr>
+<tr class="category-row"><td colspan="6">Stocks <span class="strat-label">OTT + SMA: buy on OTT or 50 SMA cross, sell on OTT above 200 SMA</span></td></tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> ALAB</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('ALAB_daily').classList.toggle('show')">3 Feb 26<br><span class="sig-price">$158.52</span></span><span id="ALAB_daily" class="older-signals"> <span class="signal-pill buy-signal">2 Jan 26<br><span class="sig-price">$179.56</span></span> <span class="signal-pill sell-signal">13 Nov 25<br><span class="sig-price">$144.47</span></span> <span class="signal-pill buy-signal">3 Nov 25<br><span class="sig-price">$191.56</span></span> <span class="signal-pill sell-signal">26 Sep 25<br><span class="sig-price">$197.78</span></span></span></td>
                     <td class="detail-col price">$112.47</td>
-                    <td class="detail-col ema below-ema">$142.55 (Below)</td>
+                    <td class="detail-col ema below-ema">$154.55 (Below)</td>
                     <td class="detail-col mavg">$129.63</td>
                     <td class="detail-col ott">$132.81</td>
                 </tr>
@@ -391,7 +399,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> ALAB</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('ALAB_4h').classList.toggle('show')">13 Feb 26 08:00<br><span class="sig-price">$131.50</span></span><span id="ALAB_4h" class="older-signals"> <span class="signal-pill buy-signal">9 Feb 26 08:00<br><span class="sig-price">$184.74</span></span> <span class="signal-pill sell-signal">5 Feb 26 08:00<br><span class="sig-price">$144.74</span></span></span></td>
                     <td class="detail-col price">$112.50</td>
-                    <td class="detail-col ema below-ema">$147.63 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$121.93</td>
                     <td class="detail-col ott">$124.73</td>
                 </tr>
@@ -399,7 +407,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> ALAB</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('ALAB_weekly').classList.toggle('show')">23 Nov 25<br><span class="sig-price">$141.80</span></span><span id="ALAB_weekly" class="older-signals"> <span class="signal-pill buy-signal">8 Jun 25<br><span class="sig-price">$90.75</span></span> <span class="signal-pill sell-signal">23 Feb 25<br><span class="sig-price">$85.72</span></span> <span class="signal-pill buy-signal">13 Oct 24<br><span class="sig-price">$66.69</span></span> <span class="signal-pill sell-signal">4 Aug 24<br><span class="sig-price">$42.38</span></span></span></td>
                     <td class="detail-col price">$112.47</td>
-                    <td class="detail-col ema above-ema">$101.03 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$156.70</td>
                     <td class="detail-col ott">$164.74</td>
                 </tr>
@@ -407,7 +415,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> TSM</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('TSM_daily').classList.toggle('show')">2 May 25<br><span class="sig-price">$177.09</span></span><span id="TSM_daily" class="older-signals"> <span class="signal-pill sell-signal">27 Feb 25<br><span class="sig-price">$178.18</span></span></span></td>
                     <td class="detail-col price">$326.74</td>
-                    <td class="detail-col ema above-ema">$293.02 (Above)</td>
+                    <td class="detail-col ema above-ema">$286.50 (Above)</td>
                     <td class="detail-col mavg">$343.61</td>
                     <td class="detail-col ott">$343.29</td>
                 </tr>
@@ -415,7 +423,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> TSM</td>
                     <td class="signals"><span class="signal-pill sell-signal">5 Mar 26 08:00<br><span class="sig-price">$348.32</span></span></td>
                     <td class="detail-col price">$326.78</td>
-                    <td class="detail-col ema below-ema">$334.10 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$346.91</td>
                     <td class="detail-col ott">$352.69</td>
                 </tr>
@@ -423,7 +431,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> TSM</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('TSM_weekly').classList.toggle('show')">15 Jun 25<br><span class="sig-price">$209.28</span></span><span id="TSM_weekly" class="older-signals"> <span class="signal-pill sell-signal">6 Apr 25<br><span class="sig-price">$145.00</span></span></span></td>
                     <td class="detail-col price">$326.74</td>
-                    <td class="detail-col ema above-ema">$184.79 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$318.49</td>
                     <td class="detail-col ott">$312.58</td>
                 </tr>
@@ -431,7 +439,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> AMD</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('AMD_daily').classList.toggle('show')">5 Feb 26<br><span class="sig-price">$192.50</span></span><span id="AMD_daily" class="older-signals"> <span class="signal-pill buy-signal">22 Jan 26<br><span class="sig-price">$253.73</span></span> <span class="signal-pill sell-signal">24 Nov 25<br><span class="sig-price">$215.05</span></span> <span class="signal-pill buy-signal">6 Oct 25<br><span class="sig-price">$203.71</span></span> <span class="signal-pill sell-signal">9 Sep 25<br><span class="sig-price">$155.82</span></span></span></td>
                     <td class="detail-col price">$201.99</td>
-                    <td class="detail-col ema above-ema">$194.71 (Above)</td>
+                    <td class="detail-col ema above-ema">$195.16 (Above)</td>
                     <td class="detail-col mavg">$210.78</td>
                     <td class="detail-col ott">$213.30</td>
                 </tr>
@@ -439,7 +447,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> AMD</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal recent-signal" onclick="document.getElementById('AMD_4h').classList.toggle('show')">25 Mar 26 13:00<br><span class="sig-price">$220.32</span></span><span id="AMD_4h" class="older-signals"> <span class="signal-pill sell-signal">4 Feb 26 12:00<br><span class="sig-price">$200.46</span></span></span></td>
                     <td class="detail-col price">$201.97</td>
-                    <td class="detail-col ema below-ema">$212.27 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$204.29</td>
                     <td class="detail-col ott">$203.05</td>
                 </tr>
@@ -447,7 +455,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> AMD</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('AMD_weekly').classList.toggle('show')">29 Jun 25<br><span class="sig-price">$143.81</span></span><span id="AMD_weekly" class="older-signals"> <span class="signal-pill sell-signal">4 Aug 24<br><span class="sig-price">$132.50</span></span> <span class="signal-pill buy-signal">21 Jul 24<br><span class="sig-price">$151.58</span></span> <span class="signal-pill sell-signal">12 May 24<br><span class="sig-price">$151.92</span></span></span></td>
                     <td class="detail-col price">$201.99</td>
-                    <td class="detail-col ema above-ema">$144.81 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$207.83</td>
                     <td class="detail-col ott">$206.39</td>
                 </tr>
@@ -455,7 +463,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> AVGO</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('AVGO_daily').classList.toggle('show')">18 Dec 25<br><span class="sig-price">$328.56</span></span><span id="AVGO_daily" class="older-signals"> <span class="signal-pill buy-signal">30 Apr 25<br><span class="sig-price">$190.92</span></span> <span class="signal-pill sell-signal">26 Feb 25<br><span class="sig-price">$210.59</span></span></span></td>
                     <td class="detail-col price">$300.68</td>
-                    <td class="detail-col ema below-ema">$314.40 (Below)</td>
+                    <td class="detail-col ema below-ema">$325.47 (Below)</td>
                     <td class="detail-col mavg">$325.50</td>
                     <td class="detail-col ott">$333.09</td>
                 </tr>
@@ -463,7 +471,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> AVGO</td>
                     <td class="signals"><span class="signal-pill sell-signal">19 Mar 26 09:00<br><span class="sig-price">$318.65</span></span></td>
                     <td class="detail-col price">$300.78</td>
-                    <td class="detail-col ema below-ema">$333.98 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$318.49</td>
                     <td class="detail-col ott">$324.55</td>
                 </tr>
@@ -471,7 +479,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> AVGO</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('AVGO_weekly').classList.toggle('show')">8 Mar 26<br><span class="sig-price">$329.79</span></span><span id="AVGO_weekly" class="older-signals"> <span class="signal-pill buy-signal">25 May 25<br><span class="sig-price">$226.88</span></span> <span class="signal-pill sell-signal">13 Apr 25<br><span class="sig-price">$180.48</span></span></span></td>
                     <td class="detail-col price">$300.68</td>
-                    <td class="detail-col ema above-ema">$193.44 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$330.46</td>
                     <td class="detail-col ott">$331.39</td>
                 </tr>
@@ -479,7 +487,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> TSLA</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('TSLA_daily').classList.toggle('show')">7 Jan 26<br><span class="sig-price">$431.41</span></span><span id="TSLA_daily" class="older-signals"> <span class="signal-pill buy-signal">4 Dec 25<br><span class="sig-price">$454.53</span></span> <span class="signal-pill sell-signal">17 Nov 25<br><span class="sig-price">$408.92</span></span> <span class="signal-pill buy-signal">12 Aug 25<br><span class="sig-price">$340.84</span></span> <span class="signal-pill sell-signal">1 Aug 25<br><span class="sig-price">$302.63</span></span></span></td>
                     <td class="detail-col price">$361.83</td>
-                    <td class="detail-col ema below-ema">$394.60 (Below)</td>
+                    <td class="detail-col ema below-ema">$396.07 (Below)</td>
                     <td class="detail-col mavg">$399.88</td>
                     <td class="detail-col ott">$409.29</td>
                 </tr>
@@ -487,7 +495,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> TSLA</td>
                     <td class="signals"><span class="signal-pill sell-signal">17 Mar 26 13:00<br><span class="sig-price">$399.22</span></span></td>
                     <td class="detail-col price">$361.76</td>
-                    <td class="detail-col ema below-ema">$421.70 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$385.64</td>
                     <td class="detail-col ott">$392.61</td>
                 </tr>
@@ -495,7 +503,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> TSLA</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('TSLA_weekly').classList.toggle('show')">29 Mar 26<br><span class="sig-price">$361.83</span></span><span id="TSLA_weekly" class="older-signals"> <span class="signal-pill buy-signal">25 May 25<br><span class="sig-price">$339.34</span></span> <span class="signal-pill sell-signal">16 Mar 25<br><span class="sig-price">$249.98</span></span> <span class="signal-pill buy-signal">14 Jul 24<br><span class="sig-price">$248.23</span></span> <span class="signal-pill sell-signal">4 Feb 24<br><span class="sig-price">$187.91</span></span></span></td>
                     <td class="detail-col price">$361.83</td>
-                    <td class="detail-col ema above-ema">$288.80 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$401.52</td>
                     <td class="detail-col ott">$403.72</td>
                 </tr>
@@ -503,7 +511,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> PLTR</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('PLTR_daily').classList.toggle('show')">9 Mar 26<br><span class="sig-price">$156.43</span></span><span id="PLTR_daily" class="older-signals"> <span class="signal-pill sell-signal">20 Jan 26<br><span class="sig-price">$168.53</span></span> <span class="signal-pill buy-signal">10 Dec 25<br><span class="sig-price">$187.91</span></span> <span class="signal-pill sell-signal">17 Nov 25<br><span class="sig-price">$171.25</span></span> <span class="signal-pill buy-signal">17 Sep 25<br><span class="sig-price">$168.33</span></span></span></td>
                     <td class="detail-col price">$143.06</td>
-                    <td class="detail-col ema below-ema">$152.08 (Below)</td>
+                    <td class="detail-col ema below-ema">$164.02 (Below)</td>
                     <td class="detail-col mavg">$151.59</td>
                     <td class="detail-col ott">$149.49</td>
                 </tr>
@@ -511,7 +519,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> PLTR</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('PLTR_4h').classList.toggle('show')">3 Mar 26 12:00<br><span class="sig-price">$147.29</span></span><span id="PLTR_4h" class="older-signals"> <span class="signal-pill sell-signal">6 Feb 26 08:00<br><span class="sig-price">$136.31</span></span></span></td>
                     <td class="detail-col price">$143.08</td>
-                    <td class="detail-col ema below-ema">$159.90 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$150.91</td>
                     <td class="detail-col ott">$149.40</td>
                 </tr>
@@ -519,7 +527,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> PLTR</td>
                     <td class="signals"><span class="signal-pill sell-signal">15 Feb 26<br><span class="sig-price">$131.41</span></span></td>
                     <td class="detail-col price">$143.06</td>
-                    <td class="detail-col ema above-ema">$79.84 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$152.60</td>
                     <td class="detail-col ott">$154.66</td>
                 </tr>
@@ -527,7 +535,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> GOOG</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('GOOG_daily').classList.toggle('show')">17 Feb 26<br><span class="sig-price">$302.61</span></span><span id="GOOG_daily" class="older-signals"> <span class="signal-pill buy-signal">22 May 25<br><span class="sig-price">$171.39</span></span> <span class="signal-pill sell-signal">25 Feb 25<br><span class="sig-price">$176.56</span></span></span></td>
                     <td class="detail-col price">$273.76</td>
-                    <td class="detail-col ema above-ema">$271.57 (Above)</td>
+                    <td class="detail-col ema above-ema">$262.96 (Above)</td>
                     <td class="detail-col mavg">$300.40</td>
                     <td class="detail-col ott">$310.73</td>
                 </tr>
@@ -535,7 +543,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> GOOG</td>
                     <td class="signals"><span class="signal-pill sell-signal">17 Feb 26 12:00<br><span class="sig-price">$302.81</span></span></td>
                     <td class="detail-col price">$273.69</td>
-                    <td class="detail-col ema below-ema">$311.91 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$289.57</td>
                     <td class="detail-col ott">$299.37</td>
                 </tr>
@@ -543,7 +551,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> GOOG</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('GOOG_weekly').classList.toggle('show')">20 Jul 25<br><span class="sig-price">$185.52</span></span><span id="GOOG_weekly" class="older-signals"> <span class="signal-pill sell-signal">30 Mar 25<br><span class="sig-price">$155.52</span></span> <span class="signal-pill buy-signal">13 Oct 24<br><span class="sig-price">$163.58</span></span> <span class="signal-pill sell-signal">22 Sep 24<br><span class="sig-price">$163.70</span></span></span></td>
                     <td class="detail-col price">$273.76</td>
-                    <td class="detail-col ema above-ema">$185.37 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$302.38</td>
                     <td class="detail-col ott">$298.06</td>
                 </tr>
@@ -551,7 +559,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> NVDA</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('NVDA_daily').classList.toggle('show')">20 Jan 26<br><span class="sig-price">$178.06</span></span><span id="NVDA_daily" class="older-signals"> <span class="signal-pill buy-signal">16 Jan 26<br><span class="sig-price">$186.22</span></span> <span class="signal-pill sell-signal">14 Jan 26<br><span class="sig-price">$183.13</span></span> <span class="signal-pill buy-signal">5 Jan 26<br><span class="sig-price">$188.11</span></span> <span class="signal-pill sell-signal">21 Nov 25<br><span class="sig-price">$178.86</span></span></span></td>
                     <td class="detail-col price">$167.52</td>
-                    <td class="detail-col ema below-ema">$174.66 (Below)</td>
+                    <td class="detail-col ema below-ema">$179.21 (Below)</td>
                     <td class="detail-col mavg">$179.98</td>
                     <td class="detail-col ott">$184.36</td>
                 </tr>
@@ -559,7 +567,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> NVDA</td>
                     <td class="signals"><span class="signal-pill sell-signal">3 Mar 26 08:00<br><span class="sig-price">$180.10</span></span></td>
                     <td class="detail-col price">$167.46</td>
-                    <td class="detail-col ema below-ema">$184.90 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$177.54</td>
                     <td class="detail-col ott">$181.63</td>
                 </tr>
@@ -567,7 +575,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> NVDA</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('NVDA_weekly').classList.toggle('show')">15 Jun 25<br><span class="sig-price">$141.95</span></span><span id="NVDA_weekly" class="older-signals"> <span class="signal-pill sell-signal">6 Apr 25<br><span class="sig-price">$94.29</span></span></span></td>
                     <td class="detail-col price">$167.52</td>
-                    <td class="detail-col ema above-ema">$111.94 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$178.94</td>
                     <td class="detail-col ott">$176.52</td>
                 </tr>
@@ -575,7 +583,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> ASML</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('ASML_daily').classList.toggle('show')">9 Mar 26<br><span class="sig-price">$1.4k</span></span><span id="ASML_daily" class="older-signals"> <span class="signal-pill buy-signal">27 Aug 25<br><span class="sig-price">$767.62</span></span> <span class="signal-pill sell-signal">23 Jul 25<br><span class="sig-price">$712.91</span></span> <span class="signal-pill buy-signal">8 May 25<br><span class="sig-price">$704.06</span></span> <span class="signal-pill sell-signal">28 Mar 25<br><span class="sig-price">$668.73</span></span></span></td>
                     <td class="detail-col price">$1.3k</td>
-                    <td class="detail-col ema above-ema">$1.1k (Above)</td>
+                    <td class="detail-col ema above-ema">$1.0k (Above)</td>
                     <td class="detail-col mavg">$1.4k</td>
                     <td class="detail-col ott">$1.4k</td>
                 </tr>
@@ -583,7 +591,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> ASML</td>
                     <td class="signals"><span class="signal-pill sell-signal">4 Mar 26 08:00<br><span class="sig-price">$1.4k</span></span></td>
                     <td class="detail-col price">$1.3k</td>
-                    <td class="detail-col ema above-ema">$1.3k (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$1.4k</td>
                     <td class="detail-col ott">$1.4k</td>
                 </tr>
@@ -591,7 +599,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> ASML</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('ASML_weekly').classList.toggle('show')">6 Jul 25<br><span class="sig-price">$790.04</span></span><span id="ASML_weekly" class="older-signals"> <span class="signal-pill sell-signal">11 Aug 24<br><span class="sig-price">$849.31</span></span></span></td>
                     <td class="detail-col price">$1.3k</td>
-                    <td class="detail-col ema above-ema">$837.62 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$1.3k</td>
                     <td class="detail-col ott">$1.2k</td>
                 </tr>
@@ -599,7 +607,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MU</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('MU_daily').classList.toggle('show')">27 Mar 26<br><span class="sig-price">$357.22</span></span><span id="MU_daily" class="older-signals"> <span class="signal-pill buy-signal">16 Mar 26<br><span class="sig-price">$441.80</span></span> <span class="signal-pill sell-signal">9 Mar 26<br><span class="sig-price">$389.32</span></span> <span class="signal-pill buy-signal">13 Aug 25<br><span class="sig-price">$124.14</span></span> <span class="signal-pill sell-signal">22 Jul 25<br><span class="sig-price">$109.11</span></span></span></td>
                     <td class="detail-col price">$357.22</td>
-                    <td class="detail-col ema above-ema">$271.45 (Above)</td>
+                    <td class="detail-col ema above-ema">$238.38 (Above)</td>
                     <td class="detail-col mavg">$406.59</td>
                     <td class="detail-col ott">$408.13</td>
                 </tr>
@@ -607,7 +615,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MU</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('MU_4h').classList.toggle('show')">24 Mar 26 13:00<br><span class="sig-price">$395.66</span></span><span id="MU_4h" class="older-signals"> <span class="signal-pill buy-signal">16 Mar 26 09:00<br><span class="sig-price">$449.13</span></span> <span class="signal-pill sell-signal">5 Mar 26 12:00<br><span class="sig-price">$396.81</span></span> <span class="signal-pill buy-signal">17 Feb 26 12:00<br><span class="sig-price">$399.94</span></span> <span class="signal-pill sell-signal">5 Feb 26 12:00<br><span class="sig-price">$382.89</span></span></span></td>
                     <td class="detail-col price">$357.30</td>
-                    <td class="detail-col ema below-ema">$365.32 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$387.00</td>
                     <td class="detail-col ott">$405.41</td>
                 </tr>
@@ -615,7 +623,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> MU</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MU_weekly').classList.toggle('show')">15 Jun 25<br><span class="sig-price">$115.37</span></span><span id="MU_weekly" class="older-signals"> <span class="signal-pill sell-signal">11 Aug 24<br><span class="sig-price">$92.55</span></span></span></td>
                     <td class="detail-col price">$357.22</td>
-                    <td class="detail-col ema above-ema">$140.67 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$354.17</td>
                     <td class="detail-col ott">$339.01</td>
                 </tr>
@@ -623,7 +631,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> MRVL</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MRVL_daily').classList.toggle('show')">10 Mar 26<br><span class="sig-price">$93.30</span></span><span id="MRVL_daily" class="older-signals"> <span class="signal-pill sell-signal">17 Dec 25<br><span class="sig-price">$81.64</span></span> <span class="signal-pill buy-signal">3 Dec 25<br><span class="sig-price">$100.13</span></span> <span class="signal-pill sell-signal">19 Nov 25<br><span class="sig-price">$81.26</span></span> <span class="signal-pill buy-signal">19 Sep 25<br><span class="sig-price">$74.16</span></span></span></td>
                     <td class="detail-col price">$94.88</td>
-                    <td class="detail-col ema above-ema">$82.39 (Above)</td>
+                    <td class="detail-col ema above-ema">$80.93 (Above)</td>
                     <td class="detail-col mavg">$88.75</td>
                     <td class="detail-col ott">$85.71</td>
                 </tr>
@@ -631,7 +639,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> MRVL</td>
                     <td class="signals"><span class="no-signal">No recent signals</span></td>
                     <td class="detail-col price">$94.89</td>
-                    <td class="detail-col ema above-ema">$85.11 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$92.92</td>
                     <td class="detail-col ott">$90.29</td>
                 </tr>
@@ -639,7 +647,7 @@
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> MRVL</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MRVL_weekly').classList.toggle('show')">12 Oct 25<br><span class="sig-price">$85.55</span></span><span id="MRVL_weekly" class="older-signals"> <span class="signal-pill sell-signal">7 Sep 25<br><span class="sig-price">$63.24</span></span> <span class="signal-pill buy-signal">6 Jul 25<br><span class="sig-price">$75.01</span></span> <span class="signal-pill sell-signal">16 Mar 25<br><span class="sig-price">$68.51</span></span> <span class="signal-pill buy-signal">25 Aug 24<br><span class="sig-price">$71.51</span></span></span></td>
                     <td class="detail-col price">$94.88</td>
-                    <td class="detail-col ema above-ema">$68.79 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$81.59</td>
                     <td class="detail-col ott">$79.25</td>
                 </tr>
@@ -647,7 +655,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MSFT</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('MSFT_daily').classList.toggle('show')">11 Nov 25<br><span class="sig-price">$506.57</span></span><span id="MSFT_daily" class="older-signals"> <span class="signal-pill buy-signal">1 May 25<br><span class="sig-price">$422.17</span></span> <span class="signal-pill sell-signal">11 Feb 25<br><span class="sig-price">$407.50</span></span></span></td>
                     <td class="detail-col price">$356.77</td>
-                    <td class="detail-col ema below-ema">$450.32 (Below)</td>
+                    <td class="detail-col ema below-ema">$477.38 (Below)</td>
                     <td class="detail-col mavg">$387.69</td>
                     <td class="detail-col ott">$402.57</td>
                 </tr>
@@ -655,7 +663,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MSFT</td>
                     <td class="signals"><span class="signal-pill sell-signal">2 Feb 26 12:00<br><span class="sig-price">$423.31</span></span></td>
                     <td class="detail-col price">$356.65</td>
-                    <td class="detail-col ema below-ema">$433.34 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$375.81</td>
                     <td class="detail-col ott">$386.36</td>
                 </tr>
@@ -663,7 +671,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MSFT</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('MSFT_weekly').classList.toggle('show')">18 Jan 26<br><span class="sig-price">$458.81</span></span><span id="MSFT_weekly" class="older-signals"> <span class="signal-pill buy-signal">25 May 25<br><span class="sig-price">$447.58</span></span> <span class="signal-pill sell-signal">16 Mar 25<br><span class="sig-price">$385.61</span></span></span></td>
                     <td class="detail-col price">$356.77</td>
-                    <td class="detail-col ema below-ema">$402.06 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$432.12</td>
                     <td class="detail-col ott">$448.83</td>
                 </tr>
@@ -671,7 +679,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> META</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('META_daily').classList.toggle('show')">18 Feb 26<br><span class="sig-price">$642.67</span></span><span id="META_daily" class="older-signals"> <span class="signal-pill buy-signal">29 Jan 26<br><span class="sig-price">$737.68</span></span> <span class="signal-pill sell-signal">20 Jan 26<br><span class="sig-price">$603.60</span></span> <span class="signal-pill buy-signal">5 Dec 25<br><span class="sig-price">$672.30</span></span> <span class="signal-pill sell-signal">2 Oct 25<br><span class="sig-price">$725.84</span></span></span></td>
                     <td class="detail-col price">$525.72</td>
-                    <td class="detail-col ema below-ema">$657.37 (Below)</td>
+                    <td class="detail-col ema below-ema">$686.48 (Below)</td>
                     <td class="detail-col mavg">$609.54</td>
                     <td class="detail-col ott">$638.85</td>
                 </tr>
@@ -679,7 +687,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> META</td>
                     <td class="signals"><span class="signal-pill sell-signal">13 Feb 26 12:00<br><span class="sig-price">$639.76</span></span></td>
                     <td class="detail-col price">$525.71</td>
-                    <td class="detail-col ema below-ema">$645.38 (Below)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$590.03</td>
                     <td class="detail-col ott">$617.54</td>
                 </tr>
@@ -687,7 +695,7 @@
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> META</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('META_weekly').classList.toggle('show')">23 Nov 25<br><span class="sig-price">$593.26</span></span><span id="META_weekly" class="older-signals"> <span class="signal-pill buy-signal">15 Jun 25<br><span class="sig-price">$680.75</span></span> <span class="signal-pill sell-signal">13 Apr 25<br><span class="sig-price">$541.88</span></span></span></td>
                     <td class="detail-col price">$525.72</td>
-                    <td class="detail-col ema above-ema">$502.65 (Above)</td>
+                    <td class="detail-col ema below-ema">$nan (Below)</td>
                     <td class="detail-col mavg">$671.01</td>
                     <td class="detail-col ott">$680.09</td>
                 </tr>
