@@ -201,18 +201,27 @@ def check_signals(config: dict) -> list:
     sell_date = datetime.strptime(sell_date_str, "%Y-%m-%d")
     sell_alert_date = sell_date - timedelta(days=alert_months * 30)
 
-    # Build buy windows
-    buy_windows = cycle_config.get("buy_windows", [])
-    buy_ranges = []
-    for w in buy_windows:
-        center = datetime.strptime(w["center"], "%Y-%m-%d")
-        half = timedelta(days=w["months"] * 30)
-        buy_ranges.append((center - half, center + half))
+    # Build default buy windows
+    default_windows = cycle_config.get("buy_windows", [])
+    ticker_overrides = cycle_config.get("ticker_overrides", {})
     now_date = datetime.now()
-    in_buy_window = any(start <= now_date <= end for start, end in buy_ranges)
+
+    def build_buy_ranges(windows):
+        ranges = []
+        for w in windows:
+            center = datetime.strptime(w["center"], "%Y-%m-%d")
+            half = timedelta(days=w["months"] * 30)
+            ranges.append((center - half, center + half))
+        return ranges
 
     for yf_ticker, display_name in crypto_tickers.items():
         try:
+            # Use ticker-specific windows if configured, otherwise default
+            override = ticker_overrides.get(yf_ticker, {})
+            windows = override.get("buy_windows", default_windows)
+            buy_ranges = build_buy_ranges(windows)
+            in_buy_window = any(start <= now_date <= end for start, end in buy_ranges)
+
             t = yf.Ticker(yf_ticker)
             df_w = t.history(period="5y", interval="1wk")
             if df_w.empty or len(df_w) < 200:

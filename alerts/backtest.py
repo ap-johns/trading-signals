@@ -258,16 +258,18 @@ def backtest_crypto_cycle(config):
     cycle_config = config.get("crypto_cycle", {})
     future_sell = cycle_config.get("sell_date", "2029-11-01")
     alert_months = cycle_config.get("alert_months_before", 1)
-    buy_windows = cycle_config.get("buy_windows", [])
+    default_windows = cycle_config.get("buy_windows", [])
+    ticker_overrides = cycle_config.get("ticker_overrides", {})
 
     from datetime import datetime, timedelta
 
-    # Build buy windows as (start, end) datetime pairs
-    buy_ranges = []
-    for w in buy_windows:
-        center = datetime.strptime(w["center"], "%Y-%m-%d")
-        half = timedelta(days=w["months"] * 30)
-        buy_ranges.append((center - half, center + half))
+    def build_buy_ranges(windows):
+        ranges = []
+        for w in windows:
+            center = datetime.strptime(w["center"], "%Y-%m-%d")
+            half = timedelta(days=w["months"] * 30)
+            ranges.append((center - half, center + half))
+        return ranges
 
     # Historical cycle sell dates (1 month before known peaks)
     cycle_sell_dates = [
@@ -283,6 +285,11 @@ def backtest_crypto_cycle(config):
 
     for yf_ticker, display_name in crypto_tickers.items():
         try:
+            # Use ticker-specific windows if configured, otherwise default
+            override = ticker_overrides.get(yf_ticker, {})
+            windows = override.get("buy_windows", default_windows)
+            buy_ranges = build_buy_ranges(windows)
+
             t = yf.Ticker(yf_ticker)
             df = t.history(period="max", interval="1wk")
             if df.empty or len(df) < 200:
@@ -295,7 +302,9 @@ def backtest_crypto_cycle(config):
             trades = []
             bought_levels = {}  # level -> buy_price, buy_date
 
-            for i in range(200, len(df)):
+            # Start from week 50 (EMA is usable much earlier than SMA)
+            start_week = min(50, len(df) - 1)
+            for i in range(start_week, len(df)):
                 price = close.iloc[i]
                 current_date = df.index[i].to_pydatetime().replace(tzinfo=None)
                 ema_val = ema_200w.iloc[i]
