@@ -12,7 +12,7 @@ import os
 import yfinance as yf
 import pandas as pd
 
-from indicators import calculate_ott, calculate_ema
+from indicators import calculate_ott, calculate_sma
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,74 +23,109 @@ def load_config():
         return json.load(f)
 
 
-def backtest_ticker(df, ott_period, ott_percent, ema_filter=None):
+def compute_rsi(close, period=14):
+    """Calculate RSI."""
+    delta = close.diff()
+    gain = delta.clip(lower=0).rolling(window=period, min_periods=period).mean()
+    loss = (-delta.clip(upper=0)).rolling(window=period, min_periods=period).mean()
+    rs = gain / loss
+    return 100 - (100 / (1 + rs))
+
+
+def backtest_ticker(df, ott_period, ott_percent, strategy=None):
     """
     Run OTT on a dataframe and return a list of completed trades.
 
-    ema_filter options:
-      None     - take all OTT signals (original)
-      "trend"  - only buy above 200 EMA, only sell below 200 EMA
-      "contra" - only buy below 200 EMA, only sell above 200 EMA
+    strategy options:
+      None          - take all OTT signals (original)
+      "trend"       - only buy above 200 SMA, only sell below 200 SMA
+      "contra"      - only buy below 200 SMA, only sell above 200 SMA
+      "hybrid"      - buy on all OTT buys, only sell above 200 SMA
+      "hybrid_rsi"  - hybrid + also buy when RSI < 30 (even without OTT buy)
+      "hybrid_dip"  - hybrid + also buy when price drops 10% from sell price
+      "hybrid_sma50"- hybrid + also buy when price crosses above 50 SMA
     """
     if df.empty or len(df) < max(ott_period + 10, 200):
         return []
 
     src = df["Open"]
     ott_df = calculate_ott(src, period=ott_period, percent=ott_percent)
-    ema_200 = calculate_ema(df["Close"], period=200)
+    sma_200 = calculate_sma(df["Close"], period=200)
+    sma_50 = calculate_sma(df["Close"], period=50)
+    rsi = compute_rsi(df["Close"], period=14)
 
-    # Extract signal dates with EMA context
-    signals = []
-    for i in range(len(ott_df)):
-        sig = ott_df["signal"].iloc[i]
-        if sig != 0:
-            price = df["Close"].iloc[i]
-            ema_val = ema_200.iloc[i]
-            above_ema = price > ema_val
-            signals.append({
-                "date": df.index[i],
-                "type": "BUY" if sig == 1 else "SELL",
-                "price": price,
-                "above_ema": above_ema,
-            })
+    close = df["Close"]
+    is_hybrid = strategy and strategy.startswith("hybrid")
 
-    # Pair buy→sell as trades with optional EMA filter
+    # Day-by-day simulation
     trades = []
     in_trade = False
-    buy_info = None
+    buy_price = 0
+    buy_date = None
+    last_sell_price = None
 
-    for sig in signals:
-        if sig["type"] == "BUY" and not in_trade:
-            # Check if we should take this buy
-            take_buy = True
-            if ema_filter == "trend" and not sig["above_ema"]:
-                take_buy = False  # Only buy above EMA
-            elif ema_filter == "contra" and sig["above_ema"]:
-                take_buy = False  # Only buy below EMA
+    for i in range(1, len(df)):
+        price = close.iloc[i]
+        sig = ott_df["signal"].iloc[i]
+        above_200 = price > sma_200.iloc[i] if pd.notna(sma_200.iloc[i]) else False
+        above_50 = price > sma_50.iloc[i] if pd.notna(sma_50.iloc[i]) else False
+        rsi_val = rsi.iloc[i] if pd.notna(rsi.iloc[i]) else 50
+
+        if not in_trade:
+            # Check for buy
+            ott_buy = sig == 1
+            take_buy = False
+
+            if strategy is None:
+                take_buy = ott_buy
+            elif strategy == "trend":
+                take_buy = ott_buy and above_200
+            elif strategy == "contra":
+                take_buy = ott_buy and not above_200
+            elif strategy == "hybrid":
+                take_buy = ott_buy
+            elif strategy == "hybrid_rsi":
+                take_buy = ott_buy or rsi_val < 30
+            elif strategy == "hybrid_dip":
+                dip_buy = last_sell_price and price < last_sell_price * 0.90
+                take_buy = ott_buy or dip_buy
+            elif strategy == "hybrid_sma50":
+                # Buy on OTT buy, or when price crosses above 50 SMA
+                crossed_50 = above_50 and close.iloc[i-1] <= sma_50.iloc[i-1] if pd.notna(sma_50.iloc[i-1]) else False
+                take_buy = ott_buy or crossed_50
 
             if take_buy:
-                buy_info = sig
+                buy_price = price
+                buy_date = df.index[i]
                 in_trade = True
 
-        elif sig["type"] == "SELL" and in_trade:
-            # Check if we should take this sell
-            take_sell = True
-            if ema_filter == "trend" and sig["above_ema"]:
-                take_sell = False  # Only sell below EMA
-            elif ema_filter == "contra" and not sig["above_ema"]:
-                take_sell = False  # Only sell above EMA
+        else:
+            # Check for sell
+            ott_sell = sig == -1
+            take_sell = False
+
+            if strategy is None:
+                take_sell = ott_sell
+            elif strategy == "trend":
+                take_sell = ott_sell and not above_200
+            elif strategy == "contra":
+                take_sell = ott_sell and above_200
+            elif is_hybrid:
+                # All hybrid variants: only sell above 200 SMA
+                take_sell = ott_sell and above_200
 
             if take_sell:
-                ret = (sig["price"] - buy_info["price"]) / buy_info["price"] * 100
-                duration = (sig["date"] - buy_info["date"]).days
+                ret = (price - buy_price) / buy_price * 100
+                duration = (df.index[i] - buy_date).days
                 trades.append({
-                    "buy_date": buy_info["date"],
-                    "sell_date": sig["date"],
-                    "buy_price": buy_info["price"],
-                    "sell_price": sig["price"],
+                    "buy_date": buy_date,
+                    "sell_date": df.index[i],
+                    "buy_price": buy_price,
+                    "sell_price": price,
                     "return_pct": ret,
                     "duration_days": duration,
                 })
+                last_sell_price = price
                 in_trade = False
 
     return trades
@@ -158,8 +193,10 @@ def calc_max_drawdown_strategy(df, trades):
     return max_dd
 
 
-def run_backtest(config, years=2, ema_filter=None):
-    """Run backtest for all tickers on daily timeframe."""
+def run_backtest(config, years=2, ema_filter=None, strategy=None):
+    """Run backtest for all tickers on daily timeframe.
+    strategy param takes priority over ema_filter for backwards compat."""
+    strat = strategy or ema_filter
     ott_period = config["ott"]["period"]
     ott_percent = config["ott"]["percent"]
     results = {}
@@ -174,7 +211,7 @@ def run_backtest(config, years=2, ema_filter=None):
             t = yf.Ticker(yf_ticker)
             df = t.history(period=f"{years}y", interval="1d")
             if not df.empty:
-                trades = backtest_ticker(df, ott_period, ott_percent, ema_filter=ema_filter)
+                trades = backtest_ticker(df, ott_period, ott_percent, strategy=strat)
                 summary = summarize_trades(trades)
                 summary["ticker"] = display_name
                 summary["category"] = category
@@ -256,6 +293,8 @@ def generate_backtest_html(all_results, config):
     .pos {{ color: #00e676; }}
     .neg {{ color: #ff5252; }}
     .muted {{ color: #555; }}
+    .strat-desc {{ color: #999; font-size: 12px; margin-bottom: 12px; line-height: 1.5; }}
+    .strat-desc b {{ color: #ccc; }}
     .back-link {{ color: #888; font-size: 13px; margin-bottom: 15px; display: block; }}
     .back-link:hover {{ color: #ccc; }}
 </style>
@@ -273,9 +312,10 @@ def generate_backtest_html(all_results, config):
         </div>
         <div class="tf-toggle">
             <button class="tf-btn bt-strat-btn active" onclick="setBtStrat('ott', this)">OTT Only</button>
-            <button class="tf-btn bt-strat-btn" onclick="setBtStrat('contra', this)">OTT + 200 EMA</button>
+            <button class="tf-btn bt-strat-btn" onclick="setBtStrat('hybrid_sma50', this)">OTT + SMA</button>
         </div>
     </div>
+    <div id="strat-desc" class="strat-desc"></div>
     <table>
         <thead>
             <tr>
@@ -308,12 +348,21 @@ def generate_backtest_html(all_results, config):
         btn.classList.add('active');
         applyBtFilters();
     }}
+    const stratDescs = {{
+        'ott': '<b>OTT Only</b> — Buy on all OTT buy signals. Sell on all OTT sell signals.',
+        'hybrid_sma50': '<b>OTT + SMA</b> — Buy on OTT buy signal <b>or</b> price crosses above 50 SMA. Sell on OTT sell only when above 200 SMA.',
+    }};
+    function updateStratDesc() {{
+        document.getElementById('strat-desc').innerHTML = stratDescs[btStrat] || '';
+    }}
     function setBtStrat(strat, btn) {{
         btStrat = strat;
         document.querySelectorAll('.bt-strat-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+        updateStratDesc();
         applyBtFilters();
     }}
+    updateStratDesc();
     applyBtFilters();
     </script>
 </body>
@@ -326,7 +375,10 @@ def main():
     repo_dir = os.path.dirname(SCRIPT_DIR)
     output_path = os.path.join(repo_dir, "docs", "backtest.html")
 
-    strategies = [("ott", None), ("contra", "contra")]
+    strategies = [
+        ("ott", None),
+        ("hybrid_sma50", "hybrid_sma50"),
+    ]
     all_results = {}
 
     print("Running OTT Backtests...")
@@ -334,7 +386,7 @@ def main():
         for strat_key, ema_filter in strategies:
             label = f"{years}_{strat_key}"
             print(f"  {years}yr {strat_key}...", end=" ", flush=True)
-            all_results[label] = run_backtest(config, years=years, ema_filter=ema_filter)
+            all_results[label] = run_backtest(config, years=years, strategy=ema_filter)
             print("done")
 
     html = generate_backtest_html(all_results, config)

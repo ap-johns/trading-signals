@@ -9,7 +9,7 @@ from datetime import datetime
 import yfinance as yf
 import pandas as pd
 
-from indicators import calculate_ott, calculate_ema
+from indicators import calculate_ott, calculate_sma
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(SCRIPT_DIR)
@@ -33,7 +33,7 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period):
         if not df.empty and len(df) > ott_period + 10:
             src = df["Open"]
             ott_df = calculate_ott(src, period=ott_period, percent=ott_percent)
-            ema_200 = calculate_ema(df["Close"], period=ema_period)
+            ema_200 = calculate_sma(df["Close"], period=ema_period)
 
             # Current state
             mavg_above_ott = ott_df["mavg"].iloc[-1] > ott_df["ott"].iloc[-1]
@@ -74,7 +74,7 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period):
             if len(df_4h) > ott_period + 10:
                 src = df_4h["Open"]
                 ott_df = calculate_ott(src, period=ott_period, percent=ott_percent)
-                ema_200 = calculate_ema(df_4h["Close"], period=ema_period)
+                ema_200 = calculate_sma(df_4h["Close"], period=ema_period)
 
                 mavg_above_ott = ott_df["mavg"].iloc[-1] > ott_df["ott"].iloc[-1]
 
@@ -113,7 +113,7 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period):
             if len(df_w) > ott_period + 10:
                 src = df_w["Open"]
                 ott_df = calculate_ott(src, period=ott_period, percent=ott_percent)
-                ema_200 = calculate_ema(df_w["Close"], period=ema_period)
+                ema_200 = calculate_sma(df_w["Close"], period=ema_period)
 
                 mavg_above_ott = ott_df["mavg"].iloc[-1] > ott_df["ott"].iloc[-1]
 
@@ -498,7 +498,7 @@ def generate_html(all_data, config):
                 <th class="clickable-header" onclick="toggleRecentOnly(document.getElementById('recent-filter-btn'))">Ticker <span class="expand-all-btn" id="recent-filter-btn">&#9654;</span></th>
                 <th class="signals-header clickable-header" onclick="toggleAllSignals(document.getElementById('signals-expand-btn'))">Signals <span class="expand-all-btn" id="signals-expand-btn">&#9654;</span></th>
                 <th class="detail-col">Price</th>
-                <th class="detail-col">200 EMA</th>
+                <th class="detail-col">200 SMA</th>
                 <th class="detail-col">MAvg</th>
                 <th class="detail-col">OTT Line</th>
             </tr>

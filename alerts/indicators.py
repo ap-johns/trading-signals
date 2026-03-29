@@ -137,3 +137,8 @@ def calculate_ott(src: pd.Series, period: int = 10, percent: float = 3.0) -> pd.
 def calculate_ema(close: pd.Series, period: int = 200) -> pd.Series:
     """Standard EMA calculation."""
     return close.ewm(span=period, adjust=False).mean()
+
+
+def calculate_sma(close: pd.Series, period: int = 200) -> pd.Series:
+    """Standard SMA calculation."""
+    return close.rolling(window=period, min_periods=period).mean()

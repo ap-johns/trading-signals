@@ -18,7 +18,7 @@ from urllib.parse import urlencode
 import yfinance as yf
 import pandas as pd
 
-from indicators import calculate_ott, calculate_ema
+from indicators import calculate_ott, calculate_sma
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -99,26 +99,48 @@ def check_signals(config: dict) -> list:
                 # OTT uses Open price (matching TradingView settings)
                 src = df["Open"]
                 ott_df = calculate_ott(src, period=ott_period, percent=ott_percent)
-                ema_200 = calculate_ema(df["Close"], period=ema_period)
+                sma_200 = calculate_sma(df["Close"], period=ema_period)
+                sma_50 = calculate_sma(df["Close"], period=50)
 
-                # Check the latest completed candle
-                latest_signal = ott_df["signal"].iloc[-1]
-                if latest_signal != 0:
-                    price = df["Close"].iloc[-1]
-                    ema_val = ema_200.iloc[-1]
-                    ema_relation = "above" if price > ema_val else "below"
-                    signal_type = "BUY" if latest_signal == 1 else "SELL"
-                    date_str = df.index[-1].strftime("%Y-%m-%d %H:%M")
+                price = df["Close"].iloc[-1]
+                sma200_val = sma_200.iloc[-1]
+                sma50_val = sma_50.iloc[-1]
+                sma200_relation = "above" if price > sma200_val else "below"
+                above_200 = price > sma200_val if pd.notna(sma200_val) else False
+                above_50 = price > sma50_val if pd.notna(sma50_val) else False
+                prev_above_50 = df["Close"].iloc[-2] > sma_50.iloc[-2] if pd.notna(sma_50.iloc[-2]) else False
+                date_str = df.index[-1].strftime("%Y-%m-%d %H:%M")
 
+                ott_signal = ott_df["signal"].iloc[-1]
+                crossed_above_50 = above_50 and not prev_above_50
+
+                # BUY: OTT buy signal OR price crosses above 50 SMA
+                if ott_signal == 1 or crossed_above_50:
+                    reason = "OTT buy signal" if ott_signal == 1 else "Price crossed above 50 SMA"
                     signals.append({
-                        "type": signal_type,
+                        "type": "BUY",
                         "ticker": display_name,
                         "category": category,
                         "timeframe": tf,
                         "price": price,
-                        "ema_200": ema_val,
-                        "ema_relation": ema_relation,
+                        "sma_200": sma200_val,
+                        "sma_relation": sma200_relation,
                         "date": date_str,
+                        "reason": reason,
+                    })
+
+                # SELL: OTT sell signal AND price above 200 SMA
+                if ott_signal == -1 and above_200:
+                    signals.append({
+                        "type": "SELL",
+                        "ticker": display_name,
+                        "category": category,
+                        "timeframe": tf,
+                        "price": price,
+                        "sma_200": sma200_val,
+                        "sma_relation": sma200_relation,
+                        "date": date_str,
+                        "reason": "OTT sell signal (above 200 SMA)",
                     })
 
             except Exception as e:
@@ -133,14 +155,25 @@ def format_signal(sig: dict) -> str:
     tf_label = "Daily" if sig["timeframe"] == "daily" else "4H"
     return (
         f"{emoji} <b>{sig['type']} Signal: {sig['ticker']}</b> ({tf_label})\n"
-        f"OTT crossover detected\n"
-        f"Price: ${sig['price']:.2f} | 200 EMA: ${sig['ema_200']:.2f} ({sig['ema_relation']})\n"
+        f"{sig['reason']}\n"
+        f"Price: ${sig['price']:.2f} | 200 SMA: ${sig['sma_200']:.2f} ({sig['sma_relation']})\n"
         f"{sig['category']} | {sig['date']}"
     )
 
 
 def main():
     config = load_config()
+
+    # Load .env file if present (for local runs)
+    env_path = os.path.join(SCRIPT_DIR, ".env")
+    if os.path.exists(env_path):
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if "=" in line and not line.startswith("#"):
+                    key, val = line.split("=", 1)
+                    os.environ.setdefault(key, val)
+
     bot_token = os.environ.get("TELEGRAM_BOT_TOKEN") or config["telegram"]["bot_token"]
     chat_id = os.environ.get("TELEGRAM_CHAT_ID") or config["telegram"]["chat_id"]
 
