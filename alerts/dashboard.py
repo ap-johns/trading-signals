@@ -4,12 +4,12 @@ Generate an HTML dashboard showing OTT signals for all tickers.
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import yfinance as yf
 import pandas as pd
 
-from indicators import calculate_ott, calculate_sma
+from indicators import calculate_ott, calculate_sma, calculate_ema
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(SCRIPT_DIR)
@@ -165,6 +165,212 @@ def generate_html(all_data, config):
         rows += f'<tr class="category-row"><td colspan="6">{category} <span class="strat-label">{strat_label}</span></td></tr>\n'
 
         for yf_ticker, display_name in tickers.items():
+            # Crypto uses cycle strategy, not OTT
+            if category == "Crypto":
+                try:
+                    t = yf.Ticker(yf_ticker)
+                    df_w = t.history(period="5y", interval="1wk")
+                    if not df_w.empty and len(df_w) > 50:
+                        ema_200w = calculate_ema(df_w["Close"], period=200)
+                        price = df_w["Close"].iloc[-1]
+                        ema_val = ema_200w.iloc[-1]
+                        pct_from_ema = (price - ema_val) / ema_val * 100 if pd.notna(ema_val) else 0
+
+                        # Determine cycle status
+                        cycle_config = config.get("crypto_cycle", {})
+                        ticker_overrides = cycle_config.get("ticker_overrides", {})
+                        override = ticker_overrides.get(yf_ticker, {})
+                        windows = override.get("buy_windows", cycle_config.get("buy_windows", []))
+                        sell_date_str = cycle_config.get("sell_date", "2029-11-01")
+
+                        now_dt = datetime.now()
+                        in_window = False
+                        next_window = None
+                        for w in windows:
+                            center = datetime.strptime(w["center"], "%Y-%m-%d")
+                            half = timedelta(days=w["months"] * 30)
+                            w_start, w_end = center - half, center + half
+                            if w_start <= now_dt <= w_end:
+                                in_window = True
+                            elif w_start > now_dt and (next_window is None or w_start < next_window):
+                                next_window = w_start
+
+                        if in_window:
+                            status = "IN BUY WINDOW"
+                            state_class = "bullish"
+                        elif pct_from_ema < 0:
+                            status = f"{pct_from_ema:.0f}% from 200w EMA"
+                            state_class = "bearish"
+                        else:
+                            status = f"+{pct_from_ema:.0f}% above 200w EMA"
+                            state_class = "bullish"
+
+                        if next_window:
+                            days_to = (next_window - now_dt).days
+                            window_note = f"Next window: {next_window.strftime('%-d %b %y')} ({days_to}d)"
+                        else:
+                            window_note = f"Sell target: {sell_date_str}"
+
+                        # Find historical cycle signals from EMA dip levels
+                        close = df_w["Close"]
+                        cycle_signals = []
+                        dip_only_in_window = override.get("dip_only_in_window", False)
+
+                        # Build buy ranges for this ticker
+                        buy_ranges = []
+                        for w in windows:
+                            center = datetime.strptime(w["center"], "%Y-%m-%d")
+                            half = timedelta(days=w["months"] * 30)
+                            buy_ranges.append((center - half, center + half))
+
+                        prev_below = False
+                        for i in range(1, len(df_w)):
+                            p = close.iloc[i]
+                            e = ema_200w.iloc[i]
+                            if pd.isna(e):
+                                continue
+                            pct = (p - e) / e * 100
+                            d = df_w.index[i].to_pydatetime().replace(tzinfo=None)
+                            in_w = any(s <= d <= en for s, en in buy_ranges)
+
+                            # Window entry
+                            if in_w and not any(s <= df_w.index[i-1].to_pydatetime().replace(tzinfo=None) <= en for s, en in buy_ranges):
+                                cycle_signals.append({"date": d.strftime("%-d %b %y"), "type": "BUY", "price": p})
+
+                            # Dip levels
+                            for level in [-10, -20, -30]:
+                                if pct <= level:
+                                    dip_ok = in_w if dip_only_in_window else True
+                                    if dip_ok:
+                                        prev_pct = (close.iloc[i-1] - ema_200w.iloc[i-1]) / ema_200w.iloc[i-1] * 100 if pd.notna(ema_200w.iloc[i-1]) else 0
+                                        if prev_pct > level:
+                                            cycle_signals.append({"date": d.strftime("%-d %b %y"), "type": "BUY", "price": p})
+
+                        # Build pills (most recent first)
+                        cycle_signals.reverse()
+                        pills = []
+                        for sig in cycle_signals[:5]:
+                            sig_class = "buy-signal"
+                            sig_date = datetime.strptime(sig["date"], "%d %b %y")
+                            if (now_dt - sig_date).days <= 7:
+                                sig_class += " recent-signal"
+                            pills.append(f'<span class="signal-pill {sig_class}">{sig["date"]}<br><span class="sig-price">{fmt_price(sig["price"])}</span></span>')
+
+                        if pills:
+                            latest_pill = pills[0]
+                            if len(pills) > 1:
+                                uid = f"{display_name}_cycle".replace(" ", "")
+                                older = " ".join(pills[1:])
+                                sig = cycle_signals[0]
+                                sig_class = "buy-signal"
+                                sig_date = datetime.strptime(sig["date"], "%d %b %y")
+                                if (now_dt - sig_date).days <= 7:
+                                    sig_class += " recent-signal"
+                                first_pill = (
+                                    f'<span class="signal-pill clickable {sig_class}" '
+                                    f'onclick="document.getElementById(\'{uid}\').classList.toggle(\'show\')">'
+                                    f'{sig["date"]}<br><span class="sig-price">{fmt_price(sig["price"])}</span></span>'
+                                )
+                                signals_html = f'{first_pill}<span id="{uid}" class="older-signals"> {" ".join(pills[1:])}</span>'
+                            else:
+                                signals_html = latest_pill
+                        else:
+                            signals_html = ""
+
+                        status_html = f'<span class="strat-label">{status} | {window_note}</span>'
+                        if signals_html:
+                            status_html = f'{signals_html} {status_html}'
+
+                        trend_arrow = "&#9650;" if pct_from_ema > 0 else "&#9660;"
+                        rows += f'''<tr data-tf="daily">
+                            <td class="ticker"><span class="trend-icon {state_class}">{trend_arrow}</span> {display_name}</td>
+                            <td class="signals">{status_html}</td>
+                        </tr>\n'''
+                except Exception as e:
+                    rows += f'<tr data-tf="daily"><td class="ticker">{display_name}</td><td class="error">Error: {e}</td></tr>\n'
+                continue
+
+            # Indices use always-in strategy
+            if category == "Indices":
+                try:
+                    t = yf.Ticker(yf_ticker)
+                    df = t.history(period="365d", interval="1d")
+                    if not df.empty and len(df) > 200:
+                        src = df["Open"]
+                        ott_df = calculate_ott(src, period=config["ott"]["period"], percent=config["ott"]["percent"])
+                        sma_200 = calculate_sma(df["Close"], period=200)
+                        close = df["Close"]
+                        price = close.iloc[-1]
+                        sma_val = sma_200.iloc[-1]
+                        above_200 = price > sma_val if pd.notna(sma_val) else False
+
+                        # Simulate always-in: find sell signals (OTT sell above 200 SMA)
+                        # and buy signals (OTT buy or 5% dip from last sell)
+                        index_signals = []
+                        last_sell_price = None
+                        for i in range(1, len(df)):
+                            sig = ott_df["signal"].iloc[i]
+                            p = close.iloc[i]
+                            s = sma_200.iloc[i]
+                            a200 = p > s if pd.notna(s) else False
+
+                            if sig == -1 and a200:
+                                index_signals.append({"date": df.index[i].strftime("%-d %b %y"), "type": "SELL", "price": p})
+                                last_sell_price = p
+                            elif sig == 1:
+                                index_signals.append({"date": df.index[i].strftime("%-d %b %y"), "type": "BUY", "price": p})
+                            elif last_sell_price and p < last_sell_price * 0.95:
+                                index_signals.append({"date": df.index[i].strftime("%-d %b %y"), "type": "BUY", "price": p})
+                                last_sell_price = None
+
+                        # Build pills (most recent first)
+                        index_signals.reverse()
+                        pills = []
+                        has_recent_signal = False
+                        recent_signal_type = None
+                        for sig in index_signals[:5]:
+                            sig_class = "buy-signal" if sig["type"] == "BUY" else "sell-signal"
+                            sig_date = datetime.strptime(sig["date"], "%d %b %y")
+                            if (now_dt - sig_date).days <= 7:
+                                sig_class += " recent-signal"
+                                has_recent_signal = True
+                                recent_signal_type = sig["type"]
+                            pills.append(f'<span class="signal-pill {sig_class}">{sig["date"]}<br><span class="sig-price">{fmt_price(sig["price"])}</span></span>')
+
+                        if pills:
+                            if len(pills) > 1:
+                                uid = f"{display_name}_idx".replace(" ", "")
+                                sig = index_signals[0]
+                                sig_class = "buy-signal" if sig["type"] == "BUY" else "sell-signal"
+                                sig_date_dt = datetime.strptime(sig["date"], "%d %b %y")
+                                if (now_dt - sig_date_dt).days <= 7:
+                                    sig_class += " recent-signal"
+                                first_pill = (
+                                    f'<span class="signal-pill clickable {sig_class}" '
+                                    f'onclick="document.getElementById(\'{uid}\').classList.toggle(\'show\')">'
+                                    f'{sig["date"]}<br><span class="sig-price">{fmt_price(sig["price"])}</span></span>'
+                                )
+                                signals_html = f'{first_pill}<span id="{uid}" class="older-signals"> {" ".join(pills[1:])}</span>'
+                            else:
+                                signals_html = pills[0]
+                        else:
+                            signals_html = '<span class="no-signal">No signals</span>'
+
+                        row_class = ""
+                        if has_recent_signal:
+                            row_class = "recent-buy-row" if recent_signal_type == "BUY" else "recent-sell-row"
+
+                        bullish = above_200
+                        state_class = "bullish" if bullish else "bearish"
+                        trend_arrow = "&#9650;" if bullish else "&#9660;"
+                        rows += f'''<tr class="{row_class}" data-tf="daily">
+                            <td class="ticker"><span class="trend-icon {state_class}">{trend_arrow}</span> {display_name}</td>
+                            <td class="signals">{signals_html}</td>
+                        </tr>\n'''
+                except Exception as e:
+                    rows += f'<tr data-tf="daily"><td class="ticker">{display_name}</td><td class="error">Error: {e}</td></tr>\n'
+                continue
+
             data = all_data.get(yf_ticker, {})
 
             for tf in ["daily", "4h", "weekly"]:
