@@ -10,6 +10,16 @@
     "ema_period": 200,
     "timeframes": ["daily", "4h", "weekly"],
     "alert_timeframes": ["daily"],
+    "crypto_cycle": {
+        "sell_date": "2029-11-01",
+        "alert_months_before": 1,
+        "buy_windows": [
+            {"center": "2015-01-01", "months": 3},
+            {"center": "2019-01-01", "months": 3},
+            {"center": "2023-01-01", "months": 3},
+            {"center": "2027-01-01", "months": 3}
+        ]
+    },
     "watchlist": {
         "Crypto": {
             "BTC-USD": "BTCUSD",

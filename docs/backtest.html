@@ -34,7 +34,7 @@
 <body>
     <a class="back-link" href="index.html">&larr; Back to Dashboard</a>
     <h1>OTT Backtest Results</h1>
-    <div class="updated">Generated: 29 Mar 26 19:19</div>
+    <div class="updated">Generated: 29 Mar 26 19:54</div>
     <div class="params">OTT Period: 10 | OTT Percent: 3.0 | Source: Open | MA Type: VAR</div>
     <div class="controls">
         <div class="tf-toggle">
@@ -45,6 +45,7 @@
         <div class="tf-toggle">
             <button class="tf-btn bt-strat-btn active" onclick="setBtStrat('ott', this)">OTT Only</button>
             <button class="tf-btn bt-strat-btn" onclick="setBtStrat('hybrid_sma50', this)">OTT + SMA</button>
+            <button class="tf-btn bt-strat-btn" onclick="setBtStrat('always_in', this)">Always-In</button>
         </div>
     </div>
     <div id="strat-desc" class="strat-desc"></div>
@@ -71,7 +72,7 @@
                     <td class="neg">-9.2%</td>
                     <td class="neg">-27.5%</td>
                     <td>10d</td>
-                    <td class="neg">-19.7%</td>
+                    <td class="neg">-19.6%</td>
                     <td class="pos">-25.1%</td>
                     <td class="neg">-49.7%</td>
                 </tr>
@@ -82,7 +83,7 @@
                     <td class="neg">-7.1%</td>
                     <td class="neg">-35.4%</td>
                     <td>18d</td>
-                    <td class="neg">-34.6%</td>
+                    <td class="neg">-34.4%</td>
                     <td class="pos">-32.3%</td>
                     <td class="neg">-68.6%</td>
                 </tr>
@@ -202,11 +203,11 @@
                     <td class="pos">+2.5%</td>
                     <td class="pos">+2.5%</td>
                     <td>115d</td>
-                    <td class="neg">-19.7%</td>
+                    <td class="neg">-19.6%</td>
                     <td class="pos">0.0%</td>
                     <td class="neg">-49.7%</td>
                 </tr>
-<tr class="bt-row" data-bt-period="1" data-bt-strat="hybrid_sma50"><td class="ticker">SOLUSD</td><td colspan="5" class="muted">No trades</td><td class="neg">-34.6%</td><td>-</td><td class="neg">-68.6%</td></tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="hybrid_sma50"><td class="ticker">SOLUSD</td><td colspan="5" class="muted">No trades</td><td class="neg">-34.4%</td><td>-</td><td class="neg">-68.6%</td></tr>
 <tr class="category-row bt-row" data-bt-period="1" data-bt-strat="hybrid_sma50"><td colspan="9">Indices</td></tr>
 <tr class="bt-row" data-bt-period="1" data-bt-strat="hybrid_sma50"><td class="ticker">SPX</td><td colspan="5" class="muted">No trades</td><td class="pos">+14.1%</td><td>-</td><td class="neg">-12.1%</td></tr>
 <tr class="bt-row" data-bt-period="1" data-bt-strat="hybrid_sma50">
@@ -305,6 +306,207 @@
 <tr class="bt-row" data-bt-period="1" data-bt-strat="hybrid_sma50"><td class="ticker">MRVL</td><td colspan="5" class="muted">No trades</td><td class="pos">+53.4%</td><td>-</td><td class="neg">-26.4%</td></tr>
 <tr class="bt-row" data-bt-period="1" data-bt-strat="hybrid_sma50"><td class="ticker">MSFT</td><td colspan="5" class="muted">No trades</td><td class="neg">-5.1%</td><td>-</td><td class="neg">-33.9%</td></tr>
 <tr class="bt-row" data-bt-period="1" data-bt-strat="hybrid_sma50"><td class="ticker">META</td><td colspan="5" class="muted">No trades</td><td class="neg">-8.6%</td><td>-</td><td class="neg">-33.3%</td></tr>
+<tr class="category-row bt-row" data-bt-period="1" data-bt-strat="always_in"><td colspan="9">Crypto</td></tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">BTCUSD</td>
+                    <td>2</td>
+                    <td class="pos">50%</td>
+                    <td class="neg">-1.8%</td>
+                    <td class="neg">-3.7%</td>
+                    <td>173d</td>
+                    <td class="neg">-19.6%</td>
+                    <td class="pos">-34.6%</td>
+                    <td class="neg">-49.7%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">SOLUSD</td>
+                    <td>1</td>
+                    <td class="neg">0%</td>
+                    <td class="neg">-34.4%</td>
+                    <td class="neg">-34.4%</td>
+                    <td>365d</td>
+                    <td class="neg">-34.4%</td>
+                    <td class="pos">-34.4%</td>
+                    <td class="neg">-68.6%</td>
+                </tr>
+<tr class="category-row bt-row" data-bt-period="1" data-bt-strat="always_in"><td colspan="9">Indices</td></tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">SPX</td>
+                    <td>1</td>
+                    <td class="pos">100%</td>
+                    <td class="pos">+14.1%</td>
+                    <td class="pos">+14.1%</td>
+                    <td>364d</td>
+                    <td class="pos">+14.1%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-12.1%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">QQQ</td>
+                    <td>2</td>
+                    <td class="pos">50%</td>
+                    <td class="pos">+13.5%</td>
+                    <td class="pos">+26.9%</td>
+                    <td>178d</td>
+                    <td class="pos">+20.5%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-12.6%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">MAGS</td>
+                    <td>2</td>
+                    <td class="pos">50%</td>
+                    <td class="pos">+15.5%</td>
+                    <td class="pos">+31.1%</td>
+                    <td>164d</td>
+                    <td class="pos">+22.2%</td>
+                    <td class="pos">-5.0%</td>
+                    <td class="neg">-18.5%</td>
+                </tr>
+<tr class="category-row bt-row" data-bt-period="1" data-bt-strat="always_in"><td colspan="9">Stocks</td></tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">ALAB</td>
+                    <td>2</td>
+                    <td class="pos">50%</td>
+                    <td class="pos">+69.3%</td>
+                    <td class="pos">+138.6%</td>
+                    <td>181d</td>
+                    <td class="pos">+85.0%</td>
+                    <td class="pos">-22.3%</td>
+                    <td class="neg">-56.4%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">TSM</td>
+                    <td>1</td>
+                    <td class="pos">100%</td>
+                    <td class="pos">+100.2%</td>
+                    <td class="pos">+100.2%</td>
+                    <td>364d</td>
+                    <td class="pos">+100.2%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-17.0%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">AMD</td>
+                    <td>1</td>
+                    <td class="pos">100%</td>
+                    <td class="pos">+86.5%</td>
+                    <td class="pos">+86.5%</td>
+                    <td>314d</td>
+                    <td class="pos">+95.7%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-27.8%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">AVGO</td>
+                    <td>1</td>
+                    <td class="pos">100%</td>
+                    <td class="pos">+79.2%</td>
+                    <td class="pos">+79.2%</td>
+                    <td>364d</td>
+                    <td class="pos">+79.2%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-26.9%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">TSLA</td>
+                    <td>1</td>
+                    <td class="pos">100%</td>
+                    <td class="pos">+37.3%</td>
+                    <td class="pos">+37.3%</td>
+                    <td>364d</td>
+                    <td class="pos">+37.3%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-26.1%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">PLTR</td>
+                    <td>2</td>
+                    <td class="pos">50%</td>
+                    <td class="pos">+43.6%</td>
+                    <td class="pos">+87.2%</td>
+                    <td>178d</td>
+                    <td class="pos">+66.6%</td>
+                    <td class="pos">-9.1%</td>
+                    <td class="neg">-37.8%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">GOOG</td>
+                    <td>2</td>
+                    <td class="pos">50%</td>
+                    <td class="pos">+46.0%</td>
+                    <td class="pos">+92.1%</td>
+                    <td>164d</td>
+                    <td class="pos">+76.0%</td>
+                    <td class="pos">-2.5%</td>
+                    <td class="neg">-20.6%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">NVDA</td>
+                    <td>3</td>
+                    <td class="neg">33%</td>
+                    <td class="pos">+20.9%</td>
+                    <td class="pos">+62.6%</td>
+                    <td>99d</td>
+                    <td class="pos">+52.8%</td>
+                    <td class="pos">-4.4%</td>
+                    <td class="neg">-19.1%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">ASML</td>
+                    <td>1</td>
+                    <td class="pos">100%</td>
+                    <td class="pos">+103.0%</td>
+                    <td class="pos">+103.0%</td>
+                    <td>346d</td>
+                    <td class="pos">+94.8%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-16.0%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">MU</td>
+                    <td>2</td>
+                    <td class="pos">50%</td>
+                    <td class="pos">+161.3%</td>
+                    <td class="pos">+322.5%</td>
+                    <td>178d</td>
+                    <td class="pos">+305.2%</td>
+                    <td class="pos">-19.1%</td>
+                    <td class="neg">-27.0%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">MRVL</td>
+                    <td>1</td>
+                    <td class="pos">100%</td>
+                    <td class="pos">+53.4%</td>
+                    <td class="pos">+53.4%</td>
+                    <td>364d</td>
+                    <td class="pos">+53.4%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-26.4%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">MSFT</td>
+                    <td>1</td>
+                    <td class="neg">0%</td>
+                    <td class="neg">-5.1%</td>
+                    <td class="neg">-5.1%</td>
+                    <td>364d</td>
+                    <td class="neg">-5.1%</td>
+                    <td class="pos">-5.1%</td>
+                    <td class="neg">-33.9%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="1" data-bt-strat="always_in">
+                    <td class="ticker">META</td>
+                    <td>1</td>
+                    <td class="neg">0%</td>
+                    <td class="neg">-8.6%</td>
+                    <td class="neg">-8.6%</td>
+                    <td>364d</td>
+                    <td class="neg">-8.6%</td>
+                    <td class="pos">-8.6%</td>
+                    <td class="neg">-33.3%</td>
+                </tr>
 <tr class="category-row bt-row" data-bt-period="2" data-bt-strat="ott"><td colspan="9">Crypto</td></tr>
 <tr class="bt-row" data-bt-period="2" data-bt-strat="ott">
                     <td class="ticker">BTCUSD</td>
@@ -313,7 +515,7 @@
                     <td class="pos">+3.0%</td>
                     <td class="pos">+21.1%</td>
                     <td>47d</td>
-                    <td class="neg">-5.1%</td>
+                    <td class="neg">-5.0%</td>
                     <td class="pos">-25.1%</td>
                     <td class="neg">-49.7%</td>
                 </tr>
@@ -324,7 +526,7 @@
                     <td class="neg">-4.9%</td>
                     <td class="neg">-54.1%</td>
                     <td>24d</td>
-                    <td class="neg">-57.6%</td>
+                    <td class="neg">-57.5%</td>
                     <td class="pos">-48.4%</td>
                     <td class="neg">-70.3%</td>
                 </tr>
@@ -514,7 +716,7 @@
                     <td class="pos">+15.9%</td>
                     <td class="pos">+63.8%</td>
                     <td>103d</td>
-                    <td class="neg">-5.1%</td>
+                    <td class="neg">-5.0%</td>
                     <td class="pos">-10.7%</td>
                     <td class="neg">-49.7%</td>
                 </tr>
@@ -525,7 +727,7 @@
                     <td class="pos">+10.1%</td>
                     <td class="pos">+50.7%</td>
                     <td>71d</td>
-                    <td class="neg">-57.6%</td>
+                    <td class="neg">-57.5%</td>
                     <td class="pos">-15.5%</td>
                     <td class="neg">-70.3%</td>
                 </tr>
@@ -707,6 +909,207 @@
                     <td class="pos">0.0%</td>
                     <td class="neg">-34.2%</td>
                 </tr>
+<tr class="category-row bt-row" data-bt-period="2" data-bt-strat="always_in"><td colspan="9">Crypto</td></tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">BTCUSD</td>
+                    <td>5</td>
+                    <td class="neg">40%</td>
+                    <td class="pos">+1.0%</td>
+                    <td class="pos">+5.2%</td>
+                    <td>134d</td>
+                    <td class="neg">-5.0%</td>
+                    <td class="pos">-46.2%</td>
+                    <td class="neg">-49.7%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">SOLUSD</td>
+                    <td>6</td>
+                    <td class="pos">50%</td>
+                    <td class="neg">-13.0%</td>
+                    <td class="neg">-78.1%</td>
+                    <td>114d</td>
+                    <td class="neg">-57.5%</td>
+                    <td class="pos">-65.9%</td>
+                    <td class="neg">-70.3%</td>
+                </tr>
+<tr class="category-row bt-row" data-bt-period="2" data-bt-strat="always_in"><td colspan="9">Indices</td></tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">SPX</td>
+                    <td>2</td>
+                    <td class="pos">100%</td>
+                    <td class="pos">+13.9%</td>
+                    <td class="pos">+27.8%</td>
+                    <td>351d</td>
+                    <td class="pos">+21.2%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-18.9%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">QQQ</td>
+                    <td>3</td>
+                    <td class="pos">67%</td>
+                    <td class="pos">+13.1%</td>
+                    <td class="pos">+39.4%</td>
+                    <td>237d</td>
+                    <td class="pos">+28.1%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-22.8%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">MAGS</td>
+                    <td>3</td>
+                    <td class="pos">67%</td>
+                    <td class="pos">+20.7%</td>
+                    <td class="pos">+62.0%</td>
+                    <td>228d</td>
+                    <td class="pos">+44.8%</td>
+                    <td class="pos">-5.0%</td>
+                    <td class="neg">-29.9%</td>
+                </tr>
+<tr class="category-row bt-row" data-bt-period="2" data-bt-strat="always_in"><td colspan="9">Stocks</td></tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">ALAB</td>
+                    <td>5</td>
+                    <td class="neg">40%</td>
+                    <td class="pos">+24.4%</td>
+                    <td class="pos">+122.0%</td>
+                    <td>126d</td>
+                    <td class="pos">+51.6%</td>
+                    <td class="pos">-38.6%</td>
+                    <td class="neg">-63.7%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">TSM</td>
+                    <td>2</td>
+                    <td class="pos">100%</td>
+                    <td class="pos">+63.9%</td>
+                    <td class="pos">+127.9%</td>
+                    <td>364d</td>
+                    <td class="pos">+146.5%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-36.8%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">AMD</td>
+                    <td>3</td>
+                    <td class="neg">33%</td>
+                    <td class="neg">-3.6%</td>
+                    <td class="neg">-10.9%</td>
+                    <td>210d</td>
+                    <td class="pos">+11.9%</td>
+                    <td class="pos">-13.7%</td>
+                    <td class="neg">-57.5%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">AVGO</td>
+                    <td>3</td>
+                    <td class="pos">67%</td>
+                    <td class="pos">+42.6%</td>
+                    <td class="pos">+127.9%</td>
+                    <td>226d</td>
+                    <td class="pos">+131.5%</td>
+                    <td class="pos">-2.2%</td>
+                    <td class="neg">-41.1%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">TSLA</td>
+                    <td>5</td>
+                    <td class="neg">40%</td>
+                    <td class="pos">+23.8%</td>
+                    <td class="pos">+119.0%</td>
+                    <td>133d</td>
+                    <td class="pos">+105.8%</td>
+                    <td class="pos">-18.4%</td>
+                    <td class="neg">-53.8%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">PLTR</td>
+                    <td>5</td>
+                    <td class="pos">80%</td>
+                    <td class="pos">+74.6%</td>
+                    <td class="pos">+373.2%</td>
+                    <td>138d</td>
+                    <td class="pos">+521.7%</td>
+                    <td class="pos">-9.1%</td>
+                    <td class="neg">-40.6%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">GOOG</td>
+                    <td>3</td>
+                    <td class="pos">67%</td>
+                    <td class="pos">+30.7%</td>
+                    <td class="pos">+92.2%</td>
+                    <td>229d</td>
+                    <td class="pos">+81.3%</td>
+                    <td class="pos">-2.5%</td>
+                    <td class="neg">-29.4%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">NVDA</td>
+                    <td>5</td>
+                    <td class="neg">40%</td>
+                    <td class="pos">+16.9%</td>
+                    <td class="pos">+84.3%</td>
+                    <td>122d</td>
+                    <td class="pos">+85.5%</td>
+                    <td class="pos">-6.9%</td>
+                    <td class="neg">-36.9%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">ASML</td>
+                    <td>1</td>
+                    <td class="pos">100%</td>
+                    <td class="pos">+42.3%</td>
+                    <td class="pos">+42.3%</td>
+                    <td>711d</td>
+                    <td class="pos">+36.5%</td>
+                    <td class="pos">0.0%</td>
+                    <td class="neg">-45.5%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">MU</td>
+                    <td>3</td>
+                    <td class="neg">33%</td>
+                    <td class="pos">+62.5%</td>
+                    <td class="pos">+187.6%</td>
+                    <td>233d</td>
+                    <td class="pos">+205.0%</td>
+                    <td class="pos">-19.1%</td>
+                    <td class="neg">-57.6%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">MRVL</td>
+                    <td>5</td>
+                    <td class="pos">60%</td>
+                    <td class="pos">+13.9%</td>
+                    <td class="pos">+69.7%</td>
+                    <td>133d</td>
+                    <td class="pos">+34.7%</td>
+                    <td class="pos">-22.1%</td>
+                    <td class="neg">-60.8%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">MSFT</td>
+                    <td>2</td>
+                    <td class="pos">50%</td>
+                    <td class="neg">-1.5%</td>
+                    <td class="neg">-3.0%</td>
+                    <td>360d</td>
+                    <td class="neg">-13.9%</td>
+                    <td class="pos">-25.3%</td>
+                    <td class="neg">-33.9%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="2" data-bt-strat="always_in">
+                    <td class="ticker">META</td>
+                    <td>3</td>
+                    <td class="pos">67%</td>
+                    <td class="pos">+11.0%</td>
+                    <td class="pos">+33.0%</td>
+                    <td>232d</td>
+                    <td class="pos">+9.0%</td>
+                    <td class="pos">-21.0%</td>
+                    <td class="neg">-34.2%</td>
+                </tr>
 <tr class="category-row bt-row" data-bt-period="5" data-bt-strat="ott"><td colspan="9">Crypto</td></tr>
 <tr class="bt-row" data-bt-period="5" data-bt-strat="ott">
                     <td class="ticker">BTCUSD</td>
@@ -715,7 +1118,7 @@
                     <td class="pos">+3.5%</td>
                     <td class="pos">+73.3%</td>
                     <td>43d</td>
-                    <td class="pos">+14.9%</td>
+                    <td class="pos">+15.0%</td>
                     <td class="pos">-40.8%</td>
                     <td class="neg">-76.6%</td>
                 </tr>
@@ -726,7 +1129,7 @@
                     <td class="pos">+19.7%</td>
                     <td class="pos">+512.3%</td>
                     <td>31d</td>
-                    <td class="pos">+332.4%</td>
+                    <td class="pos">+333.5%</td>
                     <td class="pos">-68.8%</td>
                     <td class="neg">-96.3%</td>
                 </tr>
@@ -916,7 +1319,7 @@
                     <td class="pos">+17.6%</td>
                     <td class="pos">+175.7%</td>
                     <td>129d</td>
-                    <td class="pos">+14.9%</td>
+                    <td class="pos">+15.0%</td>
                     <td class="pos">-53.6%</td>
                     <td class="neg">-76.6%</td>
                 </tr>
@@ -927,7 +1330,7 @@
                     <td class="pos">+57.6%</td>
                     <td class="pos">+633.2%</td>
                     <td>130d</td>
-                    <td class="pos">+332.4%</td>
+                    <td class="pos">+333.5%</td>
                     <td class="pos">-89.5%</td>
                     <td class="neg">-96.3%</td>
                 </tr>
@@ -1109,9 +1512,272 @@
                     <td class="pos">-16.6%</td>
                     <td class="neg">-76.7%</td>
                 </tr>
+<tr class="category-row bt-row" data-bt-period="5" data-bt-strat="always_in"><td colspan="9">Crypto</td></tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">BTCUSD</td>
+                    <td>11</td>
+                    <td class="pos">64%</td>
+                    <td class="pos">+7.4%</td>
+                    <td class="pos">+81.4%</td>
+                    <td>154d</td>
+                    <td class="pos">+15.0%</td>
+                    <td class="pos">-63.8%</td>
+                    <td class="neg">-76.6%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">SOLUSD</td>
+                    <td>12</td>
+                    <td class="pos">67%</td>
+                    <td class="pos">+99.6%</td>
+                    <td class="pos">+1194.9%</td>
+                    <td>145d</td>
+                    <td class="pos">+333.5%</td>
+                    <td class="pos">-88.6%</td>
+                    <td class="neg">-96.3%</td>
+                </tr>
+<tr class="category-row bt-row" data-bt-period="5" data-bt-strat="always_in"><td colspan="9">Indices</td></tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">SPX</td>
+                    <td>5</td>
+                    <td class="pos">80%</td>
+                    <td class="pos">+10.7%</td>
+                    <td class="pos">+53.7%</td>
+                    <td>347d</td>
+                    <td class="pos">+60.4%</td>
+                    <td class="pos">-0.3%</td>
+                    <td class="neg">-25.4%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">QQQ</td>
+                    <td>8</td>
+                    <td class="pos">75%</td>
+                    <td class="pos">+10.7%</td>
+                    <td class="pos">+85.8%</td>
+                    <td>217d</td>
+                    <td class="pos">+83.5%</td>
+                    <td class="pos">-1.8%</td>
+                    <td class="neg">-35.1%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">MAGS</td>
+                    <td>5</td>
+                    <td class="pos">80%</td>
+                    <td class="pos">+25.4%</td>
+                    <td class="pos">+127.2%</td>
+                    <td>202d</td>
+                    <td class="pos">+132.8%</td>
+                    <td class="pos">-5.0%</td>
+                    <td class="neg">-29.9%</td>
+                </tr>
+<tr class="category-row bt-row" data-bt-period="5" data-bt-strat="always_in"><td colspan="9">Stocks</td></tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">ALAB</td>
+                    <td>5</td>
+                    <td class="neg">40%</td>
+                    <td class="pos">+28.8%</td>
+                    <td class="pos">+143.9%</td>
+                    <td>127d</td>
+                    <td class="pos">+81.3%</td>
+                    <td class="pos">-38.6%</td>
+                    <td class="neg">-63.7%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">TSM</td>
+                    <td>8</td>
+                    <td class="pos">75%</td>
+                    <td class="pos">+21.2%</td>
+                    <td class="pos">+169.2%</td>
+                    <td>216d</td>
+                    <td class="pos">+210.3%</td>
+                    <td class="pos">-25.9%</td>
+                    <td class="neg">-56.5%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">AMD</td>
+                    <td>12</td>
+                    <td class="pos">58%</td>
+                    <td class="pos">+12.5%</td>
+                    <td class="pos">+150.5%</td>
+                    <td>134d</td>
+                    <td class="pos">+161.8%</td>
+                    <td class="pos">-29.5%</td>
+                    <td class="neg">-65.4%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">AVGO</td>
+                    <td>12</td>
+                    <td class="pos">75%</td>
+                    <td class="pos">+17.0%</td>
+                    <td class="pos">+203.8%</td>
+                    <td>139d</td>
+                    <td class="pos">+603.2%</td>
+                    <td class="pos">-2.7%</td>
+                    <td class="neg">-41.1%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">TSLA</td>
+                    <td>13</td>
+                    <td class="pos">54%</td>
+                    <td class="pos">+7.5%</td>
+                    <td class="pos">+97.6%</td>
+                    <td>130d</td>
+                    <td class="pos">+77.6%</td>
+                    <td class="pos">-24.1%</td>
+                    <td class="neg">-73.6%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">PLTR</td>
+                    <td>11</td>
+                    <td class="pos">73%</td>
+                    <td class="pos">+21.9%</td>
+                    <td class="pos">+240.9%</td>
+                    <td>156d</td>
+                    <td class="pos">+558.4%</td>
+                    <td class="pos">-31.6%</td>
+                    <td class="neg">-79.1%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">GOOG</td>
+                    <td>8</td>
+                    <td class="pos">75%</td>
+                    <td class="pos">+18.8%</td>
+                    <td class="pos">+150.4%</td>
+                    <td>212d</td>
+                    <td class="pos">+168.5%</td>
+                    <td class="pos">-5.4%</td>
+                    <td class="neg">-44.6%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">NVDA</td>
+                    <td>12</td>
+                    <td class="pos">50%</td>
+                    <td class="pos">+32.9%</td>
+                    <td class="pos">+394.4%</td>
+                    <td>135d</td>
+                    <td class="pos">+1197.0%</td>
+                    <td class="pos">-20.3%</td>
+                    <td class="neg">-66.3%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">ASML</td>
+                    <td>8</td>
+                    <td class="pos">62%</td>
+                    <td class="pos">+10.4%</td>
+                    <td class="pos">+83.1%</td>
+                    <td>210d</td>
+                    <td class="pos">+124.4%</td>
+                    <td class="pos">-9.7%</td>
+                    <td class="neg">-56.9%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">MU</td>
+                    <td>9</td>
+                    <td class="neg">33%</td>
+                    <td class="pos">+21.5%</td>
+                    <td class="pos">+193.7%</td>
+                    <td>192d</td>
+                    <td class="pos">+322.8%</td>
+                    <td class="pos">-33.0%</td>
+                    <td class="neg">-57.6%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">MRVL</td>
+                    <td>12</td>
+                    <td class="neg">42%</td>
+                    <td class="pos">+10.0%</td>
+                    <td class="pos">+120.4%</td>
+                    <td>138d</td>
+                    <td class="pos">+108.1%</td>
+                    <td class="pos">-22.1%</td>
+                    <td class="neg">-61.9%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">MSFT</td>
+                    <td>7</td>
+                    <td class="pos">86%</td>
+                    <td class="pos">+9.4%</td>
+                    <td class="pos">+66.1%</td>
+                    <td>241d</td>
+                    <td class="pos">+58.1%</td>
+                    <td class="pos">-25.3%</td>
+                    <td class="neg">-37.1%</td>
+                </tr>
+<tr class="bt-row" data-bt-period="5" data-bt-strat="always_in">
+                    <td class="ticker">META</td>
+                    <td>6</td>
+                    <td class="pos">50%</td>
+                    <td class="pos">+13.9%</td>
+                    <td class="pos">+83.4%</td>
+                    <td>287d</td>
+                    <td class="pos">+82.2%</td>
+                    <td class="pos">-21.0%</td>
+                    <td class="neg">-76.7%</td>
+                </tr>
 
         </tbody>
     </table>
+
+    <h2 style="color: #fff; font-size: 16px; margin-top: 30px; margin-bottom: 8px;">Crypto 4-Year Cycle (200 Week SMA)</h2>
+    <div class="strat-desc">Buy when price drops below 200 week SMA (and at -10%, -20%, -30% levels). Sell when price crosses back above. Uses max available history.</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Ticker</th>
+                <th>Trades</th>
+                <th>Win Rate</th>
+                <th>Avg Return</th>
+                <th>Total Return</th>
+                <th>Avg Duration</th>
+                <th>Buy &amp; Hold</th>
+                <th>Max DD (Strat)</th>
+                <th>Max DD (B&amp;H)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="ticker">BTCUSD</td>
+                <td>4</td>
+                <td class="pos">100%</td>
+                <td class="pos">+273.7%</td>
+                <td class="pos">+1094.7%</td>
+                <td>1250d</td>
+                <td class="pos">+794.9%</td>
+                <td class="pos">0.0%</td>
+                <td class="neg">-75.1%</td>
+            </tr>
+<tr style="color: #666; font-size: 12px;">
+                    <td style="padding-left: 20px;">Entry: SMA</td>
+                    <td colspan="2">3 Oct 22 &rarr; 23 Mar 26 (open)</td>
+                    <td class="pos">+241.4%</td>
+                    <td colspan="2">$19446 &rarr; $66390</td>
+                    <td colspan="3">1267d</td>
+                </tr>
+<tr style="color: #666; font-size: 12px;">
+                    <td style="padding-left: 20px;">Entry: -10%</td>
+                    <td colspan="2">3 Oct 22 &rarr; 23 Mar 26 (open)</td>
+                    <td class="pos">+241.4%</td>
+                    <td colspan="2">$19446 &rarr; $66390</td>
+                    <td colspan="3">1267d</td>
+                </tr>
+<tr style="color: #666; font-size: 12px;">
+                    <td style="padding-left: 20px;">Entry: -20%</td>
+                    <td colspan="2">7 Nov 22 &rarr; 23 Mar 26 (open)</td>
+                    <td class="pos">+306.0%</td>
+                    <td colspan="2">$16353 &rarr; $66390</td>
+                    <td colspan="3">1232d</td>
+                </tr>
+<tr style="color: #666; font-size: 12px;">
+                    <td style="padding-left: 20px;">Entry: -30%</td>
+                    <td colspan="2">7 Nov 22 &rarr; 23 Mar 26 (open)</td>
+                    <td class="pos">+306.0%</td>
+                    <td colspan="2">$16353 &rarr; $66390</td>
+                    <td colspan="3">1232d</td>
+                </tr>
+<tr><td class="ticker">SOLUSD</td><td colspan="8" class="muted">No trades (never below 200w SMA)</td></tr>
+
+        </tbody>
+    </table>
+
     <script>
     let btPeriod = '2';
     let btStrat = 'ott';
@@ -1129,6 +1795,7 @@
     const stratDescs = {
         'ott': '<b>OTT Only</b> — Buy on all OTT buy signals. Sell on all OTT sell signals.',
         'hybrid_sma50': '<b>OTT + SMA</b> — Buy on OTT buy signal <b>or</b> price crosses above 50 SMA. Sell on OTT sell only when above 200 SMA.',
+        'always_in': '<b>Always-In</b> — Start invested. Sell on OTT sell only when above 200 SMA. Buy back on OTT buy <b>or</b> 5% dip from sell price. Best for indices like SPX.',
     };
     function updateStratDesc() {
         document.getElementById('strat-desc').innerHTML = stratDescs[btStrat] || '';

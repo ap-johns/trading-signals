@@ -113,46 +113,196 @@ def check_signals(config: dict) -> list:
 
                 ott_signal = ott_df["signal"].iloc[-1]
                 crossed_above_50 = above_50 and not prev_above_50
+                is_index = category == "Indices"
 
-                # BUY: OTT buy signal OR price crosses above 50 SMA
-                if ott_signal == 1 or crossed_above_50:
-                    reason = "OTT buy signal" if ott_signal == 1 else "Price crossed above 50 SMA"
-                    signals.append({
-                        "type": "BUY",
-                        "ticker": display_name,
-                        "category": category,
-                        "timeframe": tf,
-                        "price": price,
-                        "sma_200": sma200_val,
-                        "sma_relation": sma200_relation,
-                        "date": date_str,
-                        "reason": reason,
-                    })
+                if is_index:
+                    # ALWAYS-IN strategy for indices
+                    # Find last sell price (most recent OTT sell above 200 SMA)
+                    last_sell_price = None
+                    for j in range(len(ott_df) - 2, 0, -1):
+                        if ott_df["signal"].iloc[j] == -1:
+                            sell_p = df["Close"].iloc[j]
+                            sell_sma = sma_200.iloc[j]
+                            if pd.notna(sell_sma) and sell_p > sell_sma:
+                                last_sell_price = sell_p
+                                break
 
-                # SELL: OTT sell signal AND price above 200 SMA
-                if ott_signal == -1 and above_200:
-                    signals.append({
-                        "type": "SELL",
-                        "ticker": display_name,
-                        "category": category,
-                        "timeframe": tf,
-                        "price": price,
-                        "sma_200": sma200_val,
-                        "sma_relation": sma200_relation,
-                        "date": date_str,
-                        "reason": "OTT sell signal (above 200 SMA)",
-                    })
+                    # BUY: OTT buy OR 5% dip from last sell
+                    dip_buy = last_sell_price and price < last_sell_price * 0.95
+                    if ott_signal == 1 or dip_buy:
+                        reason = "OTT buy signal" if ott_signal == 1 else f"5% dip from sell (${last_sell_price:.2f})"
+                        signals.append({
+                            "type": "BUY",
+                            "ticker": display_name,
+                            "category": category,
+                            "timeframe": tf,
+                            "price": price,
+                            "sma_200": sma200_val,
+                            "sma_relation": sma200_relation,
+                            "date": date_str,
+                            "reason": reason,
+                        })
+
+                    # SELL: OTT sell AND above 200 SMA
+                    if ott_signal == -1 and above_200:
+                        signals.append({
+                            "type": "SELL",
+                            "ticker": display_name,
+                            "category": category,
+                            "timeframe": tf,
+                            "price": price,
+                            "sma_200": sma200_val,
+                            "sma_relation": sma200_relation,
+                            "date": date_str,
+                            "reason": "OTT sell signal (above 200 SMA)",
+                        })
+
+                else:
+                    # OTT + SMA strategy for stocks/crypto
+                    # BUY: OTT buy signal OR price crosses above 50 SMA
+                    if ott_signal == 1 or crossed_above_50:
+                        reason = "OTT buy signal" if ott_signal == 1 else "Price crossed above 50 SMA"
+                        signals.append({
+                            "type": "BUY",
+                            "ticker": display_name,
+                            "category": category,
+                            "timeframe": tf,
+                            "price": price,
+                            "sma_200": sma200_val,
+                            "sma_relation": sma200_relation,
+                            "date": date_str,
+                            "reason": reason,
+                        })
+
+                    # SELL: OTT sell signal AND price above 200 SMA
+                    if ott_signal == -1 and above_200:
+                        signals.append({
+                            "type": "SELL",
+                            "ticker": display_name,
+                            "category": category,
+                            "timeframe": tf,
+                            "price": price,
+                            "sma_200": sma200_val,
+                            "sma_relation": sma200_relation,
+                            "date": date_str,
+                            "reason": "OTT sell signal (above 200 SMA)",
+                        })
 
             except Exception as e:
                 print(f"  Error processing {display_name} ({tf}): {e}")
 
+    # Crypto 4-year cycle alerts (200 week SMA)
+    cycle_state = load_cycle_state()
+    crypto_tickers = config["watchlist"].get("Crypto", {})
+    dip_levels = [0, -10, -20, -30]  # percent below 200 week SMA
+    cycle_config = config.get("crypto_cycle", {})
+    sell_date_str = cycle_config.get("sell_date", "2029-11-01")
+    alert_months = cycle_config.get("alert_months_before", 1)
+    sell_date = datetime.strptime(sell_date_str, "%Y-%m-%d")
+    sell_alert_date = sell_date - timedelta(days=alert_months * 30)
+
+    # Build buy windows
+    buy_windows = cycle_config.get("buy_windows", [])
+    buy_ranges = []
+    for w in buy_windows:
+        center = datetime.strptime(w["center"], "%Y-%m-%d")
+        half = timedelta(days=w["months"] * 30)
+        buy_ranges.append((center - half, center + half))
+    now_date = datetime.now()
+    in_buy_window = any(start <= now_date <= end for start, end in buy_ranges)
+
+    for yf_ticker, display_name in crypto_tickers.items():
+        try:
+            t = yf.Ticker(yf_ticker)
+            df_w = t.history(period="5y", interval="1wk")
+            if df_w.empty or len(df_w) < 200:
+                continue
+
+            sma_200w = calculate_sma(df_w["Close"], period=200)
+            price = df_w["Close"].iloc[-1]
+            sma_val = sma_200w.iloc[-1]
+            if pd.isna(sma_val):
+                continue
+
+            pct_from_sma = (price - sma_val) / sma_val * 100
+            ticker_state = cycle_state.get(display_name, {})
+            date_str = df_w.index[-1].strftime("%Y-%m-%d")
+
+            # BUY alerts: price below 200 week SMA at various levels (only in buy window)
+            if pct_from_sma > 0:
+                # Above SMA - reset dip alerts (but don't trigger sell)
+                if ticker_state.get("below_sma", False):
+                    cycle_state[display_name] = {"below_sma": False, "alerted_levels": [], "sell_alerted": ticker_state.get("sell_alerted", False)}
+            elif in_buy_window:
+                # Check each dip level
+                alerted = ticker_state.get("alerted_levels", [])
+                for level in dip_levels:
+                    if pct_from_sma <= level and level not in alerted:
+                        if level == 0:
+                            reason = f"Price crossed BELOW 200 week SMA (${sma_val:.0f})"
+                        else:
+                            reason = f"Price is {level}% below 200 week SMA (${sma_val:.0f})"
+                        signals.append({
+                            "type": "BUY",
+                            "ticker": display_name,
+                            "category": "Crypto",
+                            "timeframe": "weekly",
+                            "price": price,
+                            "sma_200": sma_val,
+                            "sma_relation": f"{pct_from_sma:+.1f}%",
+                            "date": date_str,
+                            "reason": reason,
+                        })
+                        alerted.append(level)
+                cycle_state[display_name] = {"below_sma": True, "alerted_levels": alerted, "sell_alerted": ticker_state.get("sell_alerted", False)}
+
+            # SELL alert: approaching cycle peak date
+            now_date = datetime.now()
+            if now_date >= sell_alert_date and not ticker_state.get("sell_alerted", False):
+                days_to_peak = (sell_date - now_date).days
+                signals.append({
+                    "type": "SELL",
+                    "ticker": display_name,
+                    "category": "Crypto",
+                    "timeframe": "weekly",
+                    "price": price,
+                    "sma_200": sma_val,
+                    "sma_relation": f"{pct_from_sma:+.1f}%",
+                    "date": date_str,
+                    "reason": f"Approaching cycle peak ({sell_date_str}). {days_to_peak} days remaining.",
+                })
+                ticker_state["sell_alerted"] = True
+                cycle_state[display_name] = ticker_state
+
+        except Exception as e:
+            print(f"  Error checking crypto cycle {display_name}: {e}")
+
+    save_cycle_state(cycle_state)
+
     return signals
+
+
+def load_cycle_state():
+    """Load crypto cycle alert state (which levels have been alerted)."""
+    state_path = os.path.join(SCRIPT_DIR, "cycle_state.json")
+    if os.path.exists(state_path):
+        with open(state_path) as f:
+            return json.load(f)
+    return {}
+
+
+def save_cycle_state(state):
+    """Save crypto cycle alert state."""
+    state_path = os.path.join(SCRIPT_DIR, "cycle_state.json")
+    with open(state_path, "w") as f:
+        json.dump(state, f, indent=2)
 
 
 def format_signal(sig: dict) -> str:
     """Format a signal as a Telegram message."""
     emoji = "\U0001f7e2" if sig["type"] == "BUY" else "\U0001f534"
-    tf_label = "Daily" if sig["timeframe"] == "daily" else "4H"
+    tf_map = {"daily": "Daily", "4h": "4H", "weekly": "Weekly"}
+    tf_label = tf_map.get(sig["timeframe"], sig["timeframe"])
     return (
         f"{emoji} <b>{sig['type']} Signal: {sig['ticker']}</b> ({tf_label})\n"
         f"{sig['reason']}\n"

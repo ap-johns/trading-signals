@@ -44,6 +44,7 @@ def backtest_ticker(df, ott_period, ott_percent, strategy=None):
       "hybrid_rsi"  - hybrid + also buy when RSI < 30 (even without OTT buy)
       "hybrid_dip"  - hybrid + also buy when price drops 10% from sell price
       "hybrid_sma50"- hybrid + also buy when price crosses above 50 SMA
+      "always_in"   - start invested, sell above 200 SMA, buy back on OTT buy or 5% dip from sell
     """
     if df.empty or len(df) < max(ott_period + 10, 200):
         return []
@@ -59,9 +60,9 @@ def backtest_ticker(df, ott_period, ott_percent, strategy=None):
 
     # Day-by-day simulation
     trades = []
-    in_trade = False
-    buy_price = 0
-    buy_date = None
+    in_trade = strategy == "always_in"  # Start invested for always_in
+    buy_price = close.iloc[0] if in_trade else 0
+    buy_date = df.index[0] if in_trade else None
     last_sell_price = None
 
     for i in range(1, len(df)):
@@ -93,6 +94,10 @@ def backtest_ticker(df, ott_period, ott_percent, strategy=None):
                 # Buy on OTT buy, or when price crosses above 50 SMA
                 crossed_50 = above_50 and close.iloc[i-1] <= sma_50.iloc[i-1] if pd.notna(sma_50.iloc[i-1]) else False
                 take_buy = ott_buy or crossed_50
+            elif strategy == "always_in":
+                # Buy on OTT buy, or 5% dip from last sell price
+                dip_buy = last_sell_price and price < last_sell_price * 0.95
+                take_buy = ott_buy or dip_buy
 
             if take_buy:
                 buy_price = price
@@ -110,8 +115,8 @@ def backtest_ticker(df, ott_period, ott_percent, strategy=None):
                 take_sell = ott_sell and not above_200
             elif strategy == "contra":
                 take_sell = ott_sell and above_200
-            elif is_hybrid:
-                # All hybrid variants: only sell above 200 SMA
+            elif is_hybrid or strategy == "always_in":
+                # Hybrid and always_in: only sell above 200 SMA
                 take_sell = ott_sell and above_200
 
             if take_sell:
@@ -127,6 +132,19 @@ def backtest_ticker(df, ott_period, ott_percent, strategy=None):
                 })
                 last_sell_price = price
                 in_trade = False
+
+    # For always_in, count unrealised position at end
+    if strategy == "always_in" and in_trade:
+        ret = (close.iloc[-1] - buy_price) / buy_price * 100
+        duration = (df.index[-1] - buy_date).days
+        trades.append({
+            "buy_date": buy_date,
+            "sell_date": df.index[-1],
+            "buy_price": buy_price,
+            "sell_price": close.iloc[-1],
+            "return_pct": ret,
+            "duration_days": duration,
+        })
 
     return trades
 
@@ -225,10 +243,164 @@ def run_backtest(config, years=2, ema_filter=None, strategy=None):
     return results
 
 
-def generate_backtest_html(all_results, config):
+def backtest_crypto_cycle(config):
+    """
+    Backtest the crypto 4-year cycle strategy:
+    Buy when price drops below 200 week SMA (and at -10%, -20%, -30% levels).
+    Sell ~1 month before the 4-year cycle peak (configurable).
+    Uses max available weekly data.
+
+    Historical cycle peaks used for backtesting:
+    - Nov 2013, Dec 2017, Nov 2021, (configured future date)
+    """
+    crypto_tickers = config["watchlist"].get("Crypto", {})
+    cycle_config = config.get("crypto_cycle", {})
+    future_sell = cycle_config.get("sell_date", "2029-11-01")
+    alert_months = cycle_config.get("alert_months_before", 1)
+    buy_windows = cycle_config.get("buy_windows", [])
+
+    from datetime import datetime, timedelta
+
+    # Build buy windows as (start, end) datetime pairs
+    buy_ranges = []
+    for w in buy_windows:
+        center = datetime.strptime(w["center"], "%Y-%m-%d")
+        half = timedelta(days=w["months"] * 30)
+        buy_ranges.append((center - half, center + half))
+
+    # Historical cycle sell dates (1 month before known peaks)
+    cycle_sell_dates = [
+        datetime(2013, 10, 1),   # ~1 month before Nov 2013 peak
+        datetime(2017, 11, 1),   # ~1 month before Dec 2017 peak
+        datetime(2021, 10, 1),   # ~1 month before Nov 2021 peak
+    ]
+    future_dt = datetime.strptime(future_sell, "%Y-%m-%d")
+    cycle_sell_dates.append(future_dt - timedelta(days=alert_months * 30))
+
+    results = {}
+
+    for yf_ticker, display_name in crypto_tickers.items():
+        try:
+            t = yf.Ticker(yf_ticker)
+            df = t.history(period="max", interval="1wk")
+            if df.empty or len(df) < 200:
+                continue
+
+            close = df["Close"]
+            sma_200w = calculate_sma(close, period=200)
+
+            # Simulate: buy at each dip level, sell at cycle peak dates
+            trades = []
+            bought_levels = {}  # level -> buy_price, buy_date
+
+            for i in range(200, len(df)):
+                price = close.iloc[i]
+                current_date = df.index[i].to_pydatetime().replace(tzinfo=None)
+                sma_val = sma_200w.iloc[i]
+                if pd.isna(sma_val):
+                    continue
+
+                pct_from_sma = (price - sma_val) / sma_val * 100
+
+                # Check if we've hit a cycle sell date
+                for sell_dt in cycle_sell_dates:
+                    if bought_levels and current_date >= sell_dt and current_date < sell_dt + timedelta(days=7):
+                        for level, buy_info in bought_levels.items():
+                            ret = (price - buy_info["price"]) / buy_info["price"] * 100
+                            duration = (df.index[i] - buy_info["date"]).days
+                            trades.append({
+                                "buy_date": buy_info["date"],
+                                "sell_date": df.index[i],
+                                "buy_price": buy_info["price"],
+                                "sell_price": price,
+                                "return_pct": ret,
+                                "duration_days": duration,
+                                "level": level,
+                            })
+                        bought_levels = {}
+                        break
+
+                # Below SMA - check dip levels for buying (only within buy windows)
+                in_buy_window = any(start <= current_date <= end for start, end in buy_ranges)
+                if pct_from_sma < 0 and in_buy_window:
+                    for level in [0, -10, -20, -30]:
+                        if pct_from_sma <= level and level not in bought_levels:
+                            bought_levels[level] = {"price": price, "date": df.index[i]}
+
+            # Count unrealised positions
+            for level, buy_info in bought_levels.items():
+                ret = (close.iloc[-1] - buy_info["price"]) / buy_info["price"] * 100
+                duration = (df.index[-1] - buy_info["date"]).days
+                trades.append({
+                    "buy_date": buy_info["date"],
+                    "sell_date": df.index[-1],
+                    "buy_price": buy_info["price"],
+                    "sell_price": close.iloc[-1],
+                    "return_pct": ret,
+                    "duration_days": duration,
+                    "level": level,
+                    "open": True,
+                })
+
+            summary = summarize_trades(trades)
+            summary["ticker"] = display_name
+            summary["buy_hold"] = (close.iloc[-1] - close.iloc[200]) / close.iloc[200] * 100
+            summary["max_dd_bh"] = calc_max_drawdown_bh(df.iloc[200:])
+            summary["max_dd_ott"] = calc_max_drawdown_strategy(df, trades)
+            summary["trades_detail"] = trades
+            results[display_name] = summary
+
+        except Exception as e:
+            print(f"  Error backtesting crypto cycle {display_name}: {e}")
+
+    return results
+
+
+def generate_backtest_html(all_results, config, crypto_cycle_results=None):
     """Generate a standalone backtest HTML page."""
     from datetime import datetime
     now = datetime.now().strftime("%-d %b %y %H:%M")
+
+    # Crypto cycle rows
+    crypto_rows = ""
+    if crypto_cycle_results:
+        for display_name, stats in crypto_cycle_results.items():
+            if stats["trades"] == 0:
+                crypto_rows += f'<tr><td class="ticker">{display_name}</td><td colspan="8" class="muted">No trades (never below 200w SMA)</td></tr>\n'
+                continue
+            wr_class = "pos" if stats["win_rate"] >= 50 else "neg"
+            avg_class = "pos" if stats["avg_return"] >= 0 else "neg"
+            tot_class = "pos" if stats["total_return"] >= 0 else "neg"
+            bh = stats.get("buy_hold", 0)
+            bh_class = "pos" if bh >= 0 else "neg"
+            dd_ott = stats.get("max_dd_ott", 0)
+            dd_bh = stats.get("max_dd_bh", 0)
+            dd_ott_class = "pos" if dd_ott > dd_bh else "neg"
+            dd_bh_class = "pos" if dd_bh > dd_ott else "neg"
+            crypto_rows += f'''<tr>
+                <td class="ticker">{display_name}</td>
+                <td>{stats["trades"]}</td>
+                <td class="{wr_class}">{stats["win_rate"]:.0f}%</td>
+                <td class="{avg_class}">{stats["avg_return"]:+.1f}%</td>
+                <td class="{tot_class}">{stats["total_return"]:+.1f}%</td>
+                <td>{stats["avg_duration"]:.0f}d</td>
+                <td class="{bh_class}">{bh:+.1f}%</td>
+                <td class="{dd_ott_class}">{dd_ott:.1f}%</td>
+                <td class="{dd_bh_class}">{dd_bh:.1f}%</td>
+            </tr>\n'''
+            # Show individual trades
+            for t in stats.get("trades_detail", []):
+                is_open = t.get("open", False)
+                t_class = "pos" if t["return_pct"] >= 0 else "neg"
+                level_label = f"SMA" if t.get("level", 0) == 0 else f"{t.get('level', 0)}%"
+                status = " (open)" if is_open else ""
+                crypto_rows += f'''<tr style="color: #666; font-size: 12px;">
+                    <td style="padding-left: 20px;">Entry: {level_label}</td>
+                    <td colspan="2">{t["buy_date"].strftime("%-d %b %y")} &rarr; {t["sell_date"].strftime("%-d %b %y")}{status}</td>
+                    <td class="{t_class}">{t["return_pct"]:+.1f}%</td>
+                    <td colspan="2">${t["buy_price"]:.0f} &rarr; ${t["sell_price"]:.0f}</td>
+                    <td colspan="3">{t["duration_days"]}d</td>
+                </tr>\n'''
 
     rows = ""
     for label, results in all_results.items():
@@ -313,6 +485,7 @@ def generate_backtest_html(all_results, config):
         <div class="tf-toggle">
             <button class="tf-btn bt-strat-btn active" onclick="setBtStrat('ott', this)">OTT Only</button>
             <button class="tf-btn bt-strat-btn" onclick="setBtStrat('hybrid_sma50', this)">OTT + SMA</button>
+            <button class="tf-btn bt-strat-btn" onclick="setBtStrat('always_in', this)">Always-In</button>
         </div>
     </div>
     <div id="strat-desc" class="strat-desc"></div>
@@ -334,6 +507,28 @@ def generate_backtest_html(all_results, config):
             {rows}
         </tbody>
     </table>
+
+    <h2 style="color: #fff; font-size: 16px; margin-top: 30px; margin-bottom: 8px;">Crypto 4-Year Cycle (200 Week SMA)</h2>
+    <div class="strat-desc">Buy when price drops below 200 week SMA (and at -10%, -20%, -30% levels). Sell when price crosses back above. Uses max available history.</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Ticker</th>
+                <th>Trades</th>
+                <th>Win Rate</th>
+                <th>Avg Return</th>
+                <th>Total Return</th>
+                <th>Avg Duration</th>
+                <th>Buy &amp; Hold</th>
+                <th>Max DD (Strat)</th>
+                <th>Max DD (B&amp;H)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {crypto_rows}
+        </tbody>
+    </table>
+
     <script>
     let btPeriod = '2';
     let btStrat = 'ott';
@@ -351,6 +546,7 @@ def generate_backtest_html(all_results, config):
     const stratDescs = {{
         'ott': '<b>OTT Only</b> — Buy on all OTT buy signals. Sell on all OTT sell signals.',
         'hybrid_sma50': '<b>OTT + SMA</b> — Buy on OTT buy signal <b>or</b> price crosses above 50 SMA. Sell on OTT sell only when above 200 SMA.',
+        'always_in': '<b>Always-In</b> — Start invested. Sell on OTT sell only when above 200 SMA. Buy back on OTT buy <b>or</b> 5% dip from sell price. Best for indices like SPX.',
     }};
     function updateStratDesc() {{
         document.getElementById('strat-desc').innerHTML = stratDescs[btStrat] || '';
@@ -378,6 +574,7 @@ def main():
     strategies = [
         ("ott", None),
         ("hybrid_sma50", "hybrid_sma50"),
+        ("always_in", "always_in"),
     ]
     all_results = {}
 
@@ -389,7 +586,11 @@ def main():
             all_results[label] = run_backtest(config, years=years, strategy=ema_filter)
             print("done")
 
-    html = generate_backtest_html(all_results, config)
+    print("Running Crypto Cycle Backtest...")
+    crypto_cycle = backtest_crypto_cycle(config)
+    print(f"  {len(crypto_cycle)} tickers done")
+
+    html = generate_backtest_html(all_results, config, crypto_cycle_results=crypto_cycle)
     with open(output_path, "w") as f:
         f.write(html)
     print(f"\nBacktest written to: {output_path}")
