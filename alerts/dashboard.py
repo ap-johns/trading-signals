@@ -513,6 +513,8 @@ def generate_html(all_data, config):
         <span class="bullish">&#9650;</span> = MAvg above OTT (bullish) &nbsp;
         <span class="bearish">&#9660;</span> = MAvg below OTT (bearish)
     </div>
+    <div style="margin-top: 20px;"><a href="backtest.html" style="color: #888; font-size: 13px;">View Backtest Results &rarr;</a></div>
+
     <script>
     let currentTf = 'daily';
     let recentOnly = true;
