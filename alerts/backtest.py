@@ -336,8 +336,10 @@ def backtest_crypto_cycle(config):
                 if in_buy_window and "window" not in bought_levels:
                     bought_levels["window"] = {"price": price, "date": df.index[i]}
 
-                # Buy trigger 2: EMA dip levels (anytime)
-                if pct_from_ema < 0:
+                # Buy trigger 2: EMA dip levels
+                # For tickers with dip_only_in_window, only fire within buy window
+                dip_allowed = in_buy_window if override.get("dip_only_in_window", False) else True
+                if pct_from_ema < 0 and dip_allowed:
                     for level in [-10, -20, -30]:
                         if pct_from_ema <= level and level not in bought_levels:
                             bought_levels[level] = {"price": price, "date": df.index[i]}

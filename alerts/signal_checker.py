@@ -255,11 +255,13 @@ def check_signals(config: dict) -> list:
             if not in_buy_window:
                 ticker_state["window_alerted"] = False
 
-            # Signal 2: EMA DIP LEVELS - alert at -10%, -20%, -30% below 200w EMA (anytime)
+            # Signal 2: EMA DIP LEVELS - alert at -10%, -20%, -30% below 200w EMA
+            # For tickers with dip_only_in_window, only fire within buy window
+            dip_allowed = in_buy_window if override.get("dip_only_in_window", False) else True
             if pct_from_ema > 0:
                 # Above EMA - reset dip alerts
                 ticker_state["alerted_levels"] = []
-            else:
+            elif dip_allowed:
                 alerted = ticker_state.get("alerted_levels", [])
                 for level in dip_levels:
                     if pct_from_ema <= level and level not in alerted:

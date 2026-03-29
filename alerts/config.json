@@ -20,11 +20,20 @@
             {"center": "2027-01-01", "months": 3}
         ],
         "ticker_overrides": {
+            "ETH-USD": {
+                "buy_windows": [
+                    {"center": "2019-03-01", "months": 3},
+                    {"center": "2023-03-01", "months": 3},
+                    {"center": "2027-03-01", "months": 3}
+                ],
+                "dip_only_in_window": true
+            },
             "SOL-USD": {
                 "buy_windows": [
                     {"center": "2023-03-01", "months": 3},
                     {"center": "2027-04-01", "months": 3}
-                ]
+                ],
+                "dip_only_in_window": true
             }
         }
     },
