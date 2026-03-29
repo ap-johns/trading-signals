@@ -31,6 +31,7 @@
     "watchlist": {
         "Crypto": {
             "BTC-USD": "BTCUSD",
+            "ETH-USD": "ETHUSD",
             "SOL-USD": "SOLUSD"
         },
         "Indices": {
