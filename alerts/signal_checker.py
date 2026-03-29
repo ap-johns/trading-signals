@@ -18,7 +18,7 @@ from urllib.parse import urlencode
 import yfinance as yf
 import pandas as pd
 
-from indicators import calculate_ott, calculate_sma
+from indicators import calculate_ott, calculate_sma, calculate_ema
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -191,10 +191,10 @@ def check_signals(config: dict) -> list:
             except Exception as e:
                 print(f"  Error processing {display_name} ({tf}): {e}")
 
-    # Crypto 4-year cycle alerts (200 week SMA)
+    # Crypto 4-year cycle alerts
     cycle_state = load_cycle_state()
     crypto_tickers = config["watchlist"].get("Crypto", {})
-    dip_levels = [0, -10, -20, -30]  # percent below 200 week SMA
+    dip_levels = [-10, -20, -30]  # percent below 200 week EMA
     cycle_config = config.get("crypto_cycle", {})
     sell_date_str = cycle_config.get("sell_date", "2029-11-01")
     alert_months = cycle_config.get("alert_months_before", 1)
@@ -218,46 +218,57 @@ def check_signals(config: dict) -> list:
             if df_w.empty or len(df_w) < 200:
                 continue
 
-            sma_200w = calculate_sma(df_w["Close"], period=200)
+            ema_200w = calculate_ema(df_w["Close"], period=200)
             price = df_w["Close"].iloc[-1]
-            sma_val = sma_200w.iloc[-1]
-            if pd.isna(sma_val):
+            ema_val = ema_200w.iloc[-1]
+            if pd.isna(ema_val):
                 continue
 
-            pct_from_sma = (price - sma_val) / sma_val * 100
+            pct_from_ema = (price - ema_val) / ema_val * 100
             ticker_state = cycle_state.get(display_name, {})
             date_str = df_w.index[-1].strftime("%Y-%m-%d")
 
-            # BUY alerts: price below 200 week SMA at various levels (only in buy window)
-            if pct_from_sma > 0:
-                # Above SMA - reset dip alerts (but don't trigger sell)
-                if ticker_state.get("below_sma", False):
-                    cycle_state[display_name] = {"below_sma": False, "alerted_levels": [], "sell_alerted": ticker_state.get("sell_alerted", False)}
-            elif in_buy_window:
-                # Check each dip level
+            # Signal 1: CYCLE TIMING - alert when entering a buy window
+            if in_buy_window and not ticker_state.get("window_alerted", False):
+                signals.append({
+                    "type": "BUY",
+                    "ticker": display_name,
+                    "category": "Crypto",
+                    "timeframe": "weekly",
+                    "price": price,
+                    "sma_200": ema_val,
+                    "sma_relation": f"{pct_from_ema:+.1f}% from 200w EMA",
+                    "date": date_str,
+                    "reason": "Entering 4-year cycle buy window",
+                })
+                ticker_state["window_alerted"] = True
+
+            if not in_buy_window:
+                ticker_state["window_alerted"] = False
+
+            # Signal 2: EMA DIP LEVELS - alert at -10%, -20%, -30% below 200w EMA (anytime)
+            if pct_from_ema > 0:
+                # Above EMA - reset dip alerts
+                ticker_state["alerted_levels"] = []
+            else:
                 alerted = ticker_state.get("alerted_levels", [])
                 for level in dip_levels:
-                    if pct_from_sma <= level and level not in alerted:
-                        if level == 0:
-                            reason = f"Price crossed BELOW 200 week SMA (${sma_val:.0f})"
-                        else:
-                            reason = f"Price is {level}% below 200 week SMA (${sma_val:.0f})"
+                    if pct_from_ema <= level and level not in alerted:
                         signals.append({
                             "type": "BUY",
                             "ticker": display_name,
                             "category": "Crypto",
                             "timeframe": "weekly",
                             "price": price,
-                            "sma_200": sma_val,
-                            "sma_relation": f"{pct_from_sma:+.1f}%",
+                            "sma_200": ema_val,
+                            "sma_relation": f"{pct_from_ema:+.1f}% from 200w EMA",
                             "date": date_str,
-                            "reason": reason,
+                            "reason": f"Price is {level}% below 200 week EMA (${ema_val:.0f})",
                         })
                         alerted.append(level)
-                cycle_state[display_name] = {"below_sma": True, "alerted_levels": alerted, "sell_alerted": ticker_state.get("sell_alerted", False)}
+                ticker_state["alerted_levels"] = alerted
 
             # SELL alert: approaching cycle peak date
-            now_date = datetime.now()
             if now_date >= sell_alert_date and not ticker_state.get("sell_alerted", False):
                 days_to_peak = (sell_date - now_date).days
                 signals.append({
@@ -266,13 +277,14 @@ def check_signals(config: dict) -> list:
                     "category": "Crypto",
                     "timeframe": "weekly",
                     "price": price,
-                    "sma_200": sma_val,
-                    "sma_relation": f"{pct_from_sma:+.1f}%",
+                    "sma_200": ema_val,
+                    "sma_relation": f"{pct_from_ema:+.1f}% from 200w EMA",
                     "date": date_str,
                     "reason": f"Approaching cycle peak ({sell_date_str}). {days_to_peak} days remaining.",
                 })
                 ticker_state["sell_alerted"] = True
-                cycle_state[display_name] = ticker_state
+
+            cycle_state[display_name] = ticker_state
 
         except Exception as e:
             print(f"  Error checking crypto cycle {display_name}: {e}")

@@ -12,7 +12,7 @@ import os
 import yfinance as yf
 import pandas as pd
 
-from indicators import calculate_ott, calculate_sma
+from indicators import calculate_ott, calculate_sma, calculate_ema
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -246,8 +246,9 @@ def run_backtest(config, years=2, ema_filter=None, strategy=None):
 def backtest_crypto_cycle(config):
     """
     Backtest the crypto 4-year cycle strategy:
-    Buy when price drops below 200 week SMA (and at -10%, -20%, -30% levels).
-    Sell ~1 month before the 4-year cycle peak (configurable).
+    Buy trigger 1: Entering a cycle buy window (±3 months of expected low)
+    Buy trigger 2: Price drops -10%, -20%, -30% below 200 week EMA (anytime)
+    Sell: ~1 month before the 4-year cycle peak (configurable).
     Uses max available weekly data.
 
     Historical cycle peaks used for backtesting:
@@ -287,20 +288,20 @@ def backtest_crypto_cycle(config):
                 continue
 
             close = df["Close"]
-            sma_200w = calculate_sma(close, period=200)
+            ema_200w = calculate_ema(close, period=200)
 
-            # Simulate: buy at each dip level, sell at cycle peak dates
+            # Simulate: buy on cycle timing or EMA dip, sell at cycle peak dates
             trades = []
             bought_levels = {}  # level -> buy_price, buy_date
 
             for i in range(200, len(df)):
                 price = close.iloc[i]
                 current_date = df.index[i].to_pydatetime().replace(tzinfo=None)
-                sma_val = sma_200w.iloc[i]
-                if pd.isna(sma_val):
+                ema_val = ema_200w.iloc[i]
+                if pd.isna(ema_val):
                     continue
 
-                pct_from_sma = (price - sma_val) / sma_val * 100
+                pct_from_ema = (price - ema_val) / ema_val * 100
 
                 # Check if we've hit a cycle sell date
                 for sell_dt in cycle_sell_dates:
@@ -320,11 +321,15 @@ def backtest_crypto_cycle(config):
                         bought_levels = {}
                         break
 
-                # Below SMA - check dip levels for buying (only within buy windows)
+                # Buy trigger 1: cycle timing window
                 in_buy_window = any(start <= current_date <= end for start, end in buy_ranges)
-                if pct_from_sma < 0 and in_buy_window:
-                    for level in [0, -10, -20, -30]:
-                        if pct_from_sma <= level and level not in bought_levels:
+                if in_buy_window and "window" not in bought_levels:
+                    bought_levels["window"] = {"price": price, "date": df.index[i]}
+
+                # Buy trigger 2: EMA dip levels (anytime)
+                if pct_from_ema < 0:
+                    for level in [-10, -20, -30]:
+                        if pct_from_ema <= level and level not in bought_levels:
                             bought_levels[level] = {"price": price, "date": df.index[i]}
 
             # Count unrealised positions

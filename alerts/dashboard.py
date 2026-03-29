@@ -154,7 +154,7 @@ def generate_html(all_data, config):
     now = datetime.now().strftime("%-d %b %y %H:%M")
 
     strategy_labels = {
-        "Crypto": "4yr Cycle: buy below 200w SMA near cycle low, sell near cycle peak",
+        "Crypto": "4yr Cycle: buy on cycle timing or -10/-20/-30% below 200w EMA, sell near cycle peak",
         "Indices": "Always-In: sell above 200 SMA, buy back on OTT or 5% dip",
         "Stocks": "OTT + SMA: buy on OTT or 50 SMA cross, sell on OTT above 200 SMA",
     }

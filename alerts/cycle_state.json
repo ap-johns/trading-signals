@@ -1,10 +1,1 @@
-{
-  "SOLUSD": {
-    "below_sma": true,
-    "alerted_levels": [
-      0,
-      -10,
-      -20
-    ]
-  }
-}
+{}
