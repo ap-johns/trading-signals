@@ -223,7 +223,17 @@ def generate_html(all_data, config):
                             half = timedelta(days=w["months"] * 30)
                             buy_ranges.append((center - half, center + half))
 
-                        prev_below = False
+                        # Historical cycle sell dates
+                        alert_months_cfg = cycle_config.get("alert_months_before", 1)
+                        cycle_sell_dates = [
+                            datetime(2013, 10, 1),
+                            datetime(2017, 11, 1),
+                            datetime(2021, 10, 1),
+                            datetime(2025, 9, 1),
+                        ]
+                        future_dt = datetime.strptime(sell_date_str, "%Y-%m-%d")
+                        cycle_sell_dates.append(future_dt - timedelta(days=alert_months_cfg * 30))
+
                         for i in range(1, len(df_w)):
                             p = close.iloc[i]
                             e = ema_200w.iloc[i]
@@ -232,6 +242,12 @@ def generate_html(all_data, config):
                             pct = (p - e) / e * 100
                             d = df_w.index[i].to_pydatetime().replace(tzinfo=None)
                             in_w = any(s <= d <= en for s, en in buy_ranges)
+
+                            # Cycle sell dates
+                            for sell_dt in cycle_sell_dates:
+                                if d >= sell_dt and d < sell_dt + timedelta(days=7):
+                                    cycle_signals.append({"date": d.strftime("%-d %b %y"), "type": "SELL", "price": p})
+                                    break
 
                             # Window entry
                             if in_w and not any(s <= df_w.index[i-1].to_pydatetime().replace(tzinfo=None) <= en for s, en in buy_ranges):
@@ -249,8 +265,8 @@ def generate_html(all_data, config):
                         # Build pills (most recent first)
                         cycle_signals.reverse()
                         pills = []
-                        for sig in cycle_signals[:5]:
-                            sig_class = "buy-signal"
+                        for sig in cycle_signals[:8]:
+                            sig_class = "buy-signal" if sig["type"] == "BUY" else "sell-signal"
                             sig_date = datetime.strptime(sig["date"], "%d %b %y")
                             if (now_dt - sig_date).days <= 7:
                                 sig_class += " recent-signal"
@@ -262,7 +278,7 @@ def generate_html(all_data, config):
                                 uid = f"{display_name}_cycle".replace(" ", "")
                                 older = " ".join(pills[1:])
                                 sig = cycle_signals[0]
-                                sig_class = "buy-signal"
+                                sig_class = "buy-signal" if sig["type"] == "BUY" else "sell-signal"
                                 sig_date = datetime.strptime(sig["date"], "%d %b %y")
                                 if (now_dt - sig_date).days <= 7:
                                     sig_class += " recent-signal"
