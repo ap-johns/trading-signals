@@ -1,1 +1,12 @@
-{}
+{
+  "BTCUSD": {
+    "window_alerted": false,
+    "alerted_levels": []
+  },
+  "ETHUSD": {
+    "window_alerted": false
+  },
+  "SOLUSD": {
+    "window_alerted": false
+  }
+}
