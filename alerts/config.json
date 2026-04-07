@@ -50,19 +50,19 @@
         },
         "Stocks": {
             "ALAB": "ALAB",
-            "TSM": "TSM",
             "AMD": "AMD",
-            "AVGO": "AVGO",
-            "TSLA": "TSLA",
-            "PLTR": "PLTR",
-            "GOOG": "GOOG",
-            "NVDA": "NVDA",
+            "ARM": "ARM",
             "ASML": "ASML",
-            "MU": "MU",
+            "AVGO": "AVGO",
+            "GOOG": "GOOG",
+            "META": "META",
             "MRVL": "MRVL",
             "MSFT": "MSFT",
-            "META": "META",
-            "ARM": "ARM"
+            "MU": "MU",
+            "NVDA": "NVDA",
+            "PLTR": "PLTR",
+            "TSLA": "TSLA",
+            "TSM": "TSM"
         },
         "FX": {
             "GBPUSD=X": "GBPUSD"
