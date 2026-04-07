@@ -63,6 +63,9 @@
             "MSFT": "MSFT",
             "META": "META",
             "ARM": "ARM"
+        },
+        "FX": {
+            "GBPUSD=X": "GBPUSD"
         }
     }
 }
