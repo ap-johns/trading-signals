@@ -489,17 +489,19 @@ def generate_html(all_data, config):
                     row_class = "recent-buy-row" if recent_signal_type == "BUY" else "recent-sell-row"
 
                 trend_arrow = "&#9650;" if bullish else "&#9660;"  # ▲ or ▼
-                sma_pct_class = "above-ema" if pct_from_sma >= 0 else "below-ema"
-                sma_pct_label = f"+{pct_from_sma:.1f}%" if pct_from_sma >= 0 else f"{pct_from_sma:.1f}%"
-                sma_status = f'<span class="{sma_pct_class}" style="margin-left:8px;font-size:0.85em;">{sma_pct_label} from 200d SMA</span>'
-                # 200w SMA from weekly data
-                weekly_data = data.get("weekly", {})
-                sma_200w_val = weekly_data.get("sma_200w")
-                if sma_200w_val and sma_200w_val > 0:
-                    pct_from_200w = (price - sma_200w_val) / sma_200w_val * 100
-                    w_pct_class = "above-ema" if pct_from_200w >= 0 else "below-ema"
-                    w_pct_label = f"+{pct_from_200w:.1f}%" if pct_from_200w >= 0 else f"{pct_from_200w:.1f}%"
-                    sma_status += f' <span class="{w_pct_class}" style="margin-left:8px;font-size:0.85em;">{w_pct_label} from 200w SMA</span>'
+                sma_status = ""
+                if tf == "daily":
+                    sma_pct_class = "above-ema" if pct_from_sma >= 0 else "below-ema"
+                    sma_pct_label = f"+{pct_from_sma:.1f}%" if pct_from_sma >= 0 else f"{pct_from_sma:.1f}%"
+                    sma_status = f'<span class="{sma_pct_class}" style="margin-left:8px;font-size:0.85em;">{sma_pct_label} from 200d SMA</span>'
+                    # 200w SMA from weekly data
+                    weekly_data = data.get("weekly", {})
+                    sma_200w_val = weekly_data.get("sma_200w")
+                    if sma_200w_val and sma_200w_val > 0:
+                        pct_from_200w = (price - sma_200w_val) / sma_200w_val * 100
+                        w_pct_class = "above-ema" if pct_from_200w >= 0 else "below-ema"
+                        w_pct_label = f"+{pct_from_200w:.1f}%" if pct_from_200w >= 0 else f"{pct_from_200w:.1f}%"
+                        sma_status += f' <span class="{w_pct_class}" style="margin-left:8px;font-size:0.85em;">{w_pct_label} from 200w SMA</span>'
                 rows += f'''<tr class="{row_class}" data-tf="{tf}">
                     <td class="ticker"><span class="trend-icon {state_class}">{trend_arrow}</span> {display_name}</td>
                     <td class="signals">{signals_html} {sma_status}</td>
