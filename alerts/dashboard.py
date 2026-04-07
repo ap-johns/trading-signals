@@ -103,17 +103,15 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period):
     # Weekly (resampled from daily)
     try:
         t = yf.Ticker(yf_ticker)
-        df = t.history(period="730d", interval="1d")
+        df = t.history(period="max", interval="1wk")
         if not df.empty:
-            df_w = df.resample("W").agg({
-                "Open": "first", "High": "max", "Low": "min",
-                "Close": "last", "Volume": "sum",
-            }).dropna()
+            df_w = df.dropna()
 
             if len(df_w) > ott_period + 10:
                 src = df_w["Open"]
                 ott_df = calculate_ott(src, period=ott_period, percent=ott_percent)
                 ema_200 = calculate_sma(df_w["Close"], period=ema_period)
+                sma_200w = calculate_sma(df_w["Close"], period=200)
 
                 mavg_above_ott = ott_df["mavg"].iloc[-1] > ott_df["ott"].iloc[-1]
 
@@ -130,6 +128,7 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period):
                 results["weekly"] = {
                     "price": df_w["Close"].iloc[-1],
                     "ema_200": ema_200.iloc[-1],
+                    "sma_200w": sma_200w.iloc[-1] if pd.notna(sma_200w.iloc[-1]) else None,
                     "mavg": ott_df["mavg"].iloc[-1],
                     "ott": ott_df["ott"].iloc[-1],
                     "bullish": mavg_above_ott,
@@ -319,6 +318,19 @@ def generate_html(all_data, config):
                         price = close.iloc[-1]
                         sma_val = sma_200.iloc[-1]
                         above_200 = price > sma_val if pd.notna(sma_val) else False
+                        pct_from_sma = (price - sma_val) / sma_val * 100 if pd.notna(sma_val) else 0
+
+                        # 200w SMA
+                        pct_from_200w = None
+                        try:
+                            df_w = t.history(period="max", interval="1wk").dropna()
+                            if len(df_w) >= 200:
+                                sma_200w = calculate_sma(df_w["Close"], period=200)
+                                sma_200w_val = sma_200w.iloc[-1]
+                                if pd.notna(sma_200w_val) and sma_200w_val > 0:
+                                    pct_from_200w = (price - sma_200w_val) / sma_200w_val * 100
+                        except Exception:
+                            pass
 
                         # Simulate always-in: find sell signals (OTT sell above 200 SMA)
                         # and buy signals (OTT buy or 5% dip from last sell)
@@ -382,9 +394,16 @@ def generate_html(all_data, config):
                         bullish = above_200
                         state_class = "bullish" if bullish else "bearish"
                         trend_arrow = "&#9650;" if bullish else "&#9660;"
+                        sma_pct_class = "above-ema" if pct_from_sma >= 0 else "below-ema"
+                        sma_pct_label = f"+{pct_from_sma:.1f}%" if pct_from_sma >= 0 else f"{pct_from_sma:.1f}%"
+                        sma_status = f'<span class="{sma_pct_class}" style="margin-right:8px;font-size:0.85em;">{sma_pct_label} from 200d SMA</span>'
+                        if pct_from_200w is not None:
+                            w_pct_class = "above-ema" if pct_from_200w >= 0 else "below-ema"
+                            w_pct_label = f"+{pct_from_200w:.1f}%" if pct_from_200w >= 0 else f"{pct_from_200w:.1f}%"
+                            sma_status += f' <span class="{w_pct_class}" style="font-size:0.85em;">{w_pct_label} from 200w SMA</span>'
                         rows += f'''<tr class="{row_class}" data-tf="daily">
                             <td class="ticker"><span class="trend-icon {state_class}">{trend_arrow}</span> {display_name}</td>
-                            <td class="signals">{signals_html}</td>
+                            <td class="signals">{signals_html} {sma_status}</td>
                         </tr>\n'''
                 except Exception as e:
                     rows += f'<tr data-tf="daily"><td class="ticker">{display_name}</td><td class="error">Error: {e}</td></tr>\n'
@@ -406,7 +425,8 @@ def generate_html(all_data, config):
                 price = tf_data["price"]
                 ema_200 = tf_data["ema_200"]
                 ema_class = "above-ema" if price > ema_200 else "below-ema"
-                ema_label = "Above" if price > ema_200 else "Below"
+                pct_from_sma = (price - ema_200) / ema_200 * 100 if ema_200 else 0
+                ema_label = f"+{pct_from_sma:.1f}%" if pct_from_sma >= 0 else f"{pct_from_sma:.1f}%"
 
                 # Recent signals as pills
                 all_signals = tf_data["signals"][-5:]  # Last 5
@@ -469,11 +489,22 @@ def generate_html(all_data, config):
                     row_class = "recent-buy-row" if recent_signal_type == "BUY" else "recent-sell-row"
 
                 trend_arrow = "&#9650;" if bullish else "&#9660;"  # ▲ or ▼
+                sma_pct_class = "above-ema" if pct_from_sma >= 0 else "below-ema"
+                sma_pct_label = f"+{pct_from_sma:.1f}%" if pct_from_sma >= 0 else f"{pct_from_sma:.1f}%"
+                sma_status = f'<span class="{sma_pct_class}" style="margin-left:8px;font-size:0.85em;">{sma_pct_label} from 200d SMA</span>'
+                # 200w SMA from weekly data
+                weekly_data = data.get("weekly", {})
+                sma_200w_val = weekly_data.get("sma_200w")
+                if sma_200w_val and sma_200w_val > 0:
+                    pct_from_200w = (price - sma_200w_val) / sma_200w_val * 100
+                    w_pct_class = "above-ema" if pct_from_200w >= 0 else "below-ema"
+                    w_pct_label = f"+{pct_from_200w:.1f}%" if pct_from_200w >= 0 else f"{pct_from_200w:.1f}%"
+                    sma_status += f' <span class="{w_pct_class}" style="margin-left:8px;font-size:0.85em;">{w_pct_label} from 200w SMA</span>'
                 rows += f'''<tr class="{row_class}" data-tf="{tf}">
                     <td class="ticker"><span class="trend-icon {state_class}">{trend_arrow}</span> {display_name}</td>
-                    <td class="signals">{signals_html}</td>
+                    <td class="signals">{signals_html} {sma_status}</td>
                     <td class="detail-col price">{fmt_price(price)}</td>
-                    <td class="detail-col ema {ema_class}">{fmt_price(ema_200)} ({ema_label})</td>
+                    <td class="detail-col ema">{fmt_price(ema_200)}</td>
                     <td class="detail-col mavg">{fmt_price(tf_data["mavg"])}</td>
                     <td class="detail-col ott">{fmt_price(tf_data["ott"])}</td>
                 </tr>\n'''
