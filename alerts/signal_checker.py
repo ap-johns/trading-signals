@@ -188,6 +188,26 @@ def check_signals(config: dict) -> list:
                             "reason": "OTT sell signal (above 200 SMA)",
                         })
 
+                    # SMA DIP signals for stocks: price drops below 200d SMA by 5/10/15/20/25/30%
+                    if category == "Stocks" and tf == "daily" and pd.notna(sma200_val) and len(df) >= 2:
+                        prev_price = df["Close"].iloc[-2]
+                        prev_sma = sma_200.iloc[-2]
+                        for dip_pct in [5, 10, 15, 20, 25, 30]:
+                            threshold = sma200_val * (1 - dip_pct / 100)
+                            prev_threshold = prev_sma * (1 - dip_pct / 100) if pd.notna(prev_sma) else None
+                            if price <= threshold and (prev_threshold is None or prev_price > prev_threshold):
+                                signals.append({
+                                    "type": "BUY",
+                                    "ticker": display_name,
+                                    "category": category,
+                                    "timeframe": tf,
+                                    "price": price,
+                                    "sma_200": sma200_val,
+                                    "sma_relation": sma200_relation,
+                                    "date": date_str,
+                                    "reason": f"Price {dip_pct}% below 200d SMA (${threshold:.2f})",
+                                })
+
             except Exception as e:
                 print(f"  Error processing {display_name} ({tf}): {e}")
 
