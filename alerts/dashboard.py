@@ -49,9 +49,17 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period):
                     "price": df["Close"].loc[idx],
                 })
 
+            # Z-score of current distance from 200d SMA
+            pct_from_sma_series = (df["Close"] - ema_200) / ema_200 * 100
+            pct_from_sma_series = pct_from_sma_series.dropna()
+            sma_zscore = None
+            if len(pct_from_sma_series) > 1 and pct_from_sma_series.std() > 0:
+                sma_zscore = (pct_from_sma_series.iloc[-1] - pct_from_sma_series.mean()) / pct_from_sma_series.std()
+
             results["daily"] = {
                 "price": df["Close"].iloc[-1],
                 "ema_200": ema_200.iloc[-1],
+                "sma_zscore": sma_zscore,
                 "mavg": ott_df["mavg"].iloc[-1],
                 "ott": ott_df["ott"].iloc[-1],
                 "bullish": mavg_above_ott,
@@ -493,7 +501,19 @@ def generate_html(all_data, config):
                 if tf == "daily":
                     sma_pct_class = "above-ema" if pct_from_sma >= 0 else "below-ema"
                     sma_pct_label = f"+{pct_from_sma:.1f}%" if pct_from_sma >= 0 else f"{pct_from_sma:.1f}%"
-                    sma_status = f'<span class="{sma_pct_class}" style="margin-left:8px;font-size:0.85em;">{sma_pct_label} from 200d SMA</span>'
+                    zscore = tf_data.get("sma_zscore")
+                    zscore_html = ""
+                    if zscore is not None:
+                        z_abs = abs(zscore)
+                        z_sign = "+" if zscore >= 0 else ""
+                        if z_abs >= 2:
+                            z_style = "color:#ffffff;"
+                        elif z_abs >= 1.5:
+                            z_style = "color:#f0d060;"
+                        else:
+                            z_style = "color:#888;"
+                        zscore_html = f' <span style="{z_style}">({z_sign}{zscore:.1f}σ)</span>'
+                    sma_status = f'<span class="{sma_pct_class}" style="margin-left:8px;font-size:0.85em;">{sma_pct_label} from 200d SMA{zscore_html}</span>'
                     # 200w SMA from weekly data
                     weekly_data = data.get("weekly", {})
                     sma_200w_val = weekly_data.get("sma_200w")
@@ -784,7 +804,8 @@ def generate_html(all_data, config):
         <span class="signal-pill buy-signal">date</span> = Buy signal &nbsp;
         <span class="signal-pill sell-signal">date</span> = Sell signal &nbsp; | &nbsp;
         <span class="bullish">&#9650;</span> = MAvg above OTT (bullish) &nbsp;
-        <span class="bearish">&#9660;</span> = MAvg below OTT (bearish)
+        <span class="bearish">&#9660;</span> = MAvg below OTT (bearish) &nbsp; | &nbsp;
+        <span style="font-size:0.9em;">σ = how unusual the current distance from 200d SMA is for this ticker (<span style="color:#888;">&lt;1.5σ normal</span>, <span style="color:#f0d060;">&ge;1.5σ notable</span>, <span style="color:#ffffff;">&ge;2σ unusual</span>)</span>
     </div>
     <div style="margin-top: 20px;"><a href="backtest.html" style="color: #888; font-size: 13px;">View Backtest Results &rarr;</a></div>
 
