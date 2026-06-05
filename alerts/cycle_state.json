@@ -1,7 +1,9 @@
 {
   "BTCUSD": {
     "window_alerted": false,
-    "alerted_levels": []
+    "alerted_levels": [
+      -10
+    ]
   },
   "ETHUSD": {
     "window_alerted": false
