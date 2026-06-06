@@ -32,7 +32,8 @@ def compute_rsi(close, period=14):
     return 100 - (100 / (1 + rs))
 
 
-def backtest_ticker(df, ott_period, ott_percent, strategy=None):
+def backtest_ticker(df, ott_period, ott_percent, strategy=None,
+                    zscore_buy=None, zscore_window=52):
     """
     Run OTT on a dataframe and return a list of completed trades.
 
@@ -45,6 +46,14 @@ def backtest_ticker(df, ott_period, ott_percent, strategy=None):
       "hybrid_dip"  - hybrid + also buy when price drops 10% from sell price
       "hybrid_sma50"- hybrid + also buy when price crosses above 50 SMA
       "always_in"   - start invested, sell above 200 SMA, buy back on OTT buy or 5% dip from sell
+
+    zscore_buy: optional float (e.g. -2.0). When set, adds an extra BUY entry
+      whenever the 200d-SMA distance z-score crosses DOWN through this level.
+      Exits are unchanged (handled by `strategy`). This is a buy-only overlay.
+      zscore_window matches the live signal's effective stats window: the live
+      system fetches 365d and computes the 200d SMA within that slice, leaving
+      ~52 bars with a defined SMA, so mean/std are over ~52 trading days. We
+      replicate that causally (trailing rolling window) to avoid look-ahead.
     """
     if df.empty or len(df) < max(ott_period + 10, 200):
         return []
@@ -58,11 +67,21 @@ def backtest_ticker(df, ott_period, ott_percent, strategy=None):
     close = df["Close"]
     is_hybrid = strategy and strategy.startswith("hybrid")
 
+    # Causal z-score of distance from 200d SMA (no look-ahead): at each bar,
+    # mean/std are taken over the trailing `zscore_window` bars only.
+    zscore = None
+    if zscore_buy is not None:
+        pct_from_sma = (close - sma_200) / sma_200 * 100
+        roll_mean = pct_from_sma.rolling(zscore_window, min_periods=zscore_window).mean()
+        roll_std = pct_from_sma.rolling(zscore_window, min_periods=zscore_window).std()
+        zscore = (pct_from_sma - roll_mean) / roll_std
+
     # Day-by-day simulation
     trades = []
     in_trade = strategy == "always_in"  # Start invested for always_in
     buy_price = close.iloc[0] if in_trade else 0
     buy_date = df.index[0] if in_trade else None
+    entry_via = "base"
     last_sell_price = None
 
     for i in range(1, len(df)):
@@ -99,10 +118,20 @@ def backtest_ticker(df, ott_period, ott_percent, strategy=None):
                 dip_buy = last_sell_price and price < last_sell_price * 0.95
                 take_buy = ott_buy or dip_buy
 
-            if take_buy:
+            # Z-score buy overlay: fires when z crosses DOWN through the level
+            z_triggered = False
+            if zscore is not None:
+                zi, zprev = zscore.iloc[i], zscore.iloc[i - 1]
+                if pd.notna(zi) and pd.notna(zprev) and zprev > zscore_buy and zi <= zscore_buy:
+                    z_triggered = True
+
+            if take_buy or z_triggered:
                 buy_price = price
                 buy_date = df.index[i]
                 in_trade = True
+                # Attribute to the z-overlay only when the base strategy
+                # wouldn't have bought on this bar anyway.
+                entry_via = "z" if (z_triggered and not take_buy) else "base"
 
         else:
             # Check for sell
@@ -132,6 +161,7 @@ def backtest_ticker(df, ott_period, ott_percent, strategy=None):
                     "sell_price": price,
                     "return_pct": ret,
                     "duration_days": duration,
+                    "entry_via": entry_via,
                 })
                 last_sell_price = price
                 in_trade = False
@@ -147,6 +177,7 @@ def backtest_ticker(df, ott_period, ott_percent, strategy=None):
             "sell_price": close.iloc[-1],
             "return_pct": ret,
             "duration_days": duration,
+            "entry_via": entry_via,
         })
 
     return trades
@@ -244,6 +275,105 @@ def run_backtest(config, years=2, ema_filter=None, strategy=None):
             print(f"  Error backtesting {display_name}: {e}")
 
     return results
+
+
+def compounded_return(trades):
+    """Compounded equity return (%) from a list of trades (more honest than summing %)."""
+    eq = 1.0
+    for t in trades:
+        eq *= (1 + t["return_pct"] / 100)
+    return (eq - 1) * 100
+
+
+def run_zscore_sweep(config, years=5, thresholds=(-1.5, -2.0, -2.5),
+                     zscore_window=52, scope=("Stocks", "Indices")):
+    """Compare the z-score buy overlay at several thresholds against the
+    native per-class strategy (no overlay) and buy & hold."""
+    ott_period = config["ott"]["period"]
+    ott_percent = config["ott"]["percent"]
+    base_for = {"Stocks": "hybrid_sma50", "Indices": "always_in"}
+
+    tickers = []
+    for cat in scope:
+        for yf_ticker, name in config["watchlist"].get(cat, {}).items():
+            tickers.append((yf_ticker, name, cat))
+
+    print(f"Fetching {len(tickers)} tickers ({years}y daily)...")
+    data = {}
+    for yf_ticker, name, cat in tickers:
+        try:
+            df = yf.Ticker(yf_ticker).history(period=f"{years}y", interval="1d")
+            if not df.empty and len(df) >= 250:
+                data[name] = (df, cat)
+        except Exception as e:
+            print(f"  {name}: {e}")
+
+    variants = [("baseline", None)] + [(f"{t:+.1f}", t) for t in thresholds]
+    per = {}   # (name, vlabel) -> stats
+    bh = {}
+    for name, (df, cat) in data.items():
+        base = base_for[cat]
+        bh[name] = (df["Close"].iloc[-1] - df["Close"].iloc[0]) / df["Close"].iloc[0] * 100
+        for vlabel, thr in variants:
+            trades = backtest_ticker(df, ott_period, ott_percent, strategy=base,
+                                     zscore_buy=thr, zscore_window=zscore_window)
+            per[(name, vlabel)] = {
+                "comp": compounded_return(trades),
+                "n": len(trades),
+                "dd": calc_max_drawdown_strategy(df, trades),
+                "z": [t for t in trades if t.get("entry_via") == "z"],
+            }
+
+    names = sorted(data, key=lambda n: data[n][1])  # group by category
+
+    print(f"\n{'='*72}")
+    print(f" Z-SCORE BUY OVERLAY SWEEP  |  {years}y  |  window={zscore_window} bars (~live)")
+    print(f" Base: Stocks=hybrid_sma50, Indices=always_in. Buy-only overlay; exits unchanged.")
+    print('='*72)
+
+    # --- A) Are the z-entries themselves good trades? (pooled across tickers) ---
+    print("\nA) Quality of the z-triggered entries themselves (pooled, completed trades):")
+    print(f"   {'level':>6} {'#entries':>9} {'win%':>6} {'avg ret%':>9} {'median%':>8} {'avg days':>9}")
+    for vlabel, thr in variants[1:]:
+        zt = [t for name in data for t in per[(name, vlabel)]["z"]]
+        closed = [t for t in zt if not t.get("open")]
+        if not closed:
+            print(f"   {vlabel:>6} {len(zt):>9} {'-':>6} {'-':>9} {'-':>8} {'-':>9}")
+            continue
+        rets = sorted(t["return_pct"] for t in closed)
+        win = sum(1 for r in rets if r > 0) / len(rets) * 100
+        avg = sum(rets) / len(rets)
+        med = rets[len(rets) // 2]
+        dur = sum(t["duration_days"] for t in closed) / len(closed)
+        print(f"   {vlabel:>6} {len(zt):>9} {win:>5.0f}% {avg:>+9.1f} {med:>+8.1f} {dur:>8.0f}d")
+
+    # --- B) Does the overlay help the portfolio vs baseline? ---
+    print("\nB) Portfolio impact vs baseline (mean per-ticker compounded return & max DD):")
+    print(f"   {'variant':>8} {'mean ret%':>10} {'vs base':>9} {'mean DD%':>9} {'#improved':>10} {'#worse':>7}")
+    base_comps = {n: per[(n, 'baseline')]["comp"] for n in data}
+    base_mean = sum(base_comps.values()) / len(base_comps)
+    base_dd = sum(per[(n, 'baseline')]["dd"] for n in data) / len(data)
+    print(f"   {'baseline':>8} {base_mean:>+10.1f} {'-':>9} {base_dd:>+9.1f} {'-':>10} {'-':>7}")
+    for vlabel, thr in variants[1:]:
+        comps = [per[(n, vlabel)]["comp"] for n in data]
+        mean = sum(comps) / len(comps)
+        dd = sum(per[(n, vlabel)]["dd"] for n in data) / len(data)
+        imp = sum(1 for n in data if per[(n, vlabel)]["comp"] > base_comps[n] + 0.01)
+        wor = sum(1 for n in data if per[(n, vlabel)]["comp"] < base_comps[n] - 0.01)
+        print(f"   {vlabel:>8} {mean:>+10.1f} {mean - base_mean:>+9.1f} {dd:>+9.1f} {imp:>10} {wor:>7}")
+
+    # --- C) Per-ticker compounded return ---
+    print("\nC) Per-ticker compounded return (%):")
+    hdr = f"   {'ticker':>7} {'cat':>8} {'base':>8}" + "".join(f"{v:>8}" for v, _ in variants[1:]) + f"{'B&H':>9}"
+    print(hdr)
+    for n in names:
+        cat = data[n][1][:7]
+        line = f"   {n:>7} {cat:>8} {per[(n,'baseline')]['comp']:>+8.0f}"
+        for vlabel, _ in variants[1:]:
+            line += f"{per[(n,vlabel)]['comp']:>+8.0f}"
+        line += f"{bh[n]:>+9.0f}"
+        print(line)
+    print()
 
 
 def backtest_crypto_cycle(config):
