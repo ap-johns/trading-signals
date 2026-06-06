@@ -300,7 +300,22 @@ def generate_html(all_data, config):
                         else:
                             signals_html = ""
 
-                        status_html = f'<span class="strat-label">{status} | {window_note}</span>'
+                        # Daily 200d SMA z-score (display only; crypto is not alerted on it).
+                        # Labelled "vs 200d SMA" to distinguish from the 200w EMA figure above.
+                        crypto_z = all_data.get(yf_ticker, {}).get("daily", {}).get("sma_zscore")
+                        zscore_html = ""
+                        if crypto_z is not None:
+                            z_abs = abs(crypto_z)
+                            z_sign = "+" if crypto_z >= 0 else ""
+                            if z_abs >= 2:
+                                z_style = "color:#ffffff;"
+                            elif z_abs >= 1.5:
+                                z_style = "color:#f0d060;"
+                            else:
+                                z_style = "color:#888;"
+                            zscore_html = f' <span style="{z_style}">({z_sign}{crypto_z:.1f}σ vs 200d SMA)</span>'
+
+                        status_html = f'<span class="strat-label">{status}{zscore_html} | {window_note}</span>'
                         if signals_html:
                             status_html = f'{signals_html} {status_html}'
 
