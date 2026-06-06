@@ -12,92 +12,60 @@
     "window_alerted": false
   },
   "SPX": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "QQQ": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "MAGS": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "ALAB": {
-    "zscore_neg": [],
-    "zscore_pos": [
-      1.5
-    ]
+    "zscore_neg": []
   },
   "AMD": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "ARM": {
-    "zscore_neg": [],
-    "zscore_pos": [
-      1.5,
-      2.0,
-      2.5
-    ]
+    "zscore_neg": []
   },
   "ASML": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "AVGO": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "GOOG": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "META": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "MRVL": {
-    "zscore_neg": [],
-    "zscore_pos": [
-      1.5,
-      2.0,
-      2.5,
-      3.0
-    ]
+    "zscore_neg": []
   },
   "MSFT": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "MU": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "NVDA": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "PLTR": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "SATS": {
-    "zscore_neg": [
-      1.5
-    ],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "TSLA": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "TSM": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   },
   "GBPUSD": {
-    "zscore_neg": [],
-    "zscore_pos": []
+    "zscore_neg": []
   }
 }

@@ -215,9 +215,10 @@ def check_signals(config: dict) -> list:
                                     "reason": f"Price {dip_pct}% below 200d SMA (${threshold:.2f})",
                                 })
 
-                # Z-SCORE alerts: how unusual the current distance from the
-                # 200d SMA is, in standard deviations. Fires at each 0.5σ step
-                # in both directions (down = oversold/BUY, up = overbought/SELL).
+                # Z-SCORE buy alerts: how unusual the current distance below the
+                # 200d SMA is, in standard deviations. Fires at each 0.5σ step on
+                # the downside only (oversold/dip-buy). Buy-only by design — the
+                # backtest validated -σ buys but not +σ sells (which fight the trend).
                 # Crypto is excluded (it has its own 200w-EMA dip alerts).
                 if zscore_enabled and tf == "daily" and category != "Crypto":
                     pct_series = ((df["Close"] - sma_200) / sma_200 * 100).dropna()
@@ -225,13 +226,10 @@ def check_signals(config: dict) -> list:
                         zscore = (pct_series.iloc[-1] - pct_series.mean()) / pct_series.std()
                         zstate = cycle_state.get(display_name, {})
                         neg_alerted = zstate.get("zscore_neg", [])
-                        pos_alerted = zstate.get("zscore_pos", [])
 
-                        # Re-arm a side once price returns within the reset band of the mean
+                        # Re-arm once price returns within the reset band of the mean
                         if zscore >= -zscore_reset_band:
                             neg_alerted = []
-                        if zscore <= zscore_reset_band:
-                            pos_alerted = []
 
                         for lvl in zscore_levels:
                             if zscore <= -lvl and lvl not in neg_alerted:
@@ -247,22 +245,8 @@ def check_signals(config: dict) -> list:
                                     "reason": f"Stretched -{lvl:.1f}σ below 200d SMA (now {zscore:+.1f}σ)",
                                 })
                                 neg_alerted.append(lvl)
-                            if zscore >= lvl and lvl not in pos_alerted:
-                                signals.append({
-                                    "type": "SELL",
-                                    "ticker": display_name,
-                                    "category": category,
-                                    "timeframe": tf,
-                                    "price": price,
-                                    "sma_200": sma200_val,
-                                    "sma_relation": f"{zscore:+.1f}σ",
-                                    "date": date_str,
-                                    "reason": f"Stretched +{lvl:.1f}σ above 200d SMA (now {zscore:+.1f}σ)",
-                                })
-                                pos_alerted.append(lvl)
 
                         zstate["zscore_neg"] = neg_alerted
-                        zstate["zscore_pos"] = pos_alerted
                         cycle_state[display_name] = zstate
 
             except Exception as e:
