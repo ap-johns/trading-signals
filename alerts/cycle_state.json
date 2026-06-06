@@ -10,5 +10,94 @@
   },
   "SOLUSD": {
     "window_alerted": false
+  },
+  "SPX": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "QQQ": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "MAGS": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "ALAB": {
+    "zscore_neg": [],
+    "zscore_pos": [
+      1.5
+    ]
+  },
+  "AMD": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "ARM": {
+    "zscore_neg": [],
+    "zscore_pos": [
+      1.5,
+      2.0,
+      2.5
+    ]
+  },
+  "ASML": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "AVGO": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "GOOG": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "META": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "MRVL": {
+    "zscore_neg": [],
+    "zscore_pos": [
+      1.5,
+      2.0,
+      2.5,
+      3.0
+    ]
+  },
+  "MSFT": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "MU": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "NVDA": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "PLTR": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "SATS": {
+    "zscore_neg": [
+      1.5
+    ],
+    "zscore_pos": []
+  },
+  "TSLA": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "TSM": {
+    "zscore_neg": [],
+    "zscore_pos": []
+  },
+  "GBPUSD": {
+    "zscore_neg": [],
+    "zscore_pos": []
   }
 }

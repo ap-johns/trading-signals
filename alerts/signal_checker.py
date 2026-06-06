@@ -75,7 +75,14 @@ def check_signals(config: dict) -> list:
     ott_percent = config["ott"]["percent"]
     ema_period = config["ema_period"]
     timeframes = config.get("alert_timeframes", config["timeframes"])
+    zscore_cfg = config.get("zscore_alerts", {})
+    zscore_enabled = zscore_cfg.get("enabled", True)
+    zscore_levels = zscore_cfg.get("levels", [1.0, 1.5, 2.0, 2.5, 3.0])
+    zscore_reset_band = zscore_cfg.get("reset_band", 0.5)
     signals = []
+
+    # Persistent alert state (dedupes z-score level + crypto cycle alerts across runs)
+    cycle_state = load_cycle_state()
 
     # Flatten watchlist
     all_tickers = {}
@@ -208,11 +215,60 @@ def check_signals(config: dict) -> list:
                                     "reason": f"Price {dip_pct}% below 200d SMA (${threshold:.2f})",
                                 })
 
+                # Z-SCORE alerts: how unusual the current distance from the
+                # 200d SMA is, in standard deviations. Fires at each 0.5σ step
+                # in both directions (down = oversold/BUY, up = overbought/SELL).
+                # Crypto is excluded (it has its own 200w-EMA dip alerts).
+                if zscore_enabled and tf == "daily" and category != "Crypto":
+                    pct_series = ((df["Close"] - sma_200) / sma_200 * 100).dropna()
+                    if len(pct_series) > 1 and pct_series.std() > 0:
+                        zscore = (pct_series.iloc[-1] - pct_series.mean()) / pct_series.std()
+                        zstate = cycle_state.get(display_name, {})
+                        neg_alerted = zstate.get("zscore_neg", [])
+                        pos_alerted = zstate.get("zscore_pos", [])
+
+                        # Re-arm a side once price returns within the reset band of the mean
+                        if zscore >= -zscore_reset_band:
+                            neg_alerted = []
+                        if zscore <= zscore_reset_band:
+                            pos_alerted = []
+
+                        for lvl in zscore_levels:
+                            if zscore <= -lvl and lvl not in neg_alerted:
+                                signals.append({
+                                    "type": "BUY",
+                                    "ticker": display_name,
+                                    "category": category,
+                                    "timeframe": tf,
+                                    "price": price,
+                                    "sma_200": sma200_val,
+                                    "sma_relation": f"{zscore:+.1f}σ",
+                                    "date": date_str,
+                                    "reason": f"Stretched -{lvl:.1f}σ below 200d SMA (now {zscore:+.1f}σ)",
+                                })
+                                neg_alerted.append(lvl)
+                            if zscore >= lvl and lvl not in pos_alerted:
+                                signals.append({
+                                    "type": "SELL",
+                                    "ticker": display_name,
+                                    "category": category,
+                                    "timeframe": tf,
+                                    "price": price,
+                                    "sma_200": sma200_val,
+                                    "sma_relation": f"{zscore:+.1f}σ",
+                                    "date": date_str,
+                                    "reason": f"Stretched +{lvl:.1f}σ above 200d SMA (now {zscore:+.1f}σ)",
+                                })
+                                pos_alerted.append(lvl)
+
+                        zstate["zscore_neg"] = neg_alerted
+                        zstate["zscore_pos"] = pos_alerted
+                        cycle_state[display_name] = zstate
+
             except Exception as e:
                 print(f"  Error processing {display_name} ({tf}): {e}")
 
     # Crypto 4-year cycle alerts
-    cycle_state = load_cycle_state()
     crypto_tickers = config["watchlist"].get("Crypto", {})
     dip_levels = [-10, -20, -30]  # percent below 200 week EMA
     cycle_config = config.get("crypto_cycle", {})

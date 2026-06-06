@@ -10,6 +10,11 @@
     "ema_period": 200,
     "timeframes": ["daily", "4h", "weekly"],
     "alert_timeframes": ["daily"],
+    "zscore_alerts": {
+        "enabled": true,
+        "levels": [1.5, 2.0, 2.5, 3.0],
+        "reset_band": 0.5
+    },
     "crypto_cycle": {
         "sell_date": "2029-11-01",
         "alert_months_before": 1,
@@ -55,7 +60,6 @@
             "ASML": "ASML",
             "AVGO": "AVGO",
             "GOOG": "GOOG",
-            "ISRG": "ISRG",
             "META": "META",
             "MRVL": "MRVL",
             "MSFT": "MSFT",

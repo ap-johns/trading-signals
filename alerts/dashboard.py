@@ -328,6 +328,12 @@ def generate_html(all_data, config):
                         above_200 = price > sma_val if pd.notna(sma_val) else False
                         pct_from_sma = (price - sma_val) / sma_val * 100 if pd.notna(sma_val) else 0
 
+                        # Z-score of current distance from 200d SMA (same as other sections)
+                        pct_from_sma_series = ((close - sma_200) / sma_200 * 100).dropna()
+                        sma_zscore = None
+                        if len(pct_from_sma_series) > 1 and pct_from_sma_series.std() > 0:
+                            sma_zscore = (pct_from_sma_series.iloc[-1] - pct_from_sma_series.mean()) / pct_from_sma_series.std()
+
                         # 200w SMA
                         pct_from_200w = None
                         try:
@@ -404,7 +410,18 @@ def generate_html(all_data, config):
                         trend_arrow = "&#9650;" if bullish else "&#9660;"
                         sma_pct_class = "above-ema" if pct_from_sma >= 0 else "below-ema"
                         sma_pct_label = f"+{pct_from_sma:.1f}%" if pct_from_sma >= 0 else f"{pct_from_sma:.1f}%"
-                        sma_status = f'<span class="{sma_pct_class}" style="margin-right:8px;font-size:0.85em;">{sma_pct_label} from 200d SMA</span>'
+                        zscore_html = ""
+                        if sma_zscore is not None:
+                            z_abs = abs(sma_zscore)
+                            z_sign = "+" if sma_zscore >= 0 else ""
+                            if z_abs >= 2:
+                                z_style = "color:#ffffff;"
+                            elif z_abs >= 1.5:
+                                z_style = "color:#f0d060;"
+                            else:
+                                z_style = "color:#888;"
+                            zscore_html = f' <span style="{z_style}">({z_sign}{sma_zscore:.1f}σ)</span>'
+                        sma_status = f'<span class="{sma_pct_class}" style="margin-right:8px;font-size:0.85em;">{sma_pct_label} from 200d SMA{zscore_html}</span>'
                         if pct_from_200w is not None:
                             w_pct_class = "above-ema" if pct_from_200w >= 0 else "below-ema"
                             w_pct_label = f"+{pct_from_200w:.1f}%" if pct_from_200w >= 0 else f"{pct_from_200w:.1f}%"
