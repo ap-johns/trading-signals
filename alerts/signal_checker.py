@@ -360,7 +360,93 @@ def check_signals(config: dict) -> list:
         except Exception as e:
             print(f"  Error checking crypto cycle {display_name}: {e}")
 
+    # Analyst buy levels (e.g. Jacob @ Invest Answers, loaded weekly)
+    signals.extend(check_analyst_levels(config, cycle_state))
+
     save_cycle_state(cycle_state)
+
+    return signals
+
+
+def load_analyst_levels():
+    """Load analyst-provided buy levels (e.g. Jacob @ Invest Answers).
+
+    Keyed by display name, updated weekly via the /js:invest-answers-jacob command:
+        {"NVDA": {"buy_levels": [120, 100], "source": "...", "date": "YYYY-MM-DD"}}
+    """
+    path = os.path.join(SCRIPT_DIR, "analyst_levels.json")
+    if os.path.exists(path):
+        with open(path) as f:
+            return json.load(f)
+    return {}
+
+
+def check_analyst_levels(config: dict, cycle_state: dict) -> list:
+    """Fire a BUY alert when the daily close reaches an analyst buy level.
+
+    Each level fires once when price first closes at or below it, and re-arms
+    once price closes back above the level (mirrors the SMA-dip dedupe logic).
+    """
+    analyst_levels = load_analyst_levels()
+    if not analyst_levels:
+        return []
+
+    # Map display name -> (yf ticker, category)
+    name_to_yf = {}
+    for category, tickers in config["watchlist"].items():
+        for yf_ticker, display_name in tickers.items():
+            name_to_yf[display_name] = (yf_ticker, category)
+
+    signals = []
+    for display_name, info in analyst_levels.items():
+        levels = info.get("buy_levels", [])
+        if not levels:
+            continue
+        if display_name not in name_to_yf:
+            print(f"  Analyst level for unknown ticker '{display_name}' - skipping")
+            continue
+
+        yf_ticker, category = name_to_yf[display_name]
+        source = info.get("source", "Analyst")
+        level_date = info.get("date", "")
+
+        try:
+            df = fetch_daily_data(yf_ticker)
+            if df.empty or len(df) < 2:
+                continue
+
+            price = df["Close"].iloc[-1]
+            date_str = df.index[-1].strftime("%Y-%m-%d %H:%M")
+
+            state = cycle_state.get(display_name, {})
+            alerted = state.get("analyst_alerted", [])
+            still_below = []
+
+            for lvl in levels:
+                lvl = float(lvl)
+                if price > lvl:
+                    # Re-armed: price is back above this level
+                    continue
+                if lvl not in alerted:
+                    when = f", set {level_date}" if level_date else ""
+                    signals.append({
+                        "type": "BUY",
+                        "ticker": display_name,
+                        "category": category,
+                        "timeframe": "daily",
+                        "price": price,
+                        "sma_200": None,
+                        "sma_relation": "analyst buy level",
+                        "date": date_str,
+                        "reason": f"Reached {source} buy level (${lvl:g}{when})",
+                    })
+                still_below.append(lvl)
+
+            state["analyst_alerted"] = still_below
+            cycle_state[display_name] = state
+
+        except Exception as e:
+            print(f"  Error checking analyst level {display_name}: {e}")
 
     return signals
 
@@ -386,12 +472,18 @@ def format_signal(sig: dict) -> str:
     emoji = "\U0001f7e2" if sig["type"] == "BUY" else "\U0001f534"
     tf_map = {"daily": "Daily", "4h": "4H", "weekly": "Weekly"}
     tf_label = tf_map.get(sig["timeframe"], sig["timeframe"])
-    return (
-        f"{emoji} <b>{sig['type']} Signal: {sig['ticker']}</b> ({tf_label})\n"
-        f"{sig['reason']}\n"
-        f"Price: ${sig['price']:.2f} | 200 SMA: ${sig['sma_200']:.2f} ({sig['sma_relation']})\n"
-        f"{sig['category']} | {sig['date']}"
-    )
+    lines = [
+        f"{emoji} <b>{sig['type']} Signal: {sig['ticker']}</b> ({tf_label})",
+        sig["reason"],
+    ]
+    if sig.get("sma_200") is not None:
+        lines.append(
+            f"Price: ${sig['price']:.2f} | 200 SMA: ${sig['sma_200']:.2f} ({sig['sma_relation']})"
+        )
+    else:
+        lines.append(f"Price: ${sig['price']:.2f}")
+    lines.append(f"{sig['category']} | {sig['date']}")
+    return "\n".join(lines)
 
 
 def main():

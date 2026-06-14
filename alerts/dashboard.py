@@ -22,6 +22,35 @@ def load_config():
         return json.load(f)
 
 
+def load_analyst_levels():
+    """Load analyst buy levels (e.g. Jacob @ Invest Answers), keyed by display name."""
+    path = os.path.join(SCRIPT_DIR, "analyst_levels.json")
+    if os.path.exists(path):
+        with open(path) as f:
+            return json.load(f)
+    return {}
+
+
+def analyst_label_html(display_name, price, analyst_levels):
+    """Render a small label showing analyst buy levels, hit ones highlighted."""
+    info = analyst_levels.get(display_name)
+    if not info or not info.get("buy_levels"):
+        return ""
+    levels = sorted((float(l) for l in info["buy_levels"]), reverse=True)
+    source = info.get("source", "Analyst")
+    date = info.get("date", "")
+    parts = []
+    for lvl in levels:
+        hit = price is not None and price <= lvl
+        cls = "analyst-hit" if hit else "analyst-pending"
+        parts.append(f'<span class="{cls}">{fmt_price(lvl)}</span>')
+    title = source + (f" · {date}" if date else "")
+    return (
+        f' <span class="analyst-level" title="{title}">'
+        f'&#9733; buy: {", ".join(parts)}</span>'
+    )
+
+
 def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period):
     """Fetch data and calculate OTT for both timeframes."""
     results = {}
@@ -159,6 +188,7 @@ def fmt_price(val):
 def generate_html(all_data, config):
     """Generate the dashboard HTML."""
     now = datetime.now().strftime("%-d %b %y %H:%M")
+    analyst_levels = load_analyst_levels()
 
     strategy_labels = {
         "Crypto": "4yr Cycle: buy on cycle timing or -10/-20/-30% below 200w EMA, sell near cycle peak",
@@ -318,6 +348,7 @@ def generate_html(all_data, config):
                         status_html = f'<span class="strat-label">{status}{zscore_html} | {window_note}</span>'
                         if signals_html:
                             status_html = f'{signals_html} {status_html}'
+                        status_html += analyst_label_html(display_name, price, analyst_levels)
 
                         trend_arrow = "&#9650;" if pct_from_ema > 0 else "&#9660;"
                         rows += f'''<tr data-tf="daily">
@@ -441,6 +472,7 @@ def generate_html(all_data, config):
                             w_pct_class = "above-ema" if pct_from_200w >= 0 else "below-ema"
                             w_pct_label = f"+{pct_from_200w:.1f}%" if pct_from_200w >= 0 else f"{pct_from_200w:.1f}%"
                             sma_status += f' <span class="{w_pct_class}" style="font-size:0.85em;">{w_pct_label} from 200w SMA</span>'
+                        sma_status += analyst_label_html(display_name, price, analyst_levels)
                         rows += f'''<tr class="{row_class}" data-tf="daily">
                             <td class="ticker"><span class="trend-icon {state_class}">{trend_arrow}</span> {display_name}</td>
                             <td class="signals">{signals_html} {sma_status}</td>
@@ -554,6 +586,7 @@ def generate_html(all_data, config):
                         w_pct_class = "above-ema" if pct_from_200w >= 0 else "below-ema"
                         w_pct_label = f"+{pct_from_200w:.1f}%" if pct_from_200w >= 0 else f"{pct_from_200w:.1f}%"
                         sma_status += f' <span class="{w_pct_class}" style="margin-left:8px;font-size:0.85em;">{w_pct_label} from 200w SMA</span>'
+                    sma_status += analyst_label_html(display_name, price, analyst_levels)
                 rows += f'''<tr class="{row_class}" data-tf="{tf}">
                     <td class="ticker"><span class="trend-icon {state_class}">{trend_arrow}</span> {display_name}</td>
                     <td class="signals">{signals_html} {sma_status}</td>
@@ -798,6 +831,17 @@ def generate_html(all_data, config):
         color: #ff5252;
         font-size: 12px;
     }}
+    .analyst-level {{
+        margin-left: 8px;
+        font-size: 0.85em;
+        color: #c9a227;
+        cursor: help;
+    }}
+    .analyst-pending {{ color: #c9a227; }}
+    .analyst-hit {{
+        color: #00e676;
+        font-weight: 700;
+    }}
     .legend {{
         margin-top: 20px;
         color: #666;
@@ -838,6 +882,7 @@ def generate_html(all_data, config):
         <span class="bullish">&#9650;</span> = MAvg above OTT (bullish) &nbsp;
         <span class="bearish">&#9660;</span> = MAvg below OTT (bearish) &nbsp; | &nbsp;
         <span style="font-size:0.9em;">σ = how unusual the current distance from 200d SMA is for this ticker (<span style="color:#888;">&lt;1.5σ normal</span>, <span style="color:#f0d060;">&ge;1.5σ notable</span>, <span style="color:#ffffff;">&ge;2σ unusual</span>)</span>
+        <br><span style="font-size:0.9em;">&#9733; buy: analyst buy levels (hover for source &amp; date) &mdash; <span style="color:#c9a227;">pending</span>, <span style="color:#00e676;">reached</span></span>
     </div>
     <div style="margin-top: 20px;"><a href="backtest.html" style="color: #888; font-size: 13px;">View Backtest Results &rarr;</a></div>
 
