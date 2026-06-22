@@ -37,7 +37,9 @@
   },
   "GOOG": {
     "zscore_neg": [],
-    "analyst_alerted": []
+    "analyst_alerted": [
+      359.0
+    ]
   },
   "META": {
     "zscore_neg": []
@@ -68,6 +70,9 @@
     "zscore_neg": []
   },
   "GBPUSD": {
+    "zscore_neg": []
+  },
+  "COPA": {
     "zscore_neg": []
   }
 }
