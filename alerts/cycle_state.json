@@ -72,9 +72,7 @@
     "zscore_neg": []
   },
   "GBPUSD": {
-    "zscore_neg": [
-      2.0
-    ]
+    "zscore_neg": []
   },
   "COPA": {
     "zscore_neg": []
