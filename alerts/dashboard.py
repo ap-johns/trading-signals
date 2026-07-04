@@ -12,6 +12,7 @@ import pandas as pd
 from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels
 from fib_score import favorability, tier, level_reached, fib_params, rank_key
 from seasonality import seasonality_context, seasonality_banner_html
+from macro import macro_context, macro_banner_html
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(SCRIPT_DIR)
@@ -951,6 +952,7 @@ def generate_html(all_data, config):
 
     fib_section = fib_section_html(all_data, config)
     season_banner = seasonality_banner_html(seasonality_context(datetime.now().month))
+    macro_banner = macro_banner_html(macro_context(config))
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -1235,7 +1237,7 @@ def generate_html(all_data, config):
         color: #00e676;
         font-weight: 700;
     }}
-    .season-banner {{
+    .season-banner, .macro-banner {{
         margin-top: 20px;
         padding: 10px 14px;
         background: var(--surface);
@@ -1245,9 +1247,12 @@ def generate_html(all_data, config):
         font-size: 12.5px;
         color: var(--ink-soft);
     }}
+    .macro-banner {{ margin-bottom: 6px; }}
     .season-icon {{ margin-right: 4px; }}
-    .season-banner b {{ color: var(--ink); }}
+    .season-banner b, .macro-banner b {{ color: var(--ink); }}
     .season-note {{ color: var(--ink-faint); font-size: 0.9em; }}
+    .macro-take {{ color: var(--ink); margin-top: 6px; font-size: 1em; line-height: 1.5; }}
+    .macro-note {{ color: var(--ink-faint); margin-top: 5px; font-size: 0.95em; line-height: 1.5; }}
     .fib-title {{
         margin-top: 34px;
         font-size: 22px;
@@ -1402,6 +1407,7 @@ def generate_html(all_data, config):
             {rows}
         </tbody>
     </table>
+    {macro_banner}
     {season_banner}
     {fib_section}
     <div class="legend">

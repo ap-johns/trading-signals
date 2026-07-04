@@ -37,6 +37,10 @@
         "enabled": true,
         "weekday": 0
     },
+    "macro": {
+        "enabled": true,
+        "note": "18-yr real estate / Kuznets cycle ~year 15-17 — late-cycle, elevated crash risk into ~2026-28. Business cycle: late expansion. Favor keeping some dry powder to deploy into a real downturn."
+    },
     "crypto_cycle": {
         "sell_date": "2029-11-01",
         "alert_months_before": 1,

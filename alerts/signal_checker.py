@@ -562,11 +562,13 @@ def format_signal(sig: dict) -> str:
     return "\n".join(lines)
 
 
-def format_dca_digest(rows, season_line="") -> str:
+def format_dca_digest(rows, season_line="", macro_ln="") -> str:
     """Weekly DCA digest: the 'favoured now' picks per asset class, with a sector
     concentration note. `rows` is the ranked output of dca_rank.analyse()."""
     lines = ["\U0001f4ca <b>Weekly DCA Picks — Favoured Now</b>",
              datetime.now().strftime("%Y-%m-%d")]
+    if macro_ln:
+        lines.append(macro_ln)
     if season_line:
         lines.append(season_line)
     lines.append("")
@@ -618,9 +620,11 @@ def send_dca_digest(bot_token, chat_id):
     """Compute the DCA ranking and send the weekly 'favoured now' digest."""
     from dca_rank import analyse  # lazy import (pulls dashboard/yfinance)
     from seasonality import seasonality_context, seasonality_line
+    from macro import macro_context, macro_line
     rows = analyse()
     season_line = seasonality_line(seasonality_context(datetime.now().month))
-    msg = format_dca_digest(rows, season_line)
+    macro_ln = macro_line(macro_context(load_config()))
+    msg = format_dca_digest(rows, season_line, macro_ln)
     print("Sending weekly DCA digest...")
     send_telegram(bot_token, chat_id, msg)
 

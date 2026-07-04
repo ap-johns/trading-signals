@@ -281,7 +281,7 @@
         color: #00e676;
         font-weight: 700;
     }
-    .season-banner {
+    .season-banner, .macro-banner {
         margin-top: 20px;
         padding: 10px 14px;
         background: var(--surface);
@@ -291,9 +291,12 @@
         font-size: 12.5px;
         color: var(--ink-soft);
     }
+    .macro-banner { margin-bottom: 6px; }
     .season-icon { margin-right: 4px; }
-    .season-banner b { color: var(--ink); }
+    .season-banner b, .macro-banner b { color: var(--ink); }
     .season-note { color: var(--ink-faint); font-size: 0.9em; }
+    .macro-take { color: var(--ink); margin-top: 6px; font-size: 1em; line-height: 1.5; }
+    .macro-note { color: var(--ink-faint); margin-top: 5px; font-size: 0.95em; line-height: 1.5; }
     .fib-title {
         margin-top: 34px;
         font-size: 22px;
@@ -423,7 +426,7 @@
 </head>
 <body>
     <h1>OTT Signal Dashboard</h1>
-    <div class="updated">Last updated: 2026-07-04 17:26:23.708497</div>
+    <div class="updated">Last updated: 2026-07-04 17:45:09.986157</div>
     <div class="params">OTT Period: 10 | OTT Percent: 3.0 | Source: Open | MA Type: VAR | EMA: 200</div>
     <div class="controls">
         <div class="tf-toggle">
@@ -892,6 +895,7 @@
 
         </tbody>
     </table>
+    <div class="macro-banner"><span class="season-icon">&#127757;</span> <b>Macro context</b> &nbsp; Yield curve (10Y&minus;3M): <b style="color:#5fb87a;">+0.71%</b> <span style="color:#5fb87a;">normal</span> &nbsp;&middot;&nbsp; VIX: <b style="color:#5fb87a;">16.1</b> <span style="color:#5fb87a;">calm</span><div class="macro-take">&rarr; Markets are calm; the yield curve isn't flagging a recession. No acute stress — a normal backdrop for steady DCA; keep a little reserve for opportunities.</div><div class="macro-note">Cycle: 18-yr real estate / Kuznets cycle ~year 15-17 — late-cycle, elevated crash risk into ~2026-28. Business cycle: late expansion. Favor keeping some dry powder to deploy into a real downturn.</div></div>
     <div class="season-banner"><span class="season-icon">&#128197;</span> <b>Seasonality</b> (S&amp;P 500, since 1985): Jul avg <b style="color:#5fb87a;">+1.4%</b> (60% positive) &middot; <span style="color:#5fb87a;">strong month</span> &middot; May–Oct softer window. <span class="season-note">Market-wide tilt &mdash; context for sizing, not a ranking factor.</span></div>
     
     <h2 class="fib-title">Fibonacci Retracements <span class="fib-sub">ranked by buy-and-hold DCA favorability &middot; <span class="fib-near">green</span> = price within 5% of the level &middot; <span style="color:#00e676;">&#9650;</span>/<span style="color:#ff5252;">&#9660;</span> = 50d SMA rising/falling</span></h2>
