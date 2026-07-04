@@ -63,38 +63,111 @@ def _fmt_date(idx):
     return str(idx)
 
 
-def fib_label_html(fib, price):
-    """Render a small label showing fib retracement levels of the prior uptrend.
+# Fib retracement depth colour ramp (shallow -> deep). Warm, increasing "heat"
+# with depth so the eye reads how far price has pulled back into the buy zone.
+FIB_RATIOS = (0.382, 0.5, 0.618, 0.786)
 
-    The level nearest to (and at/above) the current price is highlighted as the
-    active pullback zone; a level price has already dropped below is marked hit.
-    """
-    if not fib or price is None:
-        return ""
-    levels = fib["levels"]  # {ratio: price}
-    parts = []
-    for r in sorted(levels):
-        p = levels[r]
-        # "hit" = price has retraced to or below this level; "pending" = above it
-        cls = "fib-hit" if price <= p else "fib-pending"
-        parts.append(f'<span class="{cls}">{r}:{fmt_price(p)}</span>')
-    lo_date = _fmt_date(fib.get("swing_low_date"))
-    hi_date = _fmt_date(fib.get("swing_high_date"))
-    title = f'+{fib["gain"] * 100:.0f}% uptrend used for these fib levels'
-    # Show the swing low/high (with dates) inline so it can be checked against a chart
-    span_html = (
-        f'<span class="fib-range">'
-        f'{fmt_price(fib["swing_low"])} ({lo_date}) &rarr; {fmt_price(fib["swing_high"])} ({hi_date})'
-        f'</span>'
+
+def fib_retrace_color(frac):
+    """Colour for a retracement fraction (0 = at high, 1 = at swing low)."""
+    if frac >= 1.0:
+        return "#6b6b6b"   # below the swing low — trend broken
+    if frac >= 0.786:
+        return "#e85d5d"   # deep
+    if frac >= 0.618:
+        return "#f07d3c"   # golden-pocket zone
+    if frac >= 0.5:
+        return "#f0a83c"
+    if frac >= 0.382:
+        return "#e0c04a"
+    return "#6b7fb0"       # shallow — barely retraced
+
+
+def fib_level_label(frac):
+    """Which fib level the retracement has reached."""
+    if frac >= 1.0:
+        return "below low"
+    reached = [r for r in FIB_RATIOS if frac >= r]
+    return f"{max(reached)}" if reached else "above 0.382"
+
+
+def fib_meter_html(frac):
+    """A horizontal meter: left = swing high (0%), right = swing low (100%),
+    with fib level ticks and a fill up to the current retracement."""
+    color = fib_retrace_color(frac)
+    fill = max(0.0, min(frac, 1.0)) * 100
+    ticks = "".join(
+        f'<span class="fib-tick" style="left:{r * 100:.1f}%"></span>' for r in FIB_RATIOS
     )
     return (
-        f' <span class="fib-level" title="{title}">'
-        f'fib {span_html}: {", ".join(parts)}</span>'
+        f'<span class="fib-meter">'
+        f'<span class="fib-meter-fill" style="width:{fill:.1f}%;background:{color};"></span>'
+        f'{ticks}'
+        f'</span>'
     )
+
+
+def fib_section_html(all_data, config):
+    """Build the Fibonacci retracement table for stocks with a qualifying uptrend."""
+    stocks = config["watchlist"].get("Stocks", {})
+    entries = []
+    for yf_ticker, display_name in stocks.items():
+        data = all_data.get(yf_ticker, {})
+        fib = data.get("fib")
+        price = data.get("daily", {}).get("price")
+        if not fib or price is None:
+            continue
+        sl, sh = fib["swing_low"], fib["swing_high"]
+        if sh <= sl:
+            continue
+        frac = (sh - price) / (sh - sl)
+        entries.append((display_name, fib, price, frac))
+
+    if not entries:
+        return ""
+
+    # Deepest retracements first (closest to a buy zone); broken (>=100%) last.
+    entries.sort(key=lambda e: (e[3] >= 1.0, -e[3]))
+
+    rows = ""
+    for name, fib, price, frac in entries:
+        broken = frac >= 1.0
+        lo = f'{fmt_price(fib["swing_low"])} <span class="fib-dt">({_fmt_date(fib["swing_low_date"])})</span>'
+        hi = f'{fmt_price(fib["swing_high"])} <span class="fib-dt">({_fmt_date(fib["swing_high_date"])})</span>'
+        color = fib_retrace_color(frac)
+        pct_label = f'{frac * 100:.0f}%'
+        if broken:
+            depth_html = f'<span class="fib-pct" style="color:{color};">{pct_label}</span> <span class="fib-broken">below low</span>'
+        else:
+            depth_html = f'<span class="fib-pct" style="color:{color};">{pct_label} <span class="fib-lvl">{fib_level_label(frac)}</span></span>'
+        rows += f'''<tr>
+            <td class="ticker">{name}</td>
+            <td class="fib-range-cell">{lo} &rarr; {hi}</td>
+            <td class="fib-gain">+{fib["gain"] * 100:.0f}%</td>
+            <td class="detail-col">{fmt_price(price)}</td>
+            <td class="fib-meter-cell">{fib_meter_html(frac)}{depth_html}</td>
+        </tr>\n'''
+
+    return f'''
+    <h2 class="fib-title">Fibonacci Retracements <span class="fib-sub">weekly uptrend &middot; deeper = closer to buy zone</span></h2>
+    <table class="fib-table">
+        <thead>
+            <tr>
+                <th>Ticker</th>
+                <th>Uptrend (low &rarr; high)</th>
+                <th>Gain</th>
+                <th class="detail-col">Price</th>
+                <th>Retracement <span class="fib-scale">high&larr;&nbsp;0.382&nbsp;0.5&nbsp;0.618&nbsp;0.786&nbsp;&rarr;low</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {rows}
+        </tbody>
+    </table>'''
 
 
 def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
-                    fib_lookback=252, fib_min_gain=0.30,
+                    fib_lookback=104, fib_min_gain=0.30, fib_reversal=0.14,
                     fib_levels=(0.382, 0.5, 0.618, 0.786)):
     """Fetch data and calculate OTT for both timeframes."""
     results = {}
@@ -129,17 +202,10 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
             if len(pct_from_sma_series) > 1 and pct_from_sma_series.std() > 0:
                 sma_zscore = (pct_from_sma_series.iloc[-1] - pct_from_sma_series.mean()) / pct_from_sma_series.std()
 
-            # Fibonacci retracement levels of the prior significant uptrend
-            fib = calculate_fib_levels(
-                df["High"], df["Low"],
-                lookback=fib_lookback, min_gain=fib_min_gain, ratios=tuple(fib_levels),
-            )
-
             results["daily"] = {
                 "price": df["Close"].iloc[-1],
                 "ema_200": ema_200.iloc[-1],
                 "sma_zscore": sma_zscore,
-                "fib": fib,
                 "mavg": ott_df["mavg"].iloc[-1],
                 "ott": ott_df["ott"].iloc[-1],
                 "bullish": mavg_above_ott,
@@ -223,6 +289,13 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
                     "signals": recent_signals,
                     "last_date": df_w.index[-1].strftime("%-d %b %y"),
                 }
+
+                # Fibonacci retracement of the dominant weekly uptrend
+                results["fib"] = calculate_fib_levels(
+                    df_w["High"], df_w["Low"],
+                    lookback=fib_lookback, min_gain=fib_min_gain,
+                    reversal=fib_reversal, ratios=tuple(fib_levels),
+                )
     except Exception as e:
         results["weekly"] = {"error": str(e)}
 
@@ -638,7 +711,6 @@ def generate_html(all_data, config):
                         w_pct_label = f"+{pct_from_200w:.1f}%" if pct_from_200w >= 0 else f"{pct_from_200w:.1f}%"
                         sma_status += f' <span class="{w_pct_class}" style="margin-left:8px;font-size:0.85em;">{w_pct_label} from 200w SMA</span>'
                     sma_status += analyst_label_html(display_name, price, analyst_levels)
-                    sma_status += fib_label_html(tf_data.get("fib"), price)
                 rows += f'''<tr class="{row_class}" data-tf="{tf}">
                     <td class="ticker"><span class="trend-icon {state_class}">{trend_arrow}</span> {display_name}</td>
                     <td class="signals">{signals_html} {sma_status}</td>
@@ -647,6 +719,8 @@ def generate_html(all_data, config):
                     <td class="detail-col mavg">{fmt_price(tf_data["mavg"])}</td>
                     <td class="detail-col ott">{fmt_price(tf_data["ott"])}</td>
                 </tr>\n'''
+
+    fib_section = fib_section_html(all_data, config)
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -894,18 +968,61 @@ def generate_html(all_data, config):
         color: #00e676;
         font-weight: 700;
     }}
-    .fib-level {{
-        margin-left: 8px;
-        font-size: 0.85em;
-        color: #7aa2f7;
-        cursor: help;
+    .fib-title {{
+        margin-top: 28px;
+        font-size: 18px;
+        font-weight: 600;
+        color: #e0e0e0;
     }}
-    .fib-pending {{ color: #6b7fb0; }}
-    .fib-hit {{
-        color: #7aa2f7;
-        font-weight: 700;
+    .fib-sub {{ font-size: 0.7em; font-weight: 400; color: #888; margin-left: 8px; }}
+    .fib-table {{
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 13px;
     }}
-    .fib-range {{ color: #8a93b8; }}
+    .fib-table th {{
+        text-align: left;
+        padding: 8px 10px;
+        color: #888;
+        font-weight: 600;
+        border-bottom: 1px solid #2a2a44;
+        white-space: nowrap;
+    }}
+    .fib-table td {{
+        padding: 8px 10px;
+        border-bottom: 1px solid #23233a;
+        vertical-align: middle;
+    }}
+    .fib-scale {{ font-size: 0.8em; font-weight: 400; color: #666; margin-left: 6px; }}
+    .fib-range-cell {{ color: #b8b8c8; white-space: nowrap; }}
+    .fib-dt {{ color: #777; }}
+    .fib-gain {{ color: #00e676; font-weight: 600; }}
+    .fib-meter-cell {{ white-space: nowrap; }}
+    .fib-meter {{
+        position: relative;
+        display: inline-block;
+        width: 180px;
+        height: 14px;
+        background: #23233a;
+        border-radius: 3px;
+        vertical-align: middle;
+        overflow: hidden;
+    }}
+    .fib-meter-fill {{
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        border-radius: 3px 0 0 3px;
+    }}
+    .fib-tick {{
+        position: absolute;
+        top: 0; bottom: 0;
+        width: 1px;
+        background: rgba(255,255,255,0.28);
+    }}
+    .fib-pct {{ margin-left: 8px; font-weight: 600; }}
+    .fib-lvl {{ font-weight: 400; font-size: 0.85em; opacity: 0.85; }}
+    .fib-broken {{ margin-left: 6px; color: #6b6b6b; font-size: 0.85em; }}
     .legend {{
         margin-top: 20px;
         color: #666;
@@ -940,6 +1057,7 @@ def generate_html(all_data, config):
             {rows}
         </tbody>
     </table>
+    {fib_section}
     <div class="legend">
         <span class="signal-pill buy-signal">date</span> = Buy signal &nbsp;
         <span class="signal-pill sell-signal">date</span> = Sell signal &nbsp; | &nbsp;
@@ -1000,8 +1118,9 @@ def main():
     ott_percent = config["ott"]["percent"]
     ema_period = config["ema_period"]
     fib_cfg = config.get("fib_alerts", {})
-    fib_lookback = fib_cfg.get("lookback", 252)
+    fib_lookback = fib_cfg.get("lookback", 104)
     fib_min_gain = fib_cfg.get("min_gain", 0.30)
+    fib_reversal = fib_cfg.get("reversal", 0.14)
     fib_levels = fib_cfg.get("levels", [0.382, 0.5, 0.618, 0.786])
 
     print(f"OTT Dashboard Generator - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
@@ -1018,7 +1137,8 @@ def main():
         print(f"  {display_name}...", end=" ", flush=True)
         all_data[yf_ticker] = get_ticker_data(
             yf_ticker, ott_period, ott_percent, ema_period,
-            fib_lookback=fib_lookback, fib_min_gain=fib_min_gain, fib_levels=fib_levels,
+            fib_lookback=fib_lookback, fib_min_gain=fib_min_gain,
+            fib_reversal=fib_reversal, fib_levels=fib_levels,
         )
         print("done")
 

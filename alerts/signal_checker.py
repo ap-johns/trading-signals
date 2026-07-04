@@ -59,6 +59,12 @@ def fetch_daily_data(ticker: str, days: int = 365) -> pd.DataFrame:
     return df
 
 
+def fetch_weekly_data(ticker: str) -> pd.DataFrame:
+    """Fetch weekly OHLCV data (full history)."""
+    t = yf.Ticker(ticker)
+    return t.history(period="max", interval="1wk").dropna()
+
+
 def fetch_4h_data(ticker: str) -> pd.DataFrame:
     """Fetch 4h data by resampling 1h candles (yfinance max 730 days for 1h)."""
     t = yf.Ticker(ticker)
@@ -92,8 +98,9 @@ def check_signals(config: dict) -> list:
     fib_cfg = config.get("fib_alerts", {})
     fib_enabled = fib_cfg.get("enabled", True)
     fib_levels = fib_cfg.get("levels", [0.382, 0.5, 0.618, 0.786])
-    fib_lookback = fib_cfg.get("lookback", 252)
+    fib_lookback = fib_cfg.get("lookback", 104)
     fib_min_gain = fib_cfg.get("min_gain", 0.30)
+    fib_reversal = fib_cfg.get("reversal", 0.14)
     signals = []
 
     # Persistent alert state (dedupes z-score level + crypto cycle alerts across runs)
@@ -233,15 +240,21 @@ def check_signals(config: dict) -> list:
                     # FIBONACCI retracement buy alerts for stocks: after a significant
                     # uptrend (>= min_gain), fire when price is at/below a fib level
                     # (0.382/0.5/0.618/0.786) while the trend is still intact (price
-                    # still above the swing low). Position-based (fires on initial
-                    # state, like the z-score/analyst alerts), deduped once per level;
-                    # re-arms once price recovers back above the level. Resets if a new
-                    # swing high forms (new setup).
+                    # still above the swing low). The swing is detected on WEEKLY bars
+                    # (clearer trend structure) but the current daily close is checked
+                    # against those levels. Position-based (fires on initial state,
+                    # like the z-score/analyst alerts), deduped once per level; re-arms
+                    # once price recovers back above the level. Resets on a new swing high.
                     if fib_enabled and category == "Stocks" and tf == "daily" and len(df) >= 2:
+                        try:
+                            df_wk = fetch_weekly_data(yf_ticker)
+                        except Exception:
+                            df_wk = pd.DataFrame()
                         fib = calculate_fib_levels(
-                            df["High"], df["Low"],
-                            lookback=fib_lookback, min_gain=fib_min_gain, ratios=tuple(fib_levels),
-                        )
+                            df_wk["High"], df_wk["Low"],
+                            lookback=fib_lookback, min_gain=fib_min_gain,
+                            reversal=fib_reversal, ratios=tuple(fib_levels),
+                        ) if not df_wk.empty else None
                         if fib is not None and fib["swing_low"] < price < fib["swing_high"]:
                             fstate = cycle_state.get(display_name, {})
                             fib_alerted = fstate.get("fib_alerted", [])

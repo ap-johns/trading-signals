@@ -18,8 +18,10 @@
     "fib_alerts": {
         "enabled": true,
         "levels": [0.382, 0.5, 0.618, 0.786],
-        "lookback": 252,
-        "min_gain": 0.30
+        "timeframe": "weekly",
+        "lookback": 104,
+        "min_gain": 0.30,
+        "reversal": 0.14
     },
     "crypto_cycle": {
         "sell_date": "2029-11-01",

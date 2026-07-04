@@ -147,18 +147,25 @@ def calculate_sma(close: pd.Series, period: int = 200) -> pd.Series:
 def calculate_fib_levels(
     high: pd.Series,
     low: pd.Series,
-    lookback: int = 252,
+    lookback: int = 104,
     min_gain: float = 0.30,
+    reversal: float = 0.14,
     ratios=(0.382, 0.5, 0.618, 0.786),
 ):
     """
     Detect the dominant uptrend within the last `lookback` bars and return its
     Fibonacci retracement levels.
 
-    The uptrend is defined as the lowest low preceding (on or before) the highest
-    high in the window — i.e. the launch point of the move up to its peak. The
-    setup only qualifies if the rise from swing low to swing high is at least
-    `min_gain` (fractional, e.g. 0.30 = 30%).
+    The swing high is the highest high in the window. The swing low is the low
+    that launched the advance into that high, found by walking backward from the
+    high: the running-minimum low is extended to any lower low, and the walk stops
+    once price (going further back) has risen `reversal` above the running minimum
+    — a genuine intervening rally that marks a separate, earlier leg. Mid-trend
+    pullbacks smaller than `reversal` don't reset the origin, so a choppy but
+    sustained advance is kept intact, while an older low separated by a trading
+    range is excluded. Intended for weekly bars, where `reversal` ~0.14 matches how
+    a trader reads the chart. The setup qualifies only if the rise from swing low
+    to swing high is at least `min_gain` (fractional, e.g. 0.30 = 30%).
 
     Returns a dict:
         {
@@ -182,12 +189,23 @@ def calculate_fib_levels(
     swing_high = high_window.max()
     idx_high = high_window.idxmax()
 
-    # Lowest low on/before the swing high (the launch point of the uptrend)
+    # Walk backward from the swing high to find the launch low of the advance.
     low_before_high = low_window.loc[:idx_high]
-    if low_before_high.empty:
+    if len(low_before_high) < 2:
         return None
-    swing_low = low_before_high.min()
-    idx_low = low_before_high.idxmin()
+    lows = low_before_high.values
+    idxs = low_before_high.index
+    run_min = lows[-1]
+    swing_low = run_min
+    idx_low = idxs[-1]
+    for i in range(len(lows) - 2, -1, -1):
+        if lows[i] < run_min:
+            run_min = lows[i]
+            swing_low = run_min
+            idx_low = idxs[i]
+        elif run_min > 0 and (lows[i] - run_min) / run_min >= reversal:
+            # A prior rally of >= reversal off the running min => earlier leg. Stop.
+            break
 
     if swing_low <= 0 or swing_high <= swing_low:
         return None
