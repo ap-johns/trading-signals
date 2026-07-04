@@ -384,10 +384,10 @@ def ia_levels_section_html(all_data, config):
             # Pullback: how far below the high (Level 6), in plain terms
             pct_off = (lv[6] - price) / lv[6] * 100 if lv[6] else 0
             if price >= lv[6]:
-                pull_html = '<span style="color:#7aa2f7;">at the high</span>'
+                pull_html = '<span style="color:#7aa2f7;">at high</span>'
             else:
-                word, wcol = depth_word(pct_off)
-                pull_html = f'<span style="color:{wcol};">&minus;{pct_off:.0f}% &middot; {word}</span>'
+                _, wcol = depth_word(pct_off)
+                pull_html = f'<span style="color:{wcol};font-weight:600;">&minus;{pct_off:.0f}%</span>'
 
             # Nearest level: a labelled bar (lower level | price marker | upper level)
             above = [k for k in labels if lv[k] > price]
@@ -398,15 +398,25 @@ def ia_levels_section_html(all_data, config):
                 lo, up = lv[lower_lv], lv[upper_lv]
                 pos = max(0.0, min(100.0, (price - lo) / (up - lo) * 100)) if up > lo else 50.0
                 d_up, d_lo = (up - price) / price * 100, (price - lo) / price * 100
-                nearest_lv, dist = (upper_lv, d_up) if d_up <= d_lo else (lower_lv, d_lo)
-                arrow = "&uarr;" if nearest_lv == upper_lv else "&darr;"
-                txt_cls = "ia-prox-txt near" if dist <= 3.0 else "ia-prox-txt"
+                # Distance is to the level in the DIRECTION OF TRAVEL — falling => the
+                # lower level it's heading toward, rising => the upper. (When flat, the
+                # nearest by distance.) The marker triangle points that way too.
+                chg5 = d.get("chg5", 0.0)
+                if chg5 > 0.5:
+                    mkcls, target_lv, dist = "ia-mk-up", upper_lv, d_up
+                elif chg5 < -0.5:
+                    mkcls, target_lv, dist = "ia-mk-dn", lower_lv, d_lo
+                else:
+                    mkcls = "ia-mk-flat"
+                    target_lv, dist = (upper_lv, d_up) if d_up <= d_lo else (lower_lv, d_lo)
+                lbl_cls = "ia-prox-lbl near" if dist <= 3.0 else "ia-prox-lbl"
                 prox = (f'<span class="ia-prox">'
                         f'<span class="ia-endlbl">L{lower_lv}<br>{fmt_price(lo)}</span>'
                         f'<span class="ia-prox-track">'
-                        f'<span class="ia-prox-marker" style="left:{pos:.0f}%"></span></span>'
+                        f'<span class="{lbl_cls}" style="left:{pos:.0f}%">{dist:.1f}%</span>'
+                        f'<span class="ia-prox-marker {mkcls}" style="left:{pos:.0f}%"></span></span>'
                         f'<span class="ia-endlbl">L{upper_lv}<br>{fmt_price(up)}</span>'
-                        f'<span class="{txt_cls}">{arrow}{dist:.1f}% to L{nearest_lv}</span></span>')
+                        f'<span class="ia-prox-tgt">&rarr;&nbsp;L{target_lv}</span></span>')
             elif not above:
                 prox = '<span class="ia-prox-txt">at the high</span>'
             else:
@@ -422,9 +432,10 @@ def ia_levels_section_html(all_data, config):
         return ""
     heads = "".join(f'<th>L{k}<span class="ia-hpct">{hdr_pct[k]}</span></th>' for k in labels)
     return f'''
-    <h2 class="fib-title">IA Levels <span class="fib-sub">Fibonacci-% pullback bands from the trailing high (Invest Answers) &middot; <span style="color:#5fb87a;">green</span> = the band price sits in &middot; L4&ndash;L5 = accumulation zone</span></h2>
+    <h2 class="fib-title">IA Levels <span class="fib-sub">Fibonacci-% pullback bands from the trailing high (Invest Answers) &middot; <span style="color:#5fb87a;">green cell</span> = the band price sits in</span></h2>
+    <div class="ia-key">Pullback depth: <span style="color:#7aa2f7;">shallow &lt;24%</span> &middot; <span style="color:#5fb87a;">moderate 24&ndash;38%</span> &middot; <span style="color:#e0c04a;">deep 38&ndash;50%</span> &middot; <span style="color:#e8925d;">very deep 50&ndash;62%</span> &middot; <span style="color:#d97a6c;">extreme &gt;62%</span></div>
     <table class="fib-table ia-table">
-        <thead><tr><th>Ticker</th><th class="fib-price">Price</th>{heads}<th>Pullback<br>from high</th><th>Nearest level<br><span class="ia-hpct">(where price sits between two levels)</span></th></tr></thead>
+        <thead><tr><th>Ticker</th><th class="fib-price">Price</th>{heads}<th>Pullback<br>from high</th><th>Nearest level<br><span class="ia-hpct">marker = price (5-day): <span style="color:#5fb87a;">&#9654;</span> rising &middot; <span style="color:#d97a6c;">&#9664;</span> falling &middot; <span style="color:#e8e6e0;">&#9612;</span> flat</span></th></tr></thead>
         <tbody>{body}</tbody>
     </table>'''
 
@@ -505,8 +516,12 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
                     chg200 = (sma_200d - prev200) / prev200 * 100
                     sma_200d_dir = "up" if chg200 > 0.3 else ("down" if chg200 < -0.3 else "flat")
 
+            # Short-term direction: 5-session % change (for "approaching/leaving" a level)
+            chg5 = float((df["Close"].iloc[-1] / df["Close"].iloc[-6] - 1) * 100) if len(df) >= 6 else 0.0
+
             results["daily"] = {
                 "price": price_now,
+                "chg5": chg5,
                 "ema_200": ema_200.iloc[-1],
                 "sma_zscore": sma_zscore,
                 "sma_50": sma_50,
@@ -1402,6 +1417,7 @@ def generate_html(all_data, config):
         white-space: nowrap;
     }}
     .ia-hpct {{ display: block; font-size: 0.78em; font-weight: 400; color: var(--ink-faint); }}
+    .ia-key {{ margin: 6px 0 2px; font-size: 12px; color: var(--ink-faint); }}
     .ia-zone {{ white-space: nowrap; font-weight: 600; }}
     .ia-prox-cell {{ white-space: nowrap; }}
     .ia-prox {{ display: inline-flex; align-items: center; gap: 7px; }}
@@ -1409,21 +1425,36 @@ def generate_html(all_data, config):
     .ia-prox-track {{
         position: relative;
         display: inline-block;
-        width: 84px;
+        width: 96px;
+        flex: 0 0 96px;
         height: 8px;
+        margin-top: 14px;
         background: var(--surface-raised);
         border-radius: 4px;
         vertical-align: middle;
     }}
-    .ia-prox-marker {{
+    .ia-endlbl {{ flex: 0 0 auto; }}
+    .ia-prox-lbl {{
         position: absolute;
-        top: -3px;
-        width: 3px;
-        height: 14px;
-        margin-left: -1px;
-        background: #e8e6e0;
-        border-radius: 2px;
-        box-shadow: 0 0 0 2px var(--surface);
+        bottom: 11px;
+        transform: translateX(-50%);
+        font-size: 0.78em;
+        color: var(--ink-soft);
+        white-space: nowrap;
+    }}
+    .ia-prox-lbl.near {{ color: #5fb87a; font-weight: 700; }}
+    .ia-prox-tgt {{ font-size: 0.82em; color: var(--ink-faint); }}
+    .ia-prox-marker {{ position: absolute; top: 50%; transform: translate(-50%, -50%); }}
+    .ia-mk-flat {{ width: 3px; height: 14px; background: #e8e6e0; border-radius: 2px; box-shadow: 0 0 0 2px var(--surface); }}
+    .ia-mk-up {{
+        width: 0; height: 0;
+        border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+        border-left: 9px solid #5fb87a;
+    }}
+    .ia-mk-dn {{
+        width: 0; height: 0;
+        border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+        border-right: 9px solid #d97a6c;
     }}
     .ia-prox-txt {{ color: var(--ink-soft); font-size: 0.9em; margin-left: 2px; }}
     .ia-prox-txt.near {{ color: #5fb87a; font-weight: 700; }}
