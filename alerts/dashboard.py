@@ -11,6 +11,7 @@ import pandas as pd
 
 from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels
 from fib_score import favorability, tier, level_reached, fib_params, rank_key
+from seasonality import seasonality_context, seasonality_banner_html
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(SCRIPT_DIR)
@@ -949,6 +950,7 @@ def generate_html(all_data, config):
                 </tr>\n'''
 
     fib_section = fib_section_html(all_data, config)
+    season_banner = seasonality_banner_html(seasonality_context(datetime.now().month))
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -1233,6 +1235,19 @@ def generate_html(all_data, config):
         color: #00e676;
         font-weight: 700;
     }}
+    .season-banner {{
+        margin-top: 20px;
+        padding: 10px 14px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: var(--radius);
+        font-size: 12.5px;
+        color: var(--ink-soft);
+    }}
+    .season-icon {{ margin-right: 4px; }}
+    .season-banner b {{ color: var(--ink); }}
+    .season-note {{ color: var(--ink-faint); font-size: 0.9em; }}
     .fib-title {{
         margin-top: 34px;
         font-size: 22px;
@@ -1387,6 +1402,7 @@ def generate_html(all_data, config):
             {rows}
         </tbody>
     </table>
+    {season_banner}
     {fib_section}
     <div class="legend">
         <span class="signal-pill buy-signal">date</span> = Buy signal &nbsp;
