@@ -274,6 +274,10 @@
     .fib-range-cell { color: #b8b8c8; white-space: nowrap; }
     .fib-dt { color: #777; }
     .fib-gain { color: #00e676; font-weight: 600; }
+    .fib-price { color: #e0e0e0; font-weight: 600; white-space: nowrap; }
+    .fib-lv { color: #b8b8c8; white-space: nowrap; }
+    .fib-z { white-space: nowrap; }
+    .fib-near { color: #00e676; font-weight: 600; }
     .fib-meter-cell { white-space: nowrap; }
     .fib-meter {
         position: relative;
@@ -308,7 +312,7 @@
 </head>
 <body>
     <h1>OTT Signal Dashboard</h1>
-    <div class="updated">Last updated: 2026-07-04 14:47:52.327330</div>
+    <div class="updated">Last updated: 2026-07-04 15:19:36.961683</div>
     <div class="params">OTT Period: 10 | OTT Percent: 3.0 | Source: Open | MA Type: VAR | EMA: 200</div>
     <div class="controls">
         <div class="tf-toggle">
@@ -337,7 +341,7 @@
                         </tr>
 <tr data-tf="daily">
                             <td class="ticker"><span class="trend-icon bearish">&#9660;</span> ETHUSD</td>
-                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('ETHUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$4.3k</span></span><span id="ETHUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">17 Apr 23<br><span class="sig-price">$1.9k</span></span> <span class="signal-pill buy-signal">27 Feb 23<br><span class="sig-price">$1.6k</span></span> <span class="signal-pill buy-signal">6 Feb 23<br><span class="sig-price">$1.5k</span></span> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$1.3k</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$3.4k</span></span></span> <span class="strat-label">-33% from 200w EMA <span style="color:#888;">(+0.6σ vs 200d SMA)</span> | Next window: 1 Dec 26 (149d)</span></td>
+                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('ETHUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$4.3k</span></span><span id="ETHUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">17 Apr 23<br><span class="sig-price">$1.9k</span></span> <span class="signal-pill buy-signal">27 Feb 23<br><span class="sig-price">$1.6k</span></span> <span class="signal-pill buy-signal">6 Feb 23<br><span class="sig-price">$1.5k</span></span> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$1.3k</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$3.4k</span></span></span> <span class="strat-label">-32% from 200w EMA <span style="color:#888;">(+0.6σ vs 200d SMA)</span> | Next window: 1 Dec 26 (149d)</span></td>
                         </tr>
 <tr data-tf="daily">
                             <td class="ticker"><span class="trend-icon bearish">&#9660;</span> SOLUSD</td>
@@ -778,14 +782,17 @@
         </tbody>
     </table>
     
-    <h2 class="fib-title">Fibonacci Retracements <span class="fib-sub">weekly uptrend &middot; deeper = closer to buy zone</span></h2>
+    <h2 class="fib-title">Fibonacci Retracements <span class="fib-sub">weekly uptrend &middot; deeper = closer to buy zone &middot; <span class="fib-near">green</span> = price within 5% of the level &middot; <span style="color:#00e676;">&#9650;</span>/<span style="color:#ff5252;">&#9660;</span> = 50d SMA rising/falling</span></h2>
     <table class="fib-table">
         <thead>
             <tr>
                 <th>Ticker</th>
                 <th>Uptrend (low &rarr; high)</th>
                 <th>Gain</th>
-                <th class="detail-col">Price</th>
+                <th class="fib-price">Price</th>
+                <th>50d SMA</th>
+                <th>Support</th>
+                <th>z-score</th>
                 <th>Retracement <span class="fib-scale">high&larr;&nbsp;0.382&nbsp;0.5&nbsp;0.618&nbsp;0.786&nbsp;&rarr;low</span></th>
             </tr>
         </thead>
@@ -794,112 +801,160 @@
             <td class="ticker">TSLA</td>
             <td class="fib-range-cell">$382.78 <span class="fib-dt">(10 Nov 25)</span> &rarr; $498.83 <span class="fib-dt">(22 Dec 25)</span></td>
             <td class="fib-gain">+30%</td>
-            <td class="detail-col">$393.45</td>
+            <td class="fib-price">$393.45</td>
+            <td class="fib-lv"><span class="fib-near">$406.42</span> <span class="fib-dt">-3%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$387.53</span> <span class="fib-dt">+2%</span></td>
+            <td class="fib-z"><span style="color:#888;">-1.1&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:90.8%;background:#e85d5d;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#e85d5d;">91% <span class="fib-lvl">0.786</span></span></td>
         </tr>
 <tr>
             <td class="ticker">MSFT</td>
             <td class="fib-range-cell">$341.43 <span class="fib-dt">(7 Apr 25)</span> &rarr; $551.05 <span class="fib-dt">(28 Jul 25)</span></td>
             <td class="fib-gain">+61%</td>
-            <td class="detail-col">$390.49</td>
+            <td class="fib-price">$390.49</td>
+            <td class="fib-lv"><span class="fib-near">$407.22</span> <span class="fib-dt">-4%</span> <span style="color:#888;" title="50d SMA flat">&#9644;</span></td>
+            <td class="fib-lv"><span class="fib-near">$380.89</span> <span class="fib-dt">+2%</span></td>
+            <td class="fib-z"><span style="color:#888;">-0.4&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:76.6%;background:#f07d3c;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#f07d3c;">77% <span class="fib-lvl">0.618</span></span></td>
         </tr>
 <tr>
             <td class="ticker">META</td>
             <td class="fib-range-cell">$477.86 <span class="fib-dt">(21 Apr 25)</span> &rarr; $793.65 <span class="fib-dt">(11 Aug 25)</span></td>
             <td class="fib-gain">+66%</td>
-            <td class="detail-col">$582.90</td>
+            <td class="fib-price">$582.90</td>
+            <td class="fib-lv"><span class="fib-near">$604.81</span> <span class="fib-dt">-4%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
+            <td class="fib-lv"><span class="fib-near">$579.74</span> <span class="fib-dt">+1%</span></td>
+            <td class="fib-z"><span style="color:#888;">-0.5&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:66.7%;background:#f07d3c;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#f07d3c;">67% <span class="fib-lvl">0.618</span></span></td>
         </tr>
 <tr>
             <td class="ticker">AVGO</td>
             <td class="fib-range-cell">$289.50 <span class="fib-dt">(30 Mar 26)</span> &rarr; $494.22 <span class="fib-dt">(1 Jun 26)</span></td>
             <td class="fib-gain">+71%</td>
-            <td class="detail-col">$360.45</td>
+            <td class="fib-price">$360.45</td>
+            <td class="fib-lv"><span class="">$408.89</span> <span class="fib-dt">-13%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$356.43</span> <span class="fib-dt">+1%</span></td>
+            <td class="fib-z"><span style="color:#888;">-1.2&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:65.3%;background:#f07d3c;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#f07d3c;">65% <span class="fib-lvl">0.618</span></span></td>
         </tr>
 <tr>
             <td class="ticker">NVDA</td>
             <td class="fib-range-cell">$164.08 <span class="fib-dt">(30 Mar 26)</span> &rarr; $236.26 <span class="fib-dt">(11 May 26)</span></td>
             <td class="fib-gain">+44%</td>
-            <td class="detail-col">$194.83</td>
+            <td class="fib-price">$194.83</td>
+            <td class="fib-lv"><span class="">$209.65</span> <span class="fib-dt">-8%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$194.51</span> <span class="fib-dt">+0%</span></td>
+            <td class="fib-z"><span style="color:#888;">-1.2&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:57.4%;background:#f0a83c;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#f0a83c;">57% <span class="fib-lvl">0.5</span></span></td>
         </tr>
 <tr>
             <td class="ticker">ARM</td>
             <td class="fib-range-cell">$100.02 <span class="fib-dt">(2 Feb 26)</span> &rarr; $452.70 <span class="fib-dt">(15 Jun 26)</span></td>
             <td class="fib-gain">+353%</td>
-            <td class="detail-col">$315.28</td>
+            <td class="fib-price">$315.28</td>
+            <td class="fib-lv"><span class="">$298.72</span> <span class="fib-dt">+5%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$303.67</span> <span class="fib-dt">+4%</span></td>
+            <td class="fib-z"><span style="color:#888;">+1.0&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:39.0%;background:#e0c04a;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#e0c04a;">39% <span class="fib-lvl">0.382</span></span></td>
         </tr>
 <tr>
             <td class="ticker">GOOG</td>
             <td class="fib-range-cell">$271.37 <span class="fib-dt">(30 Mar 26)</span> &rarr; $404.23 <span class="fib-dt">(18 May 26)</span></td>
             <td class="fib-gain">+49%</td>
-            <td class="detail-col">$356.18</td>
+            <td class="fib-price">$356.18</td>
+            <td class="fib-lv"><span class="fib-near">$368.10</span> <span class="fib-dt">-3%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$333.69</span> <span class="fib-dt">+6%</span></td>
+            <td class="fib-z"><span style="color:#888;">-1.3&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:36.2%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">36% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="ticker">MRVL</td>
             <td class="fib-range-cell">$70.65 <span class="fib-dt">(2 Feb 26)</span> &rarr; $329.88 <span class="fib-dt">(15 Jun 26)</span></td>
             <td class="fib-gain">+367%</td>
-            <td class="detail-col">$245.29</td>
+            <td class="fib-price">$245.29</td>
+            <td class="fib-lv"><span class="">$223.63</span> <span class="fib-dt">+9%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$237.20</span> <span class="fib-dt">+3%</span></td>
+            <td class="fib-z"><span style="color:#888;">+1.0&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:32.6%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">33% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="ticker">ASML</td>
             <td class="fib-range-cell">$1.2k <span class="fib-dt">(30 Mar 26)</span> &rarr; $2.0k <span class="fib-dt">(29 Jun 26)</span></td>
             <td class="fib-gain">+61%</td>
-            <td class="detail-col">$1.8k</td>
+            <td class="fib-price">$1.8k</td>
+            <td class="fib-lv"><span class="">$1.6k</span> <span class="fib-dt">+7%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$1.4k</span> <span class="fib-dt">+23%</span></td>
+            <td class="fib-z"><span style="color:#888;">-0.4&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:30.6%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">31% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="ticker">MU</td>
             <td class="fib-range-cell">$311.49 <span class="fib-dt">(30 Mar 26)</span> &rarr; $1.3k <span class="fib-dt">(22 Jun 26)</span></td>
             <td class="fib-gain">+303%</td>
-            <td class="detail-col">$975.56</td>
+            <td class="fib-price">$975.56</td>
+            <td class="fib-lv"><span class="">$852.09</span> <span class="fib-dt">+13%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$950.28</span> <span class="fib-dt">+3%</span></td>
+            <td class="fib-z"><span style="color:#888;">+0.3&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:29.6%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">30% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="ticker">TSM</td>
             <td class="fib-range-cell">$313.07 <span class="fib-dt">(30 Mar 26)</span> &rarr; $479.00 <span class="fib-dt">(29 Jun 26)</span></td>
             <td class="fib-gain">+53%</td>
-            <td class="detail-col">$434.16</td>
+            <td class="fib-price">$434.16</td>
+            <td class="fib-lv"><span class="fib-near">$418.83</span> <span class="fib-dt">+4%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$404.56</span> <span class="fib-dt">+7%</span></td>
+            <td class="fib-z"><span style="color:#888;">-0.5&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:27.0%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">27% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="ticker">COPA</td>
             <td class="fib-range-cell">$17.69 <span class="fib-dt">(7 Apr 25)</span> &rarr; $57.75 <span class="fib-dt">(26 Jan 26)</span></td>
             <td class="fib-gain">+226%</td>
-            <td class="detail-col">$48.28</td>
+            <td class="fib-price">$48.28</td>
+            <td class="fib-lv"><span class="fib-near">$50.03</span> <span class="fib-dt">-4%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$47.05</span> <span class="fib-dt">+3%</span></td>
+            <td class="fib-z"><span style="color:#f0d060;">-1.6&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:23.6%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">24% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="ticker">ALAB</td>
             <td class="fib-range-cell">$97.89 <span class="fib-dt">(30 Mar 26)</span> &rarr; $499.48 <span class="fib-dt">(29 Jun 26)</span></td>
             <td class="fib-gain">+410%</td>
-            <td class="detail-col">$406.42</td>
+            <td class="fib-price">$406.42</td>
+            <td class="fib-lv"><span class="">$304.07</span> <span class="fib-dt">+25%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$148.51</span> <span class="fib-dt">+63%</span></td>
+            <td class="fib-z"><span style="color:#f0d060;">+2.0&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:23.2%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">23% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="ticker">AMD</td>
             <td class="fib-range-cell">$188.22 <span class="fib-dt">(2 Mar 26)</span> &rarr; $584.73 <span class="fib-dt">(29 Jun 26)</span></td>
             <td class="fib-gain">+211%</td>
-            <td class="detail-col">$517.82</td>
+            <td class="fib-price">$517.82</td>
+            <td class="fib-lv"><span class="">$460.38</span> <span class="fib-dt">+11%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$437.23</span> <span class="fib-dt">+16%</span></td>
+            <td class="fib-z"><span style="color:#888;">+1.1&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:16.9%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">17% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="ticker">PLTR</td>
             <td class="fib-range-cell">$142.34 <span class="fib-dt">(18 Aug 25)</span> &rarr; $207.52 <span class="fib-dt">(3 Nov 25)</span></td>
             <td class="fib-gain">+46%</td>
-            <td class="detail-col">$129.30</td>
+            <td class="fib-price">$129.30</td>
+            <td class="fib-lv"><span class="fib-near">$134.58</span> <span class="fib-dt">-4%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
+            <td class="fib-lv"><span class="fib-near">$128.75</span> <span class="fib-dt">+0%</span></td>
+            <td class="fib-z"><span style="color:#888;">-0.9&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:100.0%;background:#6b6b6b;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b6b6b;">120%</span> <span class="fib-broken">below low</span></td>
         </tr>
 <tr>
             <td class="ticker">SATS</td>
             <td class="fib-range-cell">$104.13 <span class="fib-dt">(16 Mar 26)</span> &rarr; $147.25 <span class="fib-dt">(18 May 26)</span></td>
             <td class="fib-gain">+41%</td>
-            <td class="detail-col">$101.50</td>
+            <td class="fib-price">$101.50</td>
+            <td class="fib-lv"><span class="">$119.92</span> <span class="fib-dt">-18%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
+            <td class="fib-lv"><span class="">$94.62</span> <span class="fib-dt">+7%</span></td>
+            <td class="fib-z"><span style="color:#f0d060;">-1.8&sigma;</span></td>
             <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:100.0%;background:#6b6b6b;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b6b6b;">106%</span> <span class="fib-broken">below low</span></td>
         </tr>
 

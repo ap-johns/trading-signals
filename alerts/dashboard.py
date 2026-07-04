@@ -107,6 +107,55 @@ def fib_meter_html(frac):
     )
 
 
+def nearest_support(low, price, window=10, lookback=180):
+    """Nearest horizontal support below the current price: the highest daily
+    pivot low (local minimum over +/- window bars) that sits below price."""
+    low = low.dropna().iloc[-lookback:]
+    vals = low.values
+    n = len(vals)
+    pivots = []
+    for i in range(n):
+        a = max(0, i - window)
+        b = min(n, i + window + 1)
+        if vals[i] == vals[a:b].min():
+            pivots.append(vals[i])
+    below = [v for v in pivots if v < price * 0.999]
+    return float(max(below)) if below else None
+
+
+def zscore_color(z):
+    """Colour a z-score by how unusual it is (matches the main table convention)."""
+    if z is None:
+        return "#888"
+    a = abs(z)
+    if a >= 2:
+        return "#ffffff"
+    if a >= 1.5:
+        return "#f0d060"
+    return "#888"
+
+
+def slope_arrow(direction):
+    """Up/down/flat arrow for a moving-average slope."""
+    if direction == "up":
+        return ' <span style="color:#00e676;" title="50d SMA rising">&#9650;</span>'
+    if direction == "down":
+        return ' <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span>'
+    if direction == "flat":
+        return ' <span style="color:#888;" title="50d SMA flat">&#9644;</span>'
+    return ""
+
+
+def level_cell(level, price):
+    """Render a support/MA level with its distance from price; highlight if near
+    (within 3%) so confluence with the current price is visible at a glance."""
+    if level is None or price is None:
+        return '<span class="fib-dt">&mdash;</span>'
+    dist = (price - level) / price * 100  # + = price above the level
+    cls = "fib-near" if abs(dist) <= 5 else ""
+    return f'<span class="{cls}">{fmt_price(level)}</span> <span class="fib-dt">{dist:+.0f}%</span>'
+
+
 def fib_section_html(all_data, config):
     """Build the Fibonacci retracement table for stocks with a qualifying uptrend."""
     stocks = config["watchlist"].get("Stocks", {})
@@ -114,14 +163,15 @@ def fib_section_html(all_data, config):
     for yf_ticker, display_name in stocks.items():
         data = all_data.get(yf_ticker, {})
         fib = data.get("fib")
-        price = data.get("daily", {}).get("price")
+        daily = data.get("daily", {})
+        price = daily.get("price")
         if not fib or price is None:
             continue
         sl, sh = fib["swing_low"], fib["swing_high"]
         if sh <= sl:
             continue
         frac = (sh - price) / (sh - sl)
-        entries.append((display_name, fib, price, frac))
+        entries.append((display_name, fib, price, frac, daily))
 
     if not entries:
         return ""
@@ -130,7 +180,7 @@ def fib_section_html(all_data, config):
     entries.sort(key=lambda e: (e[3] >= 1.0, -e[3]))
 
     rows = ""
-    for name, fib, price, frac in entries:
+    for name, fib, price, frac, daily in entries:
         broken = frac >= 1.0
         lo = f'{fmt_price(fib["swing_low"])} <span class="fib-dt">({_fmt_date(fib["swing_low_date"])})</span>'
         hi = f'{fmt_price(fib["swing_high"])} <span class="fib-dt">({_fmt_date(fib["swing_high_date"])})</span>'
@@ -140,23 +190,34 @@ def fib_section_html(all_data, config):
             depth_html = f'<span class="fib-pct" style="color:{color};">{pct_label}</span> <span class="fib-broken">below low</span>'
         else:
             depth_html = f'<span class="fib-pct" style="color:{color};">{pct_label} <span class="fib-lvl">{fib_level_label(frac)}</span></span>'
+        sma50 = daily.get("sma_50")
+        support = daily.get("support")
+        z = daily.get("sma_zscore")
+        z_html = (f'<span style="color:{zscore_color(z)};">{z:+.1f}&sigma;</span>'
+                  if z is not None else '<span class="fib-dt">&mdash;</span>')
         rows += f'''<tr>
             <td class="ticker">{name}</td>
             <td class="fib-range-cell">{lo} &rarr; {hi}</td>
             <td class="fib-gain">+{fib["gain"] * 100:.0f}%</td>
-            <td class="detail-col">{fmt_price(price)}</td>
+            <td class="fib-price">{fmt_price(price)}</td>
+            <td class="fib-lv">{level_cell(sma50, price)}{slope_arrow(daily.get("sma_50_dir"))}</td>
+            <td class="fib-lv">{level_cell(support, price)}</td>
+            <td class="fib-z">{z_html}</td>
             <td class="fib-meter-cell">{fib_meter_html(frac)}{depth_html}</td>
         </tr>\n'''
 
     return f'''
-    <h2 class="fib-title">Fibonacci Retracements <span class="fib-sub">weekly uptrend &middot; deeper = closer to buy zone</span></h2>
+    <h2 class="fib-title">Fibonacci Retracements <span class="fib-sub">weekly uptrend &middot; deeper = closer to buy zone &middot; <span class="fib-near">green</span> = price within 5% of the level &middot; <span style="color:#00e676;">&#9650;</span>/<span style="color:#ff5252;">&#9660;</span> = 50d SMA rising/falling</span></h2>
     <table class="fib-table">
         <thead>
             <tr>
                 <th>Ticker</th>
                 <th>Uptrend (low &rarr; high)</th>
                 <th>Gain</th>
-                <th class="detail-col">Price</th>
+                <th class="fib-price">Price</th>
+                <th>50d SMA</th>
+                <th>Support</th>
+                <th>z-score</th>
                 <th>Retracement <span class="fib-scale">high&larr;&nbsp;0.382&nbsp;0.5&nbsp;0.618&nbsp;0.786&nbsp;&rarr;low</span></th>
             </tr>
         </thead>
@@ -202,10 +263,26 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
             if len(pct_from_sma_series) > 1 and pct_from_sma_series.std() > 0:
                 sma_zscore = (pct_from_sma_series.iloc[-1] - pct_from_sma_series.mean()) / pct_from_sma_series.std()
 
+            # 50d SMA (+ its slope) and nearest horizontal support, for fib-table confluence
+            price_now = df["Close"].iloc[-1]
+            sma_50_series = calculate_sma(df["Close"], period=50)
+            sma_50 = float(sma_50_series.iloc[-1]) if pd.notna(sma_50_series.iloc[-1]) else None
+            # Slope over ~20 sessions: rising 50d = dynamic support, falling = rolled over
+            sma_50_dir = None
+            if sma_50 is not None and len(sma_50_series) > 21 and pd.notna(sma_50_series.iloc[-21]):
+                prev = sma_50_series.iloc[-21]
+                if prev > 0:
+                    chg = (sma_50 - prev) / prev * 100
+                    sma_50_dir = "up" if chg > 0.5 else ("down" if chg < -0.5 else "flat")
+            support = nearest_support(df["Low"], price_now)
+
             results["daily"] = {
-                "price": df["Close"].iloc[-1],
+                "price": price_now,
                 "ema_200": ema_200.iloc[-1],
                 "sma_zscore": sma_zscore,
+                "sma_50": sma_50,
+                "sma_50_dir": sma_50_dir,
+                "support": support,
                 "mavg": ott_df["mavg"].iloc[-1],
                 "ott": ott_df["ott"].iloc[-1],
                 "bullish": mavg_above_ott,
@@ -998,6 +1075,10 @@ def generate_html(all_data, config):
     .fib-range-cell {{ color: #b8b8c8; white-space: nowrap; }}
     .fib-dt {{ color: #777; }}
     .fib-gain {{ color: #00e676; font-weight: 600; }}
+    .fib-price {{ color: #e0e0e0; font-weight: 600; white-space: nowrap; }}
+    .fib-lv {{ color: #b8b8c8; white-space: nowrap; }}
+    .fib-z {{ white-space: nowrap; }}
+    .fib-near {{ color: #00e676; font-weight: 600; }}
     .fib-meter-cell {{ white-space: nowrap; }}
     .fib-meter {{
         position: relative;
