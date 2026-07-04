@@ -38,7 +38,7 @@
         "weekday": 0
     },
     "ia_level_alerts": {
-        "enabled": true,
+        "enabled": false,
         "levels": [5, 4, 3],
         "categories": ["Stocks"]
     },

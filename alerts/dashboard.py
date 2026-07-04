@@ -390,7 +390,7 @@ def ia_levels_section_html(all_data, config):
                 dl = min(trig)  # deepest triggered level (lower number = deeper)
                 word = badge_word.get(dl, "")
                 row_cls = f"ia-trig-{dl}"
-                trow_title = f' title="IA buy alert: L{dl} — {word}"'
+                trow_title = f' title="Price at IA L{dl} — {word}"'
             else:
                 row_cls, trow_title = "", ""
             cells = ""
@@ -448,7 +448,7 @@ def ia_levels_section_html(all_data, config):
         return ""
     heads = "".join(f'<th>L{k}<span class="ia-hpct">{hdr_pct[k]}</span></th>' for k in labels)
     return f'''
-    <h2 class="fib-title">IA Levels <span class="fib-sub">Fibonacci-% pullback bands from the trailing high (Invest Answers) &middot; <span style="color:#5fb87a;">green cell</span> = the band price sits in &middot; left bar = buy-side alert, by depth: <span style="color:#5fb87a;">L5</span> &rarr; <span style="color:#e0c04a;">L4</span> &rarr; <span style="color:#e8925d;">L3</span></span></h2>
+    <h2 class="fib-title">IA Levels <span class="fib-sub">Fibonacci-% pullback bands from the trailing high (Invest Answers) &middot; <span style="color:#5fb87a;">green cell</span> = the band price sits in &middot; left bar = price at/below a level, by depth: <span style="color:#5fb87a;">L5</span> &rarr; <span style="color:#e0c04a;">L4</span> &rarr; <span style="color:#e8925d;">L3</span></span></h2>
     <div class="ia-key">Pullback depth: <span style="color:#7aa2f7;">shallow &lt;24%</span> &middot; <span style="color:#5fb87a;">moderate 24&ndash;38%</span> &middot; <span style="color:#e0c04a;">deep 38&ndash;50%</span> &middot; <span style="color:#e8925d;">very deep 50&ndash;62%</span> &middot; <span style="color:#d97a6c;">extreme &gt;62%</span></div>
     <table class="fib-table ia-table">
         <thead><tr><th>Ticker</th><th class="fib-price">Price</th>{heads}<th>Pullback<br>from high</th><th>Nearest level<br><span class="ia-hpct">marker = price (5-day): <span style="color:#5fb87a;">&#9654;</span> rising &middot; <span style="color:#d97a6c;">&#9664;</span> falling &middot; <span style="color:#e8e6e0;">&#9612;</span> flat</span></th></tr></thead>
