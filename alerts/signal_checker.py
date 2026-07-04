@@ -18,7 +18,7 @@ from urllib.parse import urlencode
 import yfinance as yf
 import pandas as pd
 
-from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels
+from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels, atr_levels
 from fib_score import fib_params
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -438,6 +438,7 @@ def check_signals(config: dict) -> list:
 
     # Analyst buy levels (e.g. Jacob @ Invest Answers, loaded weekly)
     signals.extend(check_analyst_levels(config, cycle_state))
+    signals.extend(check_ia_levels(config, cycle_state))
 
     save_cycle_state(cycle_state)
 
@@ -523,6 +524,75 @@ def check_analyst_levels(config: dict, cycle_state: dict) -> list:
 
         except Exception as e:
             print(f"  Error checking analyst level {display_name}: {e}")
+
+    return signals
+
+
+def check_ia_levels(config: dict, cycle_state: dict) -> list:
+    """Fire a BUY alert when the daily close reaches an IA level (the reverse-
+    engineered Invest Answers accumulation bands: Level_k = trailing high x
+    (1 - fib%)). Watches the configured levels (default L5/L4 = accumulation) for
+    the tickers Jacob flags. Levels are recomputed live each run (they trail the
+    high), and dedupe is keyed by level NUMBER so it survives that drift: each
+    level fires once when price first closes at/below it, re-arming above it."""
+    cfg = config.get("ia_level_alerts", {})
+    if not cfg.get("enabled", False):
+        return []
+    watch = cfg.get("levels", [5, 4, 3])
+    tickers = cfg.get("tickers", [])
+    # Depth/conviction tag by level (backtest: deeper touches had bigger forward edge)
+    depth = {5: "mild dip", 4: "moderate dip", 3: "deep dip — higher conviction",
+             2: "very deep", 1: "extreme"}
+
+    name_to_yf = {}
+    for category, names in config["watchlist"].items():
+        for yf_ticker, display_name in names.items():
+            name_to_yf[display_name] = (yf_ticker, category)
+
+    signals = []
+    for display_name in tickers:
+        if display_name not in name_to_yf:
+            print(f"  IA-level ticker '{display_name}' not in watchlist - skipping")
+            continue
+        yf_ticker, category = name_to_yf[display_name]
+        try:
+            df = fetch_daily_data(yf_ticker)
+            if df.empty or len(df) < 2:
+                continue
+            levels = atr_levels(df["High"])
+            if not levels:
+                continue
+            price = df["Close"].iloc[-1]
+            high = levels[6]
+            date_str = df.index[-1].strftime("%Y-%m-%d %H:%M")
+
+            state = cycle_state.get(display_name, {})
+            alerted = state.get("ia_alerted", [])
+            still_below = []
+            for lvl in watch:
+                level_price = levels.get(lvl)
+                if level_price is None or price > level_price:
+                    continue  # not reached / re-armed above the level
+                if lvl not in alerted:
+                    pct_off = (high - level_price) / high * 100 if high else 0
+                    signals.append({
+                        "type": "BUY",
+                        "ticker": display_name,
+                        "category": category,
+                        "timeframe": "daily",
+                        "price": price,
+                        "sma_200": None,
+                        "sma_relation": f"IA Level {lvl}",
+                        "date": date_str,
+                        "reason": (f"Reached IA Level {lvl} — {depth.get(lvl, '')} "
+                                   f"(${level_price:.2f}, -{pct_off:.0f}% from high)"),
+                    })
+                still_below.append(lvl)
+
+            state["ia_alerted"] = still_below
+            cycle_state[display_name] = state
+        except Exception as e:
+            print(f"  Error checking IA level {display_name}: {e}")
 
     return signals
 

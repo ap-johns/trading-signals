@@ -415,8 +415,7 @@ def ia_levels_section_html(all_data, config):
                         f'<span class="ia-prox-track">'
                         f'<span class="{lbl_cls}" style="left:{pos:.0f}%">{dist:.1f}%</span>'
                         f'<span class="ia-prox-marker {mkcls}" style="left:{pos:.0f}%"></span></span>'
-                        f'<span class="ia-endlbl">L{upper_lv}<br>{fmt_price(up)}</span>'
-                        f'<span class="ia-prox-tgt">&rarr;&nbsp;L{target_lv}</span></span>')
+                        f'<span class="ia-endlbl">L{upper_lv}<br>{fmt_price(up)}</span></span>')
             elif not above:
                 prox = '<span class="ia-prox-txt">at the high</span>'
             else:
@@ -1433,7 +1432,7 @@ def generate_html(all_data, config):
         border-radius: 4px;
         vertical-align: middle;
     }}
-    .ia-endlbl {{ flex: 0 0 auto; }}
+    .ia-endlbl {{ flex: 0 0 54px; }}
     .ia-prox-lbl {{
         position: absolute;
         bottom: 11px;
@@ -1443,7 +1442,6 @@ def generate_html(all_data, config):
         white-space: nowrap;
     }}
     .ia-prox-lbl.near {{ color: #5fb87a; font-weight: 700; }}
-    .ia-prox-tgt {{ font-size: 0.82em; color: var(--ink-faint); }}
     .ia-prox-marker {{ position: absolute; top: 50%; transform: translate(-50%, -50%); }}
     .ia-mk-flat {{ width: 3px; height: 14px; background: #e8e6e0; border-radius: 2px; box-shadow: 0 0 0 2px var(--surface); }}
     .ia-mk-up {{
