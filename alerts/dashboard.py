@@ -10,7 +10,7 @@ import yfinance as yf
 import pandas as pd
 
 from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels
-from fib_score import favorability, tier, level_reached, fib_params
+from fib_score import favorability, tier, level_reached, fib_params, rank_key
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(SCRIPT_DIR)
@@ -221,11 +221,26 @@ def fib_summary_html(items):
     if br:
         lines.append(f'<div class="fib-sum-line"><span class="fib-sum-tag skip">Skip</span> {br} '
                      f'<span class="fib-dt">&mdash; price below the swing low, trend broken</span></div>')
+
+    # Concentration note: are the most actionable names (favoured + cheap/shallow)
+    # crowded into one sector? Warn so DCA picks diversify.
+    actionable = [x for x in items if x["tier"] in ("favoured", "cheap_shallow") and x.get("sector")]
+    counts = {}
+    for x in actionable:
+        counts[x["sector"]] = counts.get(x["sector"], 0) + 1
+    if counts:
+        top_sector, n = max(counts.items(), key=lambda kv: kv[1])
+        if n >= 2 and n >= len(actionable) / 2:
+            lines.append(
+                f'<div class="fib-sum-line"><span class="fib-sum-tag warn">Concentration</span> '
+                f'{n} of the {len(actionable)} most-actionable names are <b>{top_sector}</b> '
+                f'<span class="fib-dt">&mdash; they move together; pair one with a non-{top_sector} name to diversify</span></div>')
     return '<div class="fib-summary"><div class="fib-sum-head">DCA read (auto)</div>' + "".join(lines) + '</div>'
 
 
-def _fib_build_items(all_data, tickers):
+def _fib_build_items(all_data, tickers, sectors=None):
     """Compute + score a fib item for each ticker in a category, ranked best-first."""
+    sectors = sectors or {}
     items = []
     for yf_ticker, display_name in tickers.items():
         data = all_data.get(yf_ticker, {})
@@ -247,15 +262,18 @@ def _fib_build_items(all_data, tickers):
         sup_dist = (price - support) / price * 100 if support else None
         ema200w = weekly.get("ema_200w")
         w200 = (price - ema200w) / ema200w * 100 if ema200w else None
+        sma200d = daily.get("sma_200d")
+        d200 = (price - sma200d) / sma200d * 100 if sma200d else None
         wk_bull = bool(weekly.get("bullish")) if weekly.get("bullish") is not None else False
-        score = favorability(frac, z, s50_dist, s50_dir, sup_dist, w200, wk_bull)
+        score = favorability(frac, z, s50_dist, s50_dir, sup_dist, w200, wk_bull, d200)
         items.append({
             "name": display_name, "fib": fib, "price": price, "frac": frac,
             "daily": daily, "weekly": weekly, "z": z, "sma50": sma50, "support": support,
-            "score": score, "tier": tier(frac, z, w200, wk_bull),
+            "sma200d": sma200d, "sector": sectors.get(display_name),
+            "score": score, "tier": tier(frac, z, w200, wk_bull, d200),
         })
-    # Rank by favorability score (highest first); broken setups (score None) last.
-    items.sort(key=lambda x: (x["score"] is None, -(x["score"] or 0)))
+    # Rank by tier quality first, then score within tier (see rank_key).
+    items.sort(key=lambda x: rank_key(x["tier"], x["score"]))
     return items
 
 
@@ -282,14 +300,17 @@ def _fib_section_for(items, title):
         sc = it["score"]
         sc_html = (f'<span style="color:{score_color(sc)};font-weight:700;">{sc:.1f}</span>'
                    if sc is not None else '<span class="fib-dt">skip</span>')
+        sector_html = f'<span class="fib-sector">{it["sector"]}</span>' if it.get("sector") else ""
+        d200 = level_cell(it["sma200d"], price) + slope_arrow(daily.get("sma_200d_dir")) if it.get("sma200d") else '<span class="fib-dt">&mdash;</span>'
         rows += f'''<tr>
             <td class="fib-rank">{rank}</td>
             <td class="fib-scorecell">{sc_html}</td>
-            <td class="ticker">{name}</td>
+            <td class="ticker">{name}{sector_html}</td>
             <td class="fib-range-cell">{lo} &rarr; {hi}</td>
             <td class="fib-gain">+{fib["gain"] * 100:.0f}%</td>
             <td class="fib-price">{fmt_price(price)}</td>
             <td class="fib-lv">{level_cell(it["sma50"], price)}{slope_arrow(daily.get("sma_50_dir"))}</td>
+            <td class="fib-lv">{d200}</td>
             <td class="fib-lv">{level_cell(it["support"], price)}</td>
             <td class="fib-z">{z_html}</td>
             <td class="fib-lt">{long_term_cell(price, weekly.get("ema_200w"), weekly.get("bullish"))}</td>
@@ -308,6 +329,7 @@ def _fib_section_for(items, title):
                 <th>Gain</th>
                 <th class="fib-price">Price</th>
                 <th>50d SMA</th>
+                <th>200d SMA</th>
                 <th>Support</th>
                 <th>z-score</th>
                 <th>Long-term trend</th>
@@ -324,10 +346,11 @@ def fib_section_html(all_data, config):
     """Fib retracement area: one ranked table per asset class (Stocks, Indices...)."""
     fib_cfg = config.get("fib_alerts", {})
     categories = fib_cfg.get("categories", ["Stocks"])
+    sectors = config.get("sectors", {})
     sections = ""
     for cat in categories:
         tickers = config["watchlist"].get(cat, {})
-        items = _fib_build_items(all_data, tickers)
+        items = _fib_build_items(all_data, tickers, sectors)
         sections += _fib_section_for(items, cat)
     if not sections:
         return ""
@@ -385,12 +408,24 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
                     sma_50_dir = "up" if chg > 0.5 else ("down" if chg < -0.5 else "flat")
             support = nearest_support(df["Low"], price_now)
 
+            # 200d SMA regime: value (already = ema_200) + slope. Below the 200d =
+            # medium-term trend broken (a value-trap guard for buy-and-hold).
+            sma_200d = float(ema_200.iloc[-1]) if pd.notna(ema_200.iloc[-1]) else None
+            sma_200d_dir = None
+            if sma_200d is not None and len(ema_200) > 21 and pd.notna(ema_200.iloc[-21]):
+                prev200 = ema_200.iloc[-21]
+                if prev200 > 0:
+                    chg200 = (sma_200d - prev200) / prev200 * 100
+                    sma_200d_dir = "up" if chg200 > 0.3 else ("down" if chg200 < -0.3 else "flat")
+
             results["daily"] = {
                 "price": price_now,
                 "ema_200": ema_200.iloc[-1],
                 "sma_zscore": sma_zscore,
                 "sma_50": sma_50,
                 "sma_50_dir": sma_50_dir,
+                "sma_200d": sma_200d,
+                "sma_200d_dir": sma_200d_dir,
                 "support": support,
                 "mavg": ott_df["mavg"].iloc[-1],
                 "ott": ott_df["ott"].iloc[-1],
@@ -1251,6 +1286,17 @@ def generate_html(all_data, config):
     .fib-z {{ white-space: nowrap; }}
     .fib-lt {{ white-space: nowrap; }}
     .fib-near {{ color: #00e676; font-weight: 600; }}
+    .fib-sector {{
+        margin-left: 7px;
+        padding: 1px 7px;
+        border-radius: 10px;
+        background: var(--surface-raised);
+        color: var(--ink-soft);
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        vertical-align: middle;
+    }}
     .fib-rank {{ color: var(--ink-faint); text-align: right; width: 24px; font-family: var(--mono); }}
     .fib-scorecell {{ white-space: nowrap; font-family: var(--mono); }}
     .fib-summary {{

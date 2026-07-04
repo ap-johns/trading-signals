@@ -19,7 +19,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
 from indicators import calculate_sma, calculate_ema, calculate_ott, calculate_fib_levels
-from fib_score import favorability, tier, level_reached, fib_params
+from fib_score import favorability, tier, level_reached, fib_params, rank_key
 from dashboard import nearest_support
 import yfinance as yf
 
@@ -33,6 +33,7 @@ def analyse():
     cfg = load_config()
     fc = cfg.get("fib_alerts", {})
     categories = fc.get("categories", ["Stocks"])
+    sectors = cfg.get("sectors", {})
 
     tickers = []
     for cat in categories:
@@ -59,6 +60,8 @@ def analyse():
             ema200d = calculate_sma(d["Close"], 200)
             pc = ((d["Close"] - ema200d) / ema200d * 100).dropna()
             z = float((pc.iloc[-1] - pc.mean()) / pc.std()) if len(pc) > 1 and pc.std() > 0 else None
+            d200v = ema200d.iloc[-1]
+            d200 = (price - d200v) / d200v * 100 if pd.notna(d200v) else None
 
             s50 = calculate_sma(d["Close"], 50)
             s50v = s50.iloc[-1]
@@ -79,41 +82,43 @@ def analyse():
             ow = calculate_ott(dw["Open"], 10, 3.0)
             wk_bull = bool(ow["mavg"].iloc[-1] > ow["ott"].iloc[-1])
 
-            score = favorability(frac, z, s50_dist, s50_dir, sup_dist, w200, wk_bull)
+            score = favorability(frac, z, s50_dist, s50_dir, sup_dist, w200, wk_bull, d200)
             rows.append({
-                "name": name, "category": cat, "price": round(float(price), 2), "retrace_pct": round(frac * 100),
+                "name": name, "category": cat, "sector": sectors.get(name),
+                "price": round(float(price), 2), "retrace_pct": round(frac * 100),
                 "level": level_reached(frac), "z": round(z, 1) if z is not None else None,
                 "sma50_dist_pct": round(s50_dist) if s50_dist is not None else None,
                 "sma50_dir": s50_dir,
+                "above_200d_pct": round(d200) if d200 is not None else None,
                 "support_dist_pct": round(sup_dist) if sup_dist is not None else None,
                 "above_200w_pct": round(w200) if w200 is not None else None,
                 "weekly_ott_bull": wk_bull,
                 "gain_pct": round(fib["gain"] * 100),
                 "swing_low": round(sl, 2), "swing_high": round(sh, 2),
-                "score": score, "tier": tier(frac, z, w200, wk_bull),
+                "score": score, "tier": tier(frac, z, w200, wk_bull, d200),
             })
         except Exception as e:
             print(f"# skip {name}: {e!r}", file=sys.stderr)
 
-    # Rank within each category (score desc; broken last).
-    rows.sort(key=lambda x: (x["score"] is None, -(x["score"] or 0)))
+    # Rank by tier quality first, then score within tier (broken last).
+    rows.sort(key=lambda x: rank_key(x["tier"], x["score"]))
     return rows
 
 
 def _print_group(rows):
-    hdr = (f'{"#":>2} {"Tkr":5} {"score":>5} {"retr":>5} {"lvl":>5} {"z":>6} '
-           f'{"50d":>9} {"sup":>6} {"200w":>6} {"wk":>3} {"tier":16}')
+    hdr = (f'{"#":>2} {"Tkr":5} {"sector":8} {"score":>5} {"retr":>5} {"lvl":>5} {"z":>6} '
+           f'{"50d":>8} {"200d":>6} {"200w":>6} {"wk":>3} {"tier":16}')
     print(hdr)
     print("-" * len(hdr))
     for i, r in enumerate(rows, 1):
         s50 = (f'{r["sma50_dist_pct"]:+d}%{ {"up":"^","down":"v","flat":"-"}.get(r["sma50_dir"],"?") }'
                if r["sma50_dist_pct"] is not None else "-")
-        sup = f'{r["support_dist_pct"]:+d}%' if r["support_dist_pct"] is not None else "-"
+        d200 = f'{r["above_200d_pct"]:+d}%' if r["above_200d_pct"] is not None else "-"
         w = f'{r["above_200w_pct"]:+d}%' if r["above_200w_pct"] is not None else "new"
         z = f'{r["z"]:+.1f}s' if r["z"] is not None else "-"
         sc = f'{r["score"]:.1f}' if r["score"] is not None else "skip"
-        print(f'{i:>2} {r["name"]:5} {sc:>5} {r["retrace_pct"]:>4}% {r["level"]:>5} {z:>6} '
-              f'{s50:>9} {sup:>6} {w:>6} {"UP" if r["weekly_ott_bull"] else "dn":>3} {r["tier"]:16}')
+        print(f'{i:>2} {r["name"]:5} {(r.get("sector") or "-"):8} {sc:>5} {r["retrace_pct"]:>4}% {r["level"]:>5} {z:>6} '
+              f'{s50:>8} {d200:>6} {w:>6} {"UP" if r["weekly_ott_bull"] else "dn":>3} {r["tier"]:16}')
 
 
 def main():

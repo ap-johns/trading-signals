@@ -27,6 +27,12 @@
             "Indices": {"min_gain": 0.20, "reversal": 0.10}
         }
     },
+    "sectors": {
+        "NVDA": "Semis", "AMD": "Semis", "AVGO": "Semis", "MRVL": "Semis",
+        "MU": "Semis", "TSM": "Semis", "ASML": "Semis", "ARM": "Semis", "ALAB": "Semis",
+        "GOOG": "Internet", "META": "Internet", "MSFT": "Software", "PLTR": "Software",
+        "TSLA": "Auto/EV", "SATS": "Telecom", "COPA": "Airline", "SPCX": "Space"
+    },
     "crypto_cycle": {
         "sell_date": "2029-11-01",
         "alert_months_before": 1,

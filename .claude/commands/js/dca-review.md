@@ -14,10 +14,11 @@ Steps:
    ```
 
    It prints a ranked plain-text table and a JSON blob. Use the JSON for exact
-   values. Each row has: score, retrace %, fib level reached, z-score (vs 200-day
-   SMA; negative = cheap), 50-day SMA distance + slope, nearest support distance,
-   % above the 200-week EMA, weekly OTT (bull/bear), gain of the uptrend, swing
-   low/high, and a tier (favoured / cheap_shallow / quality_not_cheap / caution / broken).
+   values. Each row has: score, sector, retrace %, fib level reached, z-score (vs
+   200-day SMA; negative = cheap), 50-day SMA distance + slope, % above the 200-day
+   SMA (below = medium-term regime broken), nearest support distance, % above the
+   200-week EMA, weekly OTT (bull/bear), gain of the uptrend, swing low/high, and a
+   tier (favoured / cheap_shallow / quality_not_cheap / caution / broken).
 
    The CLI groups output by asset class (e.g. Stocks, then Indices) — each has its
    own `=== Category ===` header and is ranked within itself. The JSON rows carry a
@@ -46,6 +47,9 @@ Steps:
      long-term trend intact" matters more than raw discount. Say so.
    - Prefer scaling in over single entries; a deeper drop in a favoured name is an
      opportunity to add, not a stop-out.
+   - **Check sector concentration**: if the top favoured / cheap names cluster in one
+     sector (e.g. Semis), call it out — they move together, so DCAing into two of them
+     is concentration, not diversification. Suggest pairing one with a non-cluster name.
    - End with a brief caveat: this is a heuristic ranking (my weights) and a snapshot
      that shifts with price — not financial advice; the allocation call is theirs.
 
