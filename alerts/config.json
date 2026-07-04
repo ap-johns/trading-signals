@@ -21,7 +21,11 @@
         "timeframe": "weekly",
         "lookback": 104,
         "min_gain": 0.30,
-        "reversal": 0.14
+        "reversal": 0.14,
+        "categories": ["Stocks", "Indices"],
+        "category_overrides": {
+            "Indices": {"min_gain": 0.20, "reversal": 0.10}
+        }
     },
     "crypto_cycle": {
         "sell_date": "2029-11-01",

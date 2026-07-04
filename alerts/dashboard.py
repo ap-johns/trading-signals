@@ -10,7 +10,7 @@ import yfinance as yf
 import pandas as pd
 
 from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels
-from fib_score import favorability, tier, level_reached
+from fib_score import favorability, tier, level_reached, fib_params
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(SCRIPT_DIR)
@@ -224,11 +224,10 @@ def fib_summary_html(items):
     return '<div class="fib-summary"><div class="fib-sum-head">DCA read (auto)</div>' + "".join(lines) + '</div>'
 
 
-def fib_section_html(all_data, config):
-    """Build the Fibonacci retracement table for stocks with a qualifying uptrend."""
-    stocks = config["watchlist"].get("Stocks", {})
+def _fib_build_items(all_data, tickers):
+    """Compute + score a fib item for each ticker in a category, ranked best-first."""
     items = []
-    for yf_ticker, display_name in stocks.items():
+    for yf_ticker, display_name in tickers.items():
         data = all_data.get(yf_ticker, {})
         fib = data.get("fib")
         daily = data.get("daily", {})
@@ -255,13 +254,15 @@ def fib_section_html(all_data, config):
             "daily": daily, "weekly": weekly, "z": z, "sma50": sma50, "support": support,
             "score": score, "tier": tier(frac, z, w200, wk_bull),
         })
-
-    if not items:
-        return ""
-
     # Rank by favorability score (highest first); broken setups (score None) last.
     items.sort(key=lambda x: (x["score"] is None, -(x["score"] or 0)))
+    return items
 
+
+def _fib_section_for(items, title):
+    """Render one ranked table + summary for a category's items (Stocks / Indices)."""
+    if not items:
+        return ""
     rows = ""
     for rank, it in enumerate(items, 1):
         name, fib, price, frac, daily, weekly = (
@@ -294,9 +295,8 @@ def fib_section_html(all_data, config):
             <td class="fib-lt">{long_term_cell(price, weekly.get("ema_200w"), weekly.get("bullish"))}</td>
             <td class="fib-meter-cell">{fib_meter_html(frac)}{depth_html}</td>
         </tr>\n'''
-
     return f'''
-    <h2 class="fib-title">Fibonacci Retracements <span class="fib-sub">ranked by buy-and-hold DCA favorability &middot; <span class="fib-near">green</span> = price within 5% of the level &middot; <span style="color:#00e676;">&#9650;</span>/<span style="color:#ff5252;">&#9660;</span> = 50d SMA rising/falling</span></h2>
+    <h3 class="fib-subtitle">{title}</h3>
     {fib_summary_html(items)}
     <table class="fib-table">
         <thead>
@@ -320,9 +320,25 @@ def fib_section_html(all_data, config):
     </table>'''
 
 
+def fib_section_html(all_data, config):
+    """Fib retracement area: one ranked table per asset class (Stocks, Indices...)."""
+    fib_cfg = config.get("fib_alerts", {})
+    categories = fib_cfg.get("categories", ["Stocks"])
+    sections = ""
+    for cat in categories:
+        tickers = config["watchlist"].get(cat, {})
+        items = _fib_build_items(all_data, tickers)
+        sections += _fib_section_for(items, cat)
+    if not sections:
+        return ""
+    return f'''
+    <h2 class="fib-title">Fibonacci Retracements <span class="fib-sub">ranked by buy-and-hold DCA favorability &middot; <span class="fib-near">green</span> = price within 5% of the level &middot; <span style="color:#00e676;">&#9650;</span>/<span style="color:#ff5252;">&#9660;</span> = 50d SMA rising/falling</span></h2>
+    {sections}'''
+
+
 def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
-                    fib_lookback=104, fib_min_gain=0.30, fib_reversal=0.14,
-                    fib_levels=(0.382, 0.5, 0.618, 0.786)):
+                    fib_enabled=True, fib_lookback=104, fib_min_gain=0.30,
+                    fib_reversal=0.14, fib_levels=(0.382, 0.5, 0.618, 0.786)):
     """Fetch data and calculate OTT for both timeframes."""
     results = {}
 
@@ -467,11 +483,12 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
                 }
 
                 # Fibonacci retracement of the dominant weekly uptrend
-                results["fib"] = calculate_fib_levels(
-                    df_w["High"], df_w["Low"],
-                    lookback=fib_lookback, min_gain=fib_min_gain,
-                    reversal=fib_reversal, ratios=tuple(fib_levels),
-                )
+                if fib_enabled:
+                    results["fib"] = calculate_fib_levels(
+                        df_w["High"], df_w["Low"],
+                        lookback=fib_lookback, min_gain=fib_min_gain,
+                        reversal=fib_reversal, ratios=tuple(fib_levels),
+                    )
     except Exception as e:
         results["weekly"] = {"error": str(e)}
 
@@ -1151,6 +1168,14 @@ def generate_html(all_data, config):
         color: #e0e0e0;
     }}
     .fib-sub {{ font-size: 0.7em; font-weight: 400; color: #888; margin-left: 8px; }}
+    .fib-subtitle {{
+        margin-top: 22px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #b8b8c8;
+        border-bottom: 1px solid #2a2a44;
+        padding-bottom: 4px;
+    }}
     .fib-table {{
         width: 100%;
         border-collapse: collapse;
@@ -1326,27 +1351,26 @@ def main():
     ott_percent = config["ott"]["percent"]
     ema_period = config["ema_period"]
     fib_cfg = config.get("fib_alerts", {})
-    fib_lookback = fib_cfg.get("lookback", 104)
-    fib_min_gain = fib_cfg.get("min_gain", 0.30)
-    fib_reversal = fib_cfg.get("reversal", 0.14)
-    fib_levels = fib_cfg.get("levels", [0.382, 0.5, 0.618, 0.786])
+    fib_categories = fib_cfg.get("categories", ["Stocks"])
 
     print(f"OTT Dashboard Generator - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
 
-    # Flatten watchlist for processing
+    # Flatten watchlist, tracking category (drives per-category fib params)
     all_tickers = {}
     for category, tickers in config["watchlist"].items():
         for yf_ticker, display_name in tickers.items():
-            all_tickers[yf_ticker] = display_name
+            all_tickers[yf_ticker] = (display_name, category)
 
     print(f"Fetching data for {len(all_tickers)} tickers...")
     all_data = {}
-    for yf_ticker, display_name in all_tickers.items():
+    for yf_ticker, (display_name, category) in all_tickers.items():
         print(f"  {display_name}...", end=" ", flush=True)
+        fp = fib_params(fib_cfg, category)  # per-category detection params
         all_data[yf_ticker] = get_ticker_data(
             yf_ticker, ott_period, ott_percent, ema_period,
-            fib_lookback=fib_lookback, fib_min_gain=fib_min_gain,
-            fib_reversal=fib_reversal, fib_levels=fib_levels,
+            fib_enabled=category in fib_categories,
+            fib_lookback=fp["lookback"], fib_min_gain=fp["min_gain"],
+            fib_reversal=fp["reversal"], fib_levels=fp["levels"],
         )
         print("done")
 

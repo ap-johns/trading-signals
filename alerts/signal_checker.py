@@ -19,6 +19,7 @@ import yfinance as yf
 import pandas as pd
 
 from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels
+from fib_score import fib_params
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -97,10 +98,7 @@ def check_signals(config: dict) -> list:
     zscore_reset_band = zscore_cfg.get("reset_band", 0.5)
     fib_cfg = config.get("fib_alerts", {})
     fib_enabled = fib_cfg.get("enabled", True)
-    fib_levels = fib_cfg.get("levels", [0.382, 0.5, 0.618, 0.786])
-    fib_lookback = fib_cfg.get("lookback", 104)
-    fib_min_gain = fib_cfg.get("min_gain", 0.30)
-    fib_reversal = fib_cfg.get("reversal", 0.14)
+    fib_categories = fib_cfg.get("categories", ["Stocks"])
     signals = []
 
     # Persistent alert state (dedupes z-score level + crypto cycle alerts across runs)
@@ -237,61 +235,61 @@ def check_signals(config: dict) -> list:
                                     "reason": f"Price {dip_pct}% below 200d SMA (${threshold:.2f})",
                                 })
 
-                    # FIBONACCI retracement buy alerts for stocks: after a significant
-                    # uptrend (>= min_gain), fire when price is at/below a fib level
-                    # (0.382/0.5/0.618/0.786) while the trend is still intact (price
-                    # still above the swing low). The swing is detected on WEEKLY bars
-                    # (clearer trend structure) but the current daily close is checked
-                    # against those levels. Position-based (fires on initial state,
-                    # like the z-score/analyst alerts), deduped once per level; re-arms
-                    # once price recovers back above the level. Resets on a new swing high.
-                    if fib_enabled and category == "Stocks" and tf == "daily" and len(df) >= 2:
-                        try:
-                            df_wk = fetch_weekly_data(yf_ticker)
-                        except Exception:
-                            df_wk = pd.DataFrame()
-                        fib = calculate_fib_levels(
-                            df_wk["High"], df_wk["Low"],
-                            lookback=fib_lookback, min_gain=fib_min_gain,
-                            reversal=fib_reversal, ratios=tuple(fib_levels),
-                        ) if not df_wk.empty else None
-                        if fib is not None and fib["swing_low"] < price < fib["swing_high"]:
-                            fstate = cycle_state.get(display_name, {})
-                            fib_alerted = fstate.get("fib_alerted", [])
-                            prev_swing_high = fstate.get("fib_swing_high")
+                # FIBONACCI retracement buy alerts (weekly-detected swing) for the
+                # configured fib categories (e.g. Stocks + Indices). Fire when the
+                # current daily close is at/below a fib level while the trend is intact
+                # (price above the swing low). The swing is detected on WEEKLY bars with
+                # per-category params (indices use a smaller min_gain/reversal). Position-
+                # based (fires on initial state), deduped per level; re-arms once price
+                # recovers above a level; resets on a new swing high.
+                if fib_enabled and category in fib_categories and tf == "daily" and len(df) >= 2:
+                    fp = fib_params(fib_cfg, category)
+                    try:
+                        df_wk = fetch_weekly_data(yf_ticker)
+                    except Exception:
+                        df_wk = pd.DataFrame()
+                    fib = calculate_fib_levels(
+                        df_wk["High"], df_wk["Low"],
+                        lookback=fp["lookback"], min_gain=fp["min_gain"],
+                        reversal=fp["reversal"], ratios=fp["levels"],
+                    ) if not df_wk.empty else None
+                    if fib is not None and fib["swing_low"] < price < fib["swing_high"]:
+                        fstate = cycle_state.get(display_name, {})
+                        fib_alerted = fstate.get("fib_alerted", [])
+                        prev_swing_high = fstate.get("fib_swing_high")
 
-                            # New swing high => fresh setup, clear prior fired levels
-                            if prev_swing_high is None or fib["swing_high"] > prev_swing_high * 1.001:
-                                fib_alerted = []
+                        # New swing high => fresh setup, clear prior fired levels
+                        if prev_swing_high is None or fib["swing_high"] > prev_swing_high * 1.001:
+                            fib_alerted = []
 
-                            lo_date = _fmt_date(fib["swing_low_date"])
-                            hi_date = _fmt_date(fib["swing_high_date"])
-                            for r in fib_levels:
-                                level = fib["levels"][r]
-                                # Re-arm: drop levels price has climbed back above
-                                if price > level and r in fib_alerted:
-                                    fib_alerted.remove(r)
-                                # Fire whenever price sits at/below the level (deduped)
-                                if price <= level and r not in fib_alerted:
-                                    signals.append({
-                                        "type": "BUY",
-                                        "ticker": display_name,
-                                        "category": category,
-                                        "timeframe": tf,
-                                        "price": price,
-                                        "sma_200": sma200_val,
-                                        "sma_relation": f"fib {r}",
-                                        "date": date_str,
-                                        "reason": (
-                                            f"Retraced to {r} fib (${level:.2f}) of +{fib['gain'] * 100:.0f}% uptrend "
-                                            f"(low ${fib['swing_low']:.2f} {lo_date} → high ${fib['swing_high']:.2f} {hi_date})"
-                                        ),
-                                    })
-                                    fib_alerted.append(r)
+                        lo_date = _fmt_date(fib["swing_low_date"])
+                        hi_date = _fmt_date(fib["swing_high_date"])
+                        for r in fp["levels"]:
+                            level = fib["levels"][r]
+                            # Re-arm: drop levels price has climbed back above
+                            if price > level and r in fib_alerted:
+                                fib_alerted.remove(r)
+                            # Fire whenever price sits at/below the level (deduped)
+                            if price <= level and r not in fib_alerted:
+                                signals.append({
+                                    "type": "BUY",
+                                    "ticker": display_name,
+                                    "category": category,
+                                    "timeframe": tf,
+                                    "price": price,
+                                    "sma_200": sma200_val,
+                                    "sma_relation": f"fib {r}",
+                                    "date": date_str,
+                                    "reason": (
+                                        f"Retraced to {r} fib (${level:.2f}) of +{fib['gain'] * 100:.0f}% uptrend "
+                                        f"(low ${fib['swing_low']:.2f} {lo_date} → high ${fib['swing_high']:.2f} {hi_date})"
+                                    ),
+                                })
+                                fib_alerted.append(r)
 
-                            fstate["fib_alerted"] = fib_alerted
-                            fstate["fib_swing_high"] = fib["swing_high"]
-                            cycle_state[display_name] = fstate
+                        fstate["fib_alerted"] = fib_alerted
+                        fstate["fib_swing_high"] = fib["swing_high"]
+                        cycle_state[display_name] = fstate
 
                 # Z-SCORE buy alerts: how unusual the current distance below the
                 # 200d SMA is, in standard deviations. Fires at each 0.5σ step on

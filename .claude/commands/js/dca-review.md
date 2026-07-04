@@ -19,7 +19,14 @@ Steps:
    % above the 200-week EMA, weekly OTT (bull/bear), gain of the uptrend, swing
    low/high, and a tier (favoured / cheap_shallow / quality_not_cheap / caution / broken).
 
-2. Present a concise ranked table (most favorable first).
+   The CLI groups output by asset class (e.g. Stocks, then Indices) — each has its
+   own `=== Category ===` header and is ranked within itself. The JSON rows carry a
+   `category` field.
+
+2. Present the analysis grouped by asset class — a concise ranked table per category
+   (Stocks and Indices separately, most favorable first). Indices are less volatile,
+   so their retracements are shallower; when an index still climbs toward "favoured"
+   it signals a genuine broad-market dip worth adding to the core.
 
 3. Then write the analysis, grouped into tiers, in this spirit:
    - **Favoured now** — long-term trend intact (weekly OTT up + above 200-week) AND

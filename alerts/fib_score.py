@@ -19,6 +19,20 @@ RATIOS = (0.382, 0.5, 0.618, 0.786)
 LEVEL_POINTS = {0.0: 0.0, 0.382: 1.0, 0.5: 2.0, 0.618: 2.5, 0.786: 1.5}
 
 
+def fib_params(fib_cfg, category):
+    """Resolve fib detection params for a category, applying category_overrides.
+
+    Indices, for example, use a lower min_gain / reversal than volatile single
+    stocks (their uptrends are more modest and corrections shallower)."""
+    ov = fib_cfg.get("category_overrides", {}).get(category, {})
+    return {
+        "lookback": ov.get("lookback", fib_cfg.get("lookback", 104)),
+        "min_gain": ov.get("min_gain", fib_cfg.get("min_gain", 0.30)),
+        "reversal": ov.get("reversal", fib_cfg.get("reversal", 0.14)),
+        "levels": tuple(ov.get("levels", fib_cfg.get("levels", RATIOS))),
+    }
+
+
 def level_reached(frac):
     """Deepest fib ratio the retracement fraction has reached (0.0 if shallower than 0.382)."""
     reached = [r for r in RATIOS if frac >= r]

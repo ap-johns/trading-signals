@@ -19,7 +19,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
 from indicators import calculate_sma, calculate_ema, calculate_ott, calculate_fib_levels
-from fib_score import favorability, tier, level_reached
+from fib_score import favorability, tier, level_reached, fib_params
 from dashboard import nearest_support
 import yfinance as yf
 
@@ -32,21 +32,25 @@ def load_config():
 def analyse():
     cfg = load_config()
     fc = cfg.get("fib_alerts", {})
-    lookback = fc.get("lookback", 104)
-    min_gain = fc.get("min_gain", 0.30)
-    reversal = fc.get("reversal", 0.14)
-    ratios = tuple(fc.get("levels", [0.382, 0.5, 0.618, 0.786]))
+    categories = fc.get("categories", ["Stocks"])
+
+    tickers = []
+    for cat in categories:
+        for yf_ticker, name in cfg["watchlist"].get(cat, {}).items():
+            tickers.append((yf_ticker, name, cat))
 
     rows = []
-    for yf_ticker, name in cfg["watchlist"].get("Stocks", {}).items():
+    for yf_ticker, name, cat in tickers:
         try:
-            d = yf.Ticker(yf_ticker).history(period="400d", interval="1d")
+            fp = fib_params(fc, cat)
+            d = yf.Ticker(yf_ticker).history(period="365d", interval="1d")  # match dashboard window
             dw = yf.Ticker(yf_ticker).history(period="max", interval="1wk").dropna()
             if d.empty or dw.empty:
                 continue
             price = d["Close"].iloc[-1]
-            fib = calculate_fib_levels(dw["High"], dw["Low"], lookback=lookback,
-                                       min_gain=min_gain, reversal=reversal, ratios=ratios)
+            fib = calculate_fib_levels(dw["High"], dw["Low"], lookback=fp["lookback"],
+                                       min_gain=fp["min_gain"], reversal=fp["reversal"],
+                                       ratios=fp["levels"])
             if not fib:
                 continue
             sl, sh = fib["swing_low"], fib["swing_high"]
@@ -77,7 +81,7 @@ def analyse():
 
             score = favorability(frac, z, s50_dist, s50_dir, sup_dist, w200, wk_bull)
             rows.append({
-                "name": name, "price": round(float(price), 2), "retrace_pct": round(frac * 100),
+                "name": name, "category": cat, "price": round(float(price), 2), "retrace_pct": round(frac * 100),
                 "level": level_reached(frac), "z": round(z, 1) if z is not None else None,
                 "sma50_dist_pct": round(s50_dist) if s50_dist is not None else None,
                 "sma50_dir": s50_dir,
@@ -91,12 +95,12 @@ def analyse():
         except Exception as e:
             print(f"# skip {name}: {e!r}", file=sys.stderr)
 
+    # Rank within each category (score desc; broken last).
     rows.sort(key=lambda x: (x["score"] is None, -(x["score"] or 0)))
     return rows
 
 
-def main():
-    rows = analyse()
+def _print_group(rows):
     hdr = (f'{"#":>2} {"Tkr":5} {"score":>5} {"retr":>5} {"lvl":>5} {"z":>6} '
            f'{"50d":>9} {"sup":>6} {"200w":>6} {"wk":>3} {"tier":16}')
     print(hdr)
@@ -110,6 +114,18 @@ def main():
         sc = f'{r["score"]:.1f}' if r["score"] is not None else "skip"
         print(f'{i:>2} {r["name"]:5} {sc:>5} {r["retrace_pct"]:>4}% {r["level"]:>5} {z:>6} '
               f'{s50:>9} {sup:>6} {w:>6} {"UP" if r["weekly_ott_bull"] else "dn":>3} {r["tier"]:16}')
+
+
+def main():
+    rows = analyse()
+    # Group by category, preserving the config category order.
+    seen = []
+    for r in rows:
+        if r["category"] not in seen:
+            seen.append(r["category"])
+    for cat in seen:
+        print(f"\n=== {cat} ===")
+        _print_group([r for r in rows if r["category"] == cat])
     # Also emit JSON so the caller can parse exact values if needed.
     print("\nJSON:")
     print(json.dumps(rows))
