@@ -562,6 +562,64 @@ def format_signal(sig: dict) -> str:
     return "\n".join(lines)
 
 
+def format_dca_digest(rows) -> str:
+    """Weekly DCA digest: the 'favoured now' picks per asset class, with a sector
+    concentration note. `rows` is the ranked output of dca_rank.analyse()."""
+    lines = ["\U0001f4ca <b>Weekly DCA Picks — Favoured Now</b>",
+             datetime.now().strftime("%Y-%m-%d"), ""]
+
+    cats = []
+    for r in rows:
+        if r["category"] not in cats:
+            cats.append(r["category"])
+
+    any_fav = False
+    for cat in cats:
+        cat_fav = [r for r in rows if r["tier"] == "favoured" and r["category"] == cat]
+        if not cat_fav:
+            continue
+        any_fav = True
+        lines.append(f"<b>{cat}</b>")
+        for r in cat_fav:
+            sector = f" [{r['sector']}]" if r.get("sector") else ""
+            w200 = f" · +{r['above_200w_pct']}% vs 200w" if r.get("above_200w_pct") is not None else ""
+            lines.append(
+                f"\U0001f7e2 {r['name']}{sector} — {r['level']} fib · "
+                f"{r['retrace_pct']}% retrace · {r['z']:+.1f}σ{w200}"
+            )
+        lines.append("")
+
+    if not any_fav:
+        cs = [r["name"] for r in rows if r["tier"] == "cheap_shallow"]
+        lines.append("No <b>favoured</b> setups this week.")
+        if cs:
+            lines.append("Closest (cheap but shallow): " + ", ".join(cs))
+    else:
+        # Concentration warning across the most-actionable names
+        actionable = [r for r in rows if r["tier"] in ("favoured", "cheap_shallow") and r.get("sector")]
+        counts = {}
+        for r in actionable:
+            counts[r["sector"]] = counts.get(r["sector"], 0) + 1
+        if counts:
+            top, n = max(counts.items(), key=lambda kv: kv[1])
+            if n >= 2 and n >= len(actionable) / 2:
+                lines.append(
+                    f"⚠️ {n} of the {len(actionable)} most-actionable names are "
+                    f"{top} — pair with a non-{top} name to diversify"
+                )
+
+    return "\n".join(lines).strip()
+
+
+def send_dca_digest(bot_token, chat_id):
+    """Compute the DCA ranking and send the weekly 'favoured now' digest."""
+    from dca_rank import analyse  # lazy import (pulls dashboard/yfinance)
+    rows = analyse()
+    msg = format_dca_digest(rows)
+    print("Sending weekly DCA digest...")
+    send_telegram(bot_token, chat_id, msg)
+
+
 def main():
     config = load_config()
 
@@ -601,6 +659,15 @@ def main():
         )
         send_telegram(bot_token, chat_id, summary)
         print("Summary sent to Telegram.")
+
+    # Weekly DCA digest (favoured-now picks) — runs on the configured weekday
+    # (default Monday) in the same run as the daily alerts.
+    dca_cfg = config.get("dca_summary", {})
+    if dca_cfg.get("enabled", True) and datetime.now().weekday() == dca_cfg.get("weekday", 0):
+        try:
+            send_dca_digest(bot_token, chat_id)
+        except Exception as e:
+            print(f"DCA digest error: {e}")
 
 
 if __name__ == "__main__":

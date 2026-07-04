@@ -31,7 +31,11 @@
         "NVDA": "Semis", "AMD": "Semis", "AVGO": "Semis", "MRVL": "Semis",
         "MU": "Semis", "TSM": "Semis", "ASML": "Semis", "ARM": "Semis", "ALAB": "Semis",
         "GOOG": "Internet", "META": "Internet", "MSFT": "Software", "PLTR": "Software",
-        "TSLA": "Auto/EV", "SATS": "Telecom", "COPA": "Airline", "SPCX": "Space"
+        "TSLA": "Auto/EV", "SATS": "Telecom", "COPA": "Copper", "SPCX": "Space"
+    },
+    "dca_summary": {
+        "enabled": true,
+        "weekday": 0
     },
     "crypto_cycle": {
         "sell_date": "2029-11-01",
