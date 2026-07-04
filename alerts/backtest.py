@@ -595,30 +595,48 @@ def generate_backtest_html(all_results, config, crypto_cycle_results=None):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OTT Backtest Results</title>
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    :root {{
+        --bg: #1a1d22;
+        --surface: #252830;
+        --surface-raised: #2d3038;
+        --surface-hover: #343843;
+        --ink: #e8e6e0;
+        --ink-soft: #a8a59c;
+        --ink-faint: #6e6c63;
+        --line: #2d3038;
+        --line-soft: #25282f;
+        --accent: #d4a866;
+        --sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --mono: 'JetBrains Mono', 'Courier New', monospace;
+        --radius: 8px;
+    }}
     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #1a1a2e; color: #e0e0e0; padding: 12px; }}
-    h1 {{ color: #fff; font-size: 20px; margin-bottom: 4px; }}
-    .updated {{ color: #888; font-size: 13px; margin-bottom: 8px; }}
-    .params {{ color: #666; font-size: 12px; margin-bottom: 12px; }}
+    body {{ font-family: var(--sans); background: var(--bg); color: var(--ink); padding: 28px 24px 48px; max-width: 1280px; margin: 0 auto; line-height: 1.5; -webkit-font-smoothing: antialiased; }}
+    ::selection {{ background: var(--accent); color: var(--bg); }}
+    h1 {{ color: var(--ink); font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }}
+    .updated {{ color: var(--ink-soft); font-size: 13px; margin-bottom: 8px; }}
+    .params {{ color: var(--ink-faint); font-family: var(--mono); font-size: 12px; margin-bottom: 12px; }}
     .controls {{ display: flex; gap: 15px; margin-bottom: 12px; flex-wrap: wrap; }}
-    .tf-toggle {{ display: flex; gap: 4px; }}
-    .tf-btn {{ padding: 6px 18px; border: 1px solid #333; border-radius: 6px; background: #16213e; color: #888; font-size: 13px; font-weight: 600; cursor: pointer; }}
-    .tf-btn:hover {{ background: #1f2b45; color: #ccc; }}
-    .tf-btn.active {{ background: #0f3460; color: #fff; border-color: #0f3460; }}
-    table {{ width: auto; border-collapse: collapse; font-size: 13px; }}
-    th {{ background: #16213e; color: #a0a0a0; padding: 8px; text-align: left; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid #0f3460; }}
-    td {{ padding: 6px 8px; border-bottom: 1px solid #1f2b45; }}
-    tr:hover {{ background: #16213e; }}
-    .category-row {{ background: #0f3460 !important; }}
-    .category-row td {{ font-weight: 700; color: #fff; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; padding: 6px 8px; border-bottom: none; }}
-    .ticker {{ font-weight: 700; color: #fff; font-size: 14px; white-space: nowrap; }}
+    .tf-toggle {{ display: flex; gap: 2px; background: var(--surface); padding: 4px; border-radius: var(--radius); }}
+    .tf-btn {{ padding: 6px 16px; border: none; border-radius: 6px; background: transparent; color: var(--ink-soft); font-family: var(--sans); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }}
+    .tf-btn:hover {{ color: var(--ink); }}
+    .tf-btn.active {{ background: var(--surface-raised); color: var(--ink); }}
+    table {{ width: auto; border-collapse: collapse; font-size: 13px; background: var(--surface); border-radius: var(--radius); overflow: hidden; margin-bottom: 6px; }}
+    th {{ background: var(--surface-raised); color: var(--ink-soft); padding: 10px 8px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid var(--line); }}
+    td {{ padding: 7px 8px; border-bottom: 1px solid var(--line-soft); }}
+    tr:hover {{ background: var(--surface-hover); }}
+    .category-row {{ background: var(--surface-raised) !important; }}
+    .category-row td {{ font-weight: 600; color: var(--accent); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; padding: 7px 8px; border-bottom: none; }}
+    .ticker {{ font-weight: 600; color: var(--ink); font-size: 14px; white-space: nowrap; }}
     .pos {{ color: #00e676; }}
     .neg {{ color: #ff5252; }}
-    .muted {{ color: #555; }}
-    .strat-desc {{ color: #999; font-size: 12px; margin-bottom: 12px; line-height: 1.5; }}
-    .strat-desc b {{ color: #ccc; }}
-    .back-link {{ color: #888; font-size: 13px; margin-bottom: 15px; display: block; }}
-    .back-link:hover {{ color: #ccc; }}
+    .muted {{ color: var(--ink-faint); }}
+    .strat-desc {{ color: var(--ink-soft); font-size: 12px; margin-bottom: 12px; line-height: 1.5; }}
+    .strat-desc b {{ color: var(--ink); }}
+    a {{ color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }}
+    a:hover {{ border-bottom-color: var(--accent); }}
+    .back-link {{ color: var(--accent); font-size: 13px; margin-bottom: 15px; display: block; }}
 </style>
 </head>
 <body>

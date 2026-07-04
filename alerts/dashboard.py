@@ -922,27 +922,55 @@ def generate_html(all_data, config):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OTT Signal Dashboard</title>
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    :root {{
+        --bg: #1a1d22;
+        --surface: #252830;
+        --surface-raised: #2d3038;
+        --surface-hover: #343843;
+        --ink: #e8e6e0;
+        --ink-soft: #a8a59c;
+        --ink-faint: #6e6c63;
+        --line: #2d3038;
+        --line-soft: #25282f;
+        --accent: #d4a866;
+        --sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        --mono: 'JetBrains Mono', 'Courier New', monospace;
+        --radius: 8px;
+        --radius-lg: 12px;
+    }}
     * {{ margin: 0; padding: 0; box-sizing: border-box; }}
     body {{
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: #1a1a2e;
-        color: #e0e0e0;
-        padding: 12px;
+        font-family: var(--sans);
+        background: var(--bg);
+        color: var(--ink);
+        padding: 28px 24px 48px;
+        max-width: 1280px;
+        margin: 0 auto;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }}
+    ::selection {{ background: var(--accent); color: var(--bg); }}
+    a {{ color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.15s; }}
+    a:hover {{ border-bottom-color: var(--accent); }}
     h1 {{
-        color: #fff;
+        color: var(--ink);
         margin-bottom: 4px;
-        font-size: 20px;
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
     }}
     .updated {{
-        color: #888;
+        color: var(--ink-soft);
         font-size: 13px;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
     }}
     .params {{
-        color: #666;
+        color: var(--ink-faint);
+        font-family: var(--mono);
         font-size: 12px;
-        margin-bottom: 15px;
+        margin-bottom: 16px;
     }}
     .controls {{
         display: flex;
@@ -953,26 +981,31 @@ def generate_html(all_data, config):
     }}
     .tf-toggle {{
         display: flex;
-        gap: 4px;
+        gap: 2px;
+        background: var(--surface);
+        padding: 4px;
+        border-radius: var(--radius);
     }}
     .details-btn {{
         padding: 6px 14px;
-        border: 1px solid #333;
+        border: 1px solid var(--line);
         border-radius: 6px;
-        background: #16213e;
-        color: #888;
+        background: var(--surface);
+        color: var(--ink-soft);
+        font-family: var(--sans);
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
+        transition: all 0.15s;
     }}
     .details-btn:hover {{
-        background: #1f2b45;
-        color: #ccc;
+        background: var(--surface-hover);
+        color: var(--ink);
     }}
     .details-btn.active {{
-        background: #0f3460;
-        color: #fff;
-        border-color: #0f3460;
+        background: var(--accent);
+        color: var(--bg);
+        border-color: var(--accent);
     }}
     .detail-col {{
         display: none;
@@ -981,28 +1014,32 @@ def generate_html(all_data, config):
         display: table-cell;
     }}
     .tf-btn {{
-        padding: 6px 18px;
-        border: 1px solid #333;
+        padding: 6px 16px;
+        border: none;
         border-radius: 6px;
-        background: #16213e;
-        color: #888;
+        background: transparent;
+        color: var(--ink-soft);
+        font-family: var(--sans);
         font-size: 13px;
         font-weight: 600;
         cursor: pointer;
+        transition: all 0.15s;
     }}
     .tf-btn:hover {{
-        background: #1f2b45;
-        color: #ccc;
+        color: var(--ink);
     }}
     .tf-btn.active {{
-        background: #0f3460;
-        color: #fff;
-        border-color: #0f3460;
+        background: var(--surface-raised);
+        color: var(--ink);
     }}
     table {{
         width: auto;
         border-collapse: collapse;
         font-size: 13px;
+        background: var(--surface);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 6px;
     }}
     td.signals, th.signals-header {{
         text-align: left;
@@ -1010,48 +1047,48 @@ def generate_html(all_data, config):
         padding-left: 20px;
     }}
     th {{
-        background: #16213e;
-        color: #a0a0a0;
-        padding: 12px 8px;
+        background: var(--surface-raised);
+        color: var(--ink-soft);
+        padding: 11px 8px;
         text-align: left;
         font-weight: 600;
         font-size: 11px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 2px solid #0f3460;
+        letter-spacing: 0.08em;
+        border-bottom: 1px solid var(--line);
         position: sticky;
         top: 0;
     }}
     td {{
-        padding: 6px 8px;
-        border-bottom: 1px solid #1f2b45;
+        padding: 7px 8px;
+        border-bottom: 1px solid var(--line-soft);
     }}
     tr:hover {{
-        background: #16213e;
+        background: var(--surface-hover);
     }}
     .category-row {{
-        background: #0f3460 !important;
+        background: var(--surface-raised) !important;
     }}
     .strat-label {{
         font-weight: 400;
         font-size: 10px;
-        color: #888;
+        color: var(--ink-faint);
         text-transform: none;
         letter-spacing: 0;
         margin-left: 8px;
     }}
     .category-row td {{
-        font-weight: 700;
-        color: #fff;
-        font-size: 13px;
+        font-weight: 600;
+        color: var(--accent);
+        font-size: 12px;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 6px 12px;
+        letter-spacing: 0.1em;
+        padding: 7px 12px;
         border-bottom: none;
     }}
     .ticker {{
-        font-weight: 700;
-        color: #fff;
+        font-weight: 600;
+        color: var(--ink);
         font-size: 14px;
         white-space: nowrap;
     }}
@@ -1060,7 +1097,7 @@ def generate_html(all_data, config):
         margin-right: 3px;
     }}
     .timeframe {{
-        color: #888;
+        color: var(--ink-soft);
         font-size: 12px;
     }}
     .state {{
@@ -1069,10 +1106,10 @@ def generate_html(all_data, config):
     }}
     .bullish {{ color: #00e676; }}
     .bearish {{ color: #ff5252; }}
-    .price {{ color: #fff; font-weight: 500; }}
+    .price {{ color: var(--ink); font-weight: 500; }}
     .above-ema {{ color: #00e676; }}
     .below-ema {{ color: #ff5252; }}
-    .mavg, .ott {{ color: #aaa; }}
+    .mavg, .ott {{ color: var(--ink-soft); }}
     .signal-pill {{
         display: inline-block;
         padding: 2px 8px;
@@ -1162,60 +1199,70 @@ def generate_html(all_data, config):
         font-weight: 700;
     }}
     .fib-title {{
-        margin-top: 28px;
-        font-size: 18px;
+        margin-top: 34px;
+        font-size: 22px;
         font-weight: 600;
-        color: #e0e0e0;
+        letter-spacing: -0.01em;
+        color: var(--ink);
     }}
-    .fib-sub {{ font-size: 0.7em; font-weight: 400; color: #888; margin-left: 8px; }}
+    .fib-sub {{ font-size: 0.6em; font-weight: 400; color: var(--ink-soft); margin-left: 8px; }}
     .fib-subtitle {{
-        margin-top: 22px;
-        font-size: 15px;
+        margin-top: 24px;
+        font-size: 12px;
         font-weight: 600;
-        color: #b8b8c8;
-        border-bottom: 1px solid #2a2a44;
-        padding-bottom: 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+        margin-bottom: 4px;
     }}
     .fib-table {{
         width: 100%;
         border-collapse: collapse;
-        margin-top: 10px;
+        margin-top: 8px;
         font-size: 13px;
+        background: var(--surface);
+        border-radius: var(--radius);
+        overflow: hidden;
     }}
     .fib-table th {{
         text-align: left;
-        padding: 8px 10px;
-        color: #888;
+        padding: 10px;
+        background: var(--surface-raised);
+        color: var(--ink-soft);
         font-weight: 600;
-        border-bottom: 1px solid #2a2a44;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        border-bottom: 1px solid var(--line);
         white-space: nowrap;
     }}
     .fib-table td {{
         padding: 8px 10px;
-        border-bottom: 1px solid #23233a;
+        border-bottom: 1px solid var(--line-soft);
         vertical-align: middle;
     }}
-    .fib-scale {{ font-size: 0.8em; font-weight: 400; color: #666; margin-left: 6px; }}
-    .fib-range-cell {{ color: #b8b8c8; white-space: nowrap; }}
-    .fib-dt {{ color: #777; }}
+    .fib-table tbody tr:last-child td {{ border-bottom: none; }}
+    .fib-scale {{ font-size: 0.8em; font-weight: 400; color: var(--ink-faint); margin-left: 6px; text-transform: none; letter-spacing: 0; }}
+    .fib-range-cell {{ color: var(--ink-soft); white-space: nowrap; }}
+    .fib-dt {{ color: var(--ink-faint); }}
     .fib-gain {{ color: #00e676; font-weight: 600; }}
-    .fib-price {{ color: #e0e0e0; font-weight: 600; white-space: nowrap; }}
-    .fib-lv {{ color: #b8b8c8; white-space: nowrap; }}
+    .fib-price {{ color: var(--ink); font-weight: 600; white-space: nowrap; }}
+    .fib-lv {{ color: var(--ink-soft); white-space: nowrap; }}
     .fib-z {{ white-space: nowrap; }}
     .fib-lt {{ white-space: nowrap; }}
     .fib-near {{ color: #00e676; font-weight: 600; }}
-    .fib-rank {{ color: #666; text-align: right; width: 24px; }}
-    .fib-scorecell {{ white-space: nowrap; }}
+    .fib-rank {{ color: var(--ink-faint); text-align: right; width: 24px; font-family: var(--mono); }}
+    .fib-scorecell {{ white-space: nowrap; font-family: var(--mono); }}
     .fib-summary {{
-        margin-top: 10px;
-        padding: 12px 14px;
-        background: #20203a;
-        border: 1px solid #2a2a44;
-        border-radius: 6px;
+        margin-top: 8px;
+        padding: 14px 16px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-lg);
         font-size: 13px;
         line-height: 1.7;
     }}
-    .fib-sum-head {{ color: #888; font-weight: 600; margin-bottom: 4px; }}
+    .fib-sum-head {{ color: var(--ink-faint); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.85em; }}
     .fib-sum-line {{ margin: 2px 0; }}
     .fib-sum-tag {{
         display: inline-block;
@@ -1237,7 +1284,7 @@ def generate_html(all_data, config):
         display: inline-block;
         width: 180px;
         height: 14px;
-        background: #23233a;
+        background: var(--surface-raised);
         border-radius: 3px;
         vertical-align: middle;
         overflow: hidden;
@@ -1257,9 +1304,13 @@ def generate_html(all_data, config):
     .fib-lvl {{ font-weight: 400; font-size: 0.85em; opacity: 0.85; }}
     .fib-broken {{ margin-left: 6px; color: #6b6b6b; font-size: 0.85em; }}
     .legend {{
-        margin-top: 20px;
-        color: #666;
+        margin-top: 24px;
+        padding: 14px 16px;
+        background: var(--surface);
+        border-radius: var(--radius-lg);
+        color: var(--ink-soft);
         font-size: 12px;
+        line-height: 1.9;
     }}
 </style>
 </head>
@@ -1299,7 +1350,7 @@ def generate_html(all_data, config):
         <span style="font-size:0.9em;">σ = how unusual the current distance from 200d SMA is for this ticker (<span style="color:#888;">&lt;1.5σ normal</span>, <span style="color:#f0d060;">&ge;1.5σ notable</span>, <span style="color:#ffffff;">&ge;2σ unusual</span>)</span>
         <br><span style="font-size:0.9em;">&#9733; buy: analyst buy levels (hover for source &amp; date) &mdash; <span style="color:#c9a227;">pending</span>, <span style="color:#00e676;">reached</span></span>
     </div>
-    <div style="margin-top: 20px;"><a href="backtest.html" style="color: #888; font-size: 13px;">View Backtest Results &rarr;</a></div>
+    <div style="margin-top: 24px;"><a href="backtest.html" style="font-size: 13px;">View Backtest Results &rarr;</a></div>
 
     <script>
     let currentTf = 'daily';
