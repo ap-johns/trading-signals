@@ -15,6 +15,12 @@
         "levels": [2.0, 2.5, 3.0],
         "reset_band": 0.5
     },
+    "fib_alerts": {
+        "enabled": true,
+        "levels": [0.382, 0.5, 0.618, 0.786],
+        "lookback": 252,
+        "min_gain": 0.30
+    },
     "crypto_cycle": {
         "sell_date": "2029-11-01",
         "alert_months_before": 1,

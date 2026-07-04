@@ -18,7 +18,7 @@ from urllib.parse import urlencode
 import yfinance as yf
 import pandas as pd
 
-from indicators import calculate_ott, calculate_sma, calculate_ema
+from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -27,6 +27,16 @@ def load_config():
     config_path = os.path.join(SCRIPT_DIR, "config.json")
     with open(config_path) as f:
         return json.load(f)
+
+
+def _fmt_date(idx):
+    """Format a DataFrame index label (Timestamp) as a short date, e.g. '3 Jun 25'."""
+    if hasattr(idx, "strftime"):
+        try:
+            return idx.strftime("%-d %b %y")
+        except ValueError:
+            return idx.strftime("%d %b %y")
+    return str(idx)
 
 
 def send_telegram(bot_token: str, chat_id: str, message: str):
@@ -79,6 +89,11 @@ def check_signals(config: dict) -> list:
     zscore_enabled = zscore_cfg.get("enabled", True)
     zscore_levels = zscore_cfg.get("levels", [1.0, 1.5, 2.0, 2.5, 3.0])
     zscore_reset_band = zscore_cfg.get("reset_band", 0.5)
+    fib_cfg = config.get("fib_alerts", {})
+    fib_enabled = fib_cfg.get("enabled", True)
+    fib_levels = fib_cfg.get("levels", [0.382, 0.5, 0.618, 0.786])
+    fib_lookback = fib_cfg.get("lookback", 252)
+    fib_min_gain = fib_cfg.get("min_gain", 0.30)
     signals = []
 
     # Persistent alert state (dedupes z-score level + crypto cycle alerts across runs)
@@ -214,6 +229,56 @@ def check_signals(config: dict) -> list:
                                     "date": date_str,
                                     "reason": f"Price {dip_pct}% below 200d SMA (${threshold:.2f})",
                                 })
+
+                    # FIBONACCI retracement buy alerts for stocks: after a significant
+                    # uptrend (>= min_gain), fire when price is at/below a fib level
+                    # (0.382/0.5/0.618/0.786) while the trend is still intact (price
+                    # still above the swing low). Position-based (fires on initial
+                    # state, like the z-score/analyst alerts), deduped once per level;
+                    # re-arms once price recovers back above the level. Resets if a new
+                    # swing high forms (new setup).
+                    if fib_enabled and category == "Stocks" and tf == "daily" and len(df) >= 2:
+                        fib = calculate_fib_levels(
+                            df["High"], df["Low"],
+                            lookback=fib_lookback, min_gain=fib_min_gain, ratios=tuple(fib_levels),
+                        )
+                        if fib is not None and fib["swing_low"] < price < fib["swing_high"]:
+                            fstate = cycle_state.get(display_name, {})
+                            fib_alerted = fstate.get("fib_alerted", [])
+                            prev_swing_high = fstate.get("fib_swing_high")
+
+                            # New swing high => fresh setup, clear prior fired levels
+                            if prev_swing_high is None or fib["swing_high"] > prev_swing_high * 1.001:
+                                fib_alerted = []
+
+                            lo_date = _fmt_date(fib["swing_low_date"])
+                            hi_date = _fmt_date(fib["swing_high_date"])
+                            for r in fib_levels:
+                                level = fib["levels"][r]
+                                # Re-arm: drop levels price has climbed back above
+                                if price > level and r in fib_alerted:
+                                    fib_alerted.remove(r)
+                                # Fire whenever price sits at/below the level (deduped)
+                                if price <= level and r not in fib_alerted:
+                                    signals.append({
+                                        "type": "BUY",
+                                        "ticker": display_name,
+                                        "category": category,
+                                        "timeframe": tf,
+                                        "price": price,
+                                        "sma_200": sma200_val,
+                                        "sma_relation": f"fib {r}",
+                                        "date": date_str,
+                                        "reason": (
+                                            f"Retraced to {r} fib (${level:.2f}) of +{fib['gain'] * 100:.0f}% uptrend "
+                                            f"(low ${fib['swing_low']:.2f} {lo_date} → high ${fib['swing_high']:.2f} {hi_date})"
+                                        ),
+                                    })
+                                    fib_alerted.append(r)
+
+                            fstate["fib_alerted"] = fib_alerted
+                            fstate["fib_swing_high"] = fib["swing_high"]
+                            cycle_state[display_name] = fstate
 
                 # Z-SCORE buy alerts: how unusual the current distance below the
                 # 200d SMA is, in standard deviations. Fires at each 0.5σ step on

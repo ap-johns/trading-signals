@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import yfinance as yf
 import pandas as pd
 
-from indicators import calculate_ott, calculate_sma, calculate_ema
+from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(SCRIPT_DIR)
@@ -51,7 +51,51 @@ def analyst_label_html(display_name, price, analyst_levels):
     )
 
 
-def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period):
+def _fmt_date(idx):
+    """Format a DataFrame index label (Timestamp) as a short date, e.g. '3 Jun 25'."""
+    if idx is None:
+        return ""
+    if hasattr(idx, "strftime"):
+        try:
+            return idx.strftime("%-d %b %y")
+        except ValueError:
+            return idx.strftime("%d %b %y")
+    return str(idx)
+
+
+def fib_label_html(fib, price):
+    """Render a small label showing fib retracement levels of the prior uptrend.
+
+    The level nearest to (and at/above) the current price is highlighted as the
+    active pullback zone; a level price has already dropped below is marked hit.
+    """
+    if not fib or price is None:
+        return ""
+    levels = fib["levels"]  # {ratio: price}
+    parts = []
+    for r in sorted(levels):
+        p = levels[r]
+        # "hit" = price has retraced to or below this level; "pending" = above it
+        cls = "fib-hit" if price <= p else "fib-pending"
+        parts.append(f'<span class="{cls}">{r}:{fmt_price(p)}</span>')
+    lo_date = _fmt_date(fib.get("swing_low_date"))
+    hi_date = _fmt_date(fib.get("swing_high_date"))
+    title = f'+{fib["gain"] * 100:.0f}% uptrend used for these fib levels'
+    # Show the swing low/high (with dates) inline so it can be checked against a chart
+    span_html = (
+        f'<span class="fib-range">'
+        f'{fmt_price(fib["swing_low"])} ({lo_date}) &rarr; {fmt_price(fib["swing_high"])} ({hi_date})'
+        f'</span>'
+    )
+    return (
+        f' <span class="fib-level" title="{title}">'
+        f'fib {span_html}: {", ".join(parts)}</span>'
+    )
+
+
+def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
+                    fib_lookback=252, fib_min_gain=0.30,
+                    fib_levels=(0.382, 0.5, 0.618, 0.786)):
     """Fetch data and calculate OTT for both timeframes."""
     results = {}
 
@@ -85,10 +129,17 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period):
             if len(pct_from_sma_series) > 1 and pct_from_sma_series.std() > 0:
                 sma_zscore = (pct_from_sma_series.iloc[-1] - pct_from_sma_series.mean()) / pct_from_sma_series.std()
 
+            # Fibonacci retracement levels of the prior significant uptrend
+            fib = calculate_fib_levels(
+                df["High"], df["Low"],
+                lookback=fib_lookback, min_gain=fib_min_gain, ratios=tuple(fib_levels),
+            )
+
             results["daily"] = {
                 "price": df["Close"].iloc[-1],
                 "ema_200": ema_200.iloc[-1],
                 "sma_zscore": sma_zscore,
+                "fib": fib,
                 "mavg": ott_df["mavg"].iloc[-1],
                 "ott": ott_df["ott"].iloc[-1],
                 "bullish": mavg_above_ott,
@@ -587,6 +638,7 @@ def generate_html(all_data, config):
                         w_pct_label = f"+{pct_from_200w:.1f}%" if pct_from_200w >= 0 else f"{pct_from_200w:.1f}%"
                         sma_status += f' <span class="{w_pct_class}" style="margin-left:8px;font-size:0.85em;">{w_pct_label} from 200w SMA</span>'
                     sma_status += analyst_label_html(display_name, price, analyst_levels)
+                    sma_status += fib_label_html(tf_data.get("fib"), price)
                 rows += f'''<tr class="{row_class}" data-tf="{tf}">
                     <td class="ticker"><span class="trend-icon {state_class}">{trend_arrow}</span> {display_name}</td>
                     <td class="signals">{signals_html} {sma_status}</td>
@@ -842,6 +894,18 @@ def generate_html(all_data, config):
         color: #00e676;
         font-weight: 700;
     }}
+    .fib-level {{
+        margin-left: 8px;
+        font-size: 0.85em;
+        color: #7aa2f7;
+        cursor: help;
+    }}
+    .fib-pending {{ color: #6b7fb0; }}
+    .fib-hit {{
+        color: #7aa2f7;
+        font-weight: 700;
+    }}
+    .fib-range {{ color: #8a93b8; }}
     .legend {{
         margin-top: 20px;
         color: #666;
@@ -935,6 +999,10 @@ def main():
     ott_period = config["ott"]["period"]
     ott_percent = config["ott"]["percent"]
     ema_period = config["ema_period"]
+    fib_cfg = config.get("fib_alerts", {})
+    fib_lookback = fib_cfg.get("lookback", 252)
+    fib_min_gain = fib_cfg.get("min_gain", 0.30)
+    fib_levels = fib_cfg.get("levels", [0.382, 0.5, 0.618, 0.786])
 
     print(f"OTT Dashboard Generator - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
 
@@ -948,7 +1016,10 @@ def main():
     all_data = {}
     for yf_ticker, display_name in all_tickers.items():
         print(f"  {display_name}...", end=" ", flush=True)
-        all_data[yf_ticker] = get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period)
+        all_data[yf_ticker] = get_ticker_data(
+            yf_ticker, ott_period, ott_percent, ema_period,
+            fib_lookback=fib_lookback, fib_min_gain=fib_min_gain, fib_levels=fib_levels,
+        )
         print("done")
 
     html = generate_html(all_data, config)

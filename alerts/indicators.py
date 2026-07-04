@@ -142,3 +142,68 @@ def calculate_ema(close: pd.Series, period: int = 200) -> pd.Series:
 def calculate_sma(close: pd.Series, period: int = 200) -> pd.Series:
     """Standard SMA calculation."""
     return close.rolling(window=period, min_periods=period).mean()
+
+
+def calculate_fib_levels(
+    high: pd.Series,
+    low: pd.Series,
+    lookback: int = 252,
+    min_gain: float = 0.30,
+    ratios=(0.382, 0.5, 0.618, 0.786),
+):
+    """
+    Detect the dominant uptrend within the last `lookback` bars and return its
+    Fibonacci retracement levels.
+
+    The uptrend is defined as the lowest low preceding (on or before) the highest
+    high in the window — i.e. the launch point of the move up to its peak. The
+    setup only qualifies if the rise from swing low to swing high is at least
+    `min_gain` (fractional, e.g. 0.30 = 30%).
+
+    Returns a dict:
+        {
+            "swing_high": float,
+            "swing_low": float,
+            "swing_high_date": index label of the swing high bar,
+            "swing_low_date": index label of the swing low bar,
+            "gain": float,               # fractional rise, e.g. 0.45
+            "levels": {ratio: price, ...} # retracement price per ratio
+        }
+    or None if there is no qualifying uptrend (not enough data or gain too small).
+    """
+    high = high.dropna()
+    low = low.dropna()
+    if len(high) < 2 or len(low) < 2:
+        return None
+
+    high_window = high.iloc[-lookback:]
+    low_window = low.iloc[-lookback:]
+
+    swing_high = high_window.max()
+    idx_high = high_window.idxmax()
+
+    # Lowest low on/before the swing high (the launch point of the uptrend)
+    low_before_high = low_window.loc[:idx_high]
+    if low_before_high.empty:
+        return None
+    swing_low = low_before_high.min()
+    idx_low = low_before_high.idxmin()
+
+    if swing_low <= 0 or swing_high <= swing_low:
+        return None
+
+    gain = (swing_high - swing_low) / swing_low
+    if gain < min_gain:
+        return None
+
+    span = swing_high - swing_low
+    levels = {r: swing_high - r * span for r in ratios}
+
+    return {
+        "swing_high": float(swing_high),
+        "swing_low": float(swing_low),
+        "swing_high_date": idx_high,
+        "swing_low_date": idx_low,
+        "gain": float(gain),
+        "levels": {r: float(p) for r, p in levels.items()},
+    }
