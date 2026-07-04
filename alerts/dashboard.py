@@ -156,6 +156,24 @@ def level_cell(level, price):
     return f'<span class="{cls}">{fmt_price(level)}</span> <span class="fib-dt">{dist:+.0f}%</span>'
 
 
+def long_term_cell(price, ema_200w, wk_bull):
+    """Long-term trend read: price vs the 200-week EMA + weekly OTT direction.
+    This is the buy-and-hold "is the trend intact" guard against value traps."""
+    if ema_200w and price is not None:
+        pct = (price - ema_200w) / ema_200w * 100
+        color = "#00e676" if pct >= 0 else "#ff5252"
+        ema_html = f'<span style="color:{color};" title="vs 200-week EMA (${ema_200w:,.0f})">{pct:+.0f}% 200w</span>'
+    else:
+        ema_html = '<span class="fib-dt" title="not enough weekly history">&mdash; 200w</span>'
+    if wk_bull is None:
+        ott_html = ""
+    elif bool(wk_bull):
+        ott_html = ' <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span>'
+    else:
+        ott_html = ' <span style="color:#ff5252;" title="weekly OTT bearish">wk&#9660;</span>'
+    return ema_html + ott_html
+
+
 def fib_section_html(all_data, config):
     """Build the Fibonacci retracement table for stocks with a qualifying uptrend."""
     stocks = config["watchlist"].get("Stocks", {})
@@ -171,7 +189,8 @@ def fib_section_html(all_data, config):
         if sh <= sl:
             continue
         frac = (sh - price) / (sh - sl)
-        entries.append((display_name, fib, price, frac, daily))
+        weekly = data.get("weekly", {}) or {}
+        entries.append((display_name, fib, price, frac, daily, weekly))
 
     if not entries:
         return ""
@@ -180,7 +199,7 @@ def fib_section_html(all_data, config):
     entries.sort(key=lambda e: (e[3] >= 1.0, -e[3]))
 
     rows = ""
-    for name, fib, price, frac, daily in entries:
+    for name, fib, price, frac, daily, weekly in entries:
         broken = frac >= 1.0
         lo = f'{fmt_price(fib["swing_low"])} <span class="fib-dt">({_fmt_date(fib["swing_low_date"])})</span>'
         hi = f'{fmt_price(fib["swing_high"])} <span class="fib-dt">({_fmt_date(fib["swing_high_date"])})</span>'
@@ -203,6 +222,7 @@ def fib_section_html(all_data, config):
             <td class="fib-lv">{level_cell(sma50, price)}{slope_arrow(daily.get("sma_50_dir"))}</td>
             <td class="fib-lv">{level_cell(support, price)}</td>
             <td class="fib-z">{z_html}</td>
+            <td class="fib-lt">{long_term_cell(price, weekly.get("ema_200w"), weekly.get("bullish"))}</td>
             <td class="fib-meter-cell">{fib_meter_html(frac)}{depth_html}</td>
         </tr>\n'''
 
@@ -218,6 +238,7 @@ def fib_section_html(all_data, config):
                 <th>50d SMA</th>
                 <th>Support</th>
                 <th>z-score</th>
+                <th>Long-term trend</th>
                 <th>Retracement <span class="fib-scale">high&larr;&nbsp;0.382&nbsp;0.5&nbsp;0.618&nbsp;0.786&nbsp;&rarr;low</span></th>
             </tr>
         </thead>
@@ -343,6 +364,10 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
                 ott_df = calculate_ott(src, period=ott_period, percent=ott_percent)
                 ema_200 = calculate_sma(df_w["Close"], period=ema_period)
                 sma_200w = calculate_sma(df_w["Close"], period=200)
+                # 200-week EMA — the long-term trend anchor (needs enough history)
+                ema_200w_series = calculate_ema(df_w["Close"], period=200)
+                n_weeks = len(df_w)
+                ema_200w = float(ema_200w_series.iloc[-1]) if n_weeks >= 104 else None
 
                 mavg_above_ott = ott_df["mavg"].iloc[-1] > ott_df["ott"].iloc[-1]
 
@@ -360,6 +385,8 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
                     "price": df_w["Close"].iloc[-1],
                     "ema_200": ema_200.iloc[-1],
                     "sma_200w": sma_200w.iloc[-1] if pd.notna(sma_200w.iloc[-1]) else None,
+                    "ema_200w": ema_200w,
+                    "n_weeks": n_weeks,
                     "mavg": ott_df["mavg"].iloc[-1],
                     "ott": ott_df["ott"].iloc[-1],
                     "bullish": mavg_above_ott,
@@ -1078,6 +1105,7 @@ def generate_html(all_data, config):
     .fib-price {{ color: #e0e0e0; font-weight: 600; white-space: nowrap; }}
     .fib-lv {{ color: #b8b8c8; white-space: nowrap; }}
     .fib-z {{ white-space: nowrap; }}
+    .fib-lt {{ white-space: nowrap; }}
     .fib-near {{ color: #00e676; font-weight: 600; }}
     .fib-meter-cell {{ white-space: nowrap; }}
     .fib-meter {{
