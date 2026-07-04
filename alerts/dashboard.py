@@ -363,6 +363,12 @@ def ia_levels_section_html(all_data, config):
             return "very deep", "#e8925d"
         return "extreme", "#d97a6c"
 
+    # Which levels/categories the IA-level BUY alerts watch (badge them on the dashboard)
+    alert_cfg = config.get("ia_level_alerts", {})
+    alert_cats = alert_cfg.get("categories", ["Stocks"])
+    watched = alert_cfg.get("levels", [5, 4, 3])
+    badge_word = {5: "mild dip", 4: "moderate dip", 3: "deep dip", 2: "very deep", 1: "extreme"}
+
     body = ""
     any_rows = False
     for cat in cats:
@@ -376,6 +382,17 @@ def ia_levels_section_html(all_data, config):
             any_rows = True
             at_below = [k for k in labels if lv[k] <= price]
             support = max(at_below, key=lambda k: lv[k]) if at_below else 1
+
+            # Alert bar: colour the row's left edge if price is at/below a watched
+            # level (matches check_ia_levels); deeper level = brighter green.
+            trig = [L for L in watched if price <= lv[L]] if cat in alert_cats else []
+            if trig:
+                dl = min(trig)  # deepest triggered level (lower number = deeper)
+                word = badge_word.get(dl, "")
+                row_cls = f"ia-trig-{dl}"
+                trow_title = f' title="IA buy alert: L{dl} — {word}"'
+            else:
+                row_cls, trow_title = "", ""
             cells = ""
             for k in labels:
                 cls = "ia-here" if k == support and at_below else "ia-cell"
@@ -420,7 +437,7 @@ def ia_levels_section_html(all_data, config):
                 prox = '<span class="ia-prox-txt">at the high</span>'
             else:
                 prox = '<span class="ia-prox-txt">below L1</span>'
-            cat_rows += (f'<tr><td class="ticker">{name}</td>'
+            cat_rows += (f'<tr class="{row_cls}"><td class="ticker"{trow_title}>{name}</td>'
                          f'<td class="fib-price">{fmt_price(price)}</td>{cells}'
                          f'<td class="ia-zone">{pull_html}</td>'
                          f'<td class="ia-prox-cell">{prox}</td></tr>\n')
@@ -431,7 +448,7 @@ def ia_levels_section_html(all_data, config):
         return ""
     heads = "".join(f'<th>L{k}<span class="ia-hpct">{hdr_pct[k]}</span></th>' for k in labels)
     return f'''
-    <h2 class="fib-title">IA Levels <span class="fib-sub">Fibonacci-% pullback bands from the trailing high (Invest Answers) &middot; <span style="color:#5fb87a;">green cell</span> = the band price sits in</span></h2>
+    <h2 class="fib-title">IA Levels <span class="fib-sub">Fibonacci-% pullback bands from the trailing high (Invest Answers) &middot; <span style="color:#5fb87a;">green cell</span> = the band price sits in &middot; left bar = buy-side alert, by depth: <span style="color:#5fb87a;">L5</span> &rarr; <span style="color:#e0c04a;">L4</span> &rarr; <span style="color:#e8925d;">L3</span></span></h2>
     <div class="ia-key">Pullback depth: <span style="color:#7aa2f7;">shallow &lt;24%</span> &middot; <span style="color:#5fb87a;">moderate 24&ndash;38%</span> &middot; <span style="color:#e0c04a;">deep 38&ndash;50%</span> &middot; <span style="color:#e8925d;">very deep 50&ndash;62%</span> &middot; <span style="color:#d97a6c;">extreme &gt;62%</span></div>
     <table class="fib-table ia-table">
         <thead><tr><th>Ticker</th><th class="fib-price">Price</th>{heads}<th>Pullback<br>from high</th><th>Nearest level<br><span class="ia-hpct">marker = price (5-day): <span style="color:#5fb87a;">&#9654;</span> rising &middot; <span style="color:#d97a6c;">&#9664;</span> falling &middot; <span style="color:#e8e6e0;">&#9612;</span> flat</span></th></tr></thead>
@@ -1417,6 +1434,10 @@ def generate_html(all_data, config):
     }}
     .ia-hpct {{ display: block; font-size: 0.78em; font-weight: 400; color: var(--ink-faint); }}
     .ia-key {{ margin: 6px 0 2px; font-size: 12px; color: var(--ink-faint); }}
+    .ia-trig-5 {{ border-left: 4px solid #5fb87a; }}
+    .ia-trig-4 {{ border-left: 4px solid #e0c04a; }}
+    .ia-trig-3 {{ border-left: 4px solid #e8925d; }}
+    .ia-trig-2, .ia-trig-1 {{ border-left: 4px solid #d97a6c; }}
     .ia-zone {{ white-space: nowrap; font-weight: 600; }}
     .ia-prox-cell {{ white-space: nowrap; }}
     .ia-prox {{ display: inline-flex; align-items: center; gap: 7px; }}
