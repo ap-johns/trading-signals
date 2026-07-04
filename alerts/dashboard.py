@@ -10,6 +10,7 @@ import yfinance as yf
 import pandas as pd
 
 from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels
+from fib_score import favorability, tier, level_reached
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(SCRIPT_DIR)
@@ -174,10 +175,59 @@ def long_term_cell(price, ema_200w, wk_bull):
     return ema_html + ott_html
 
 
+def score_color(score):
+    """Colour the favorability score (higher = stronger DCA setup)."""
+    if score is None:
+        return "#6b6b6b"
+    if score >= 8:
+        return "#00e676"
+    if score >= 6:
+        return "#7ed957"
+    if score >= 4:
+        return "#e0c04a"
+    return "#8a93b8"
+
+
+def fib_summary_html(items):
+    """Auto-generated DCA read: a few labelled lines derived from the same scores."""
+    def names(t, n=None, detail=False):
+        picks = [x for x in items if x["tier"] == t]
+        if n:
+            picks = picks[:n]
+        if detail:
+            return ", ".join(
+                f'{x["name"]} <span class="fib-dt">({level_reached(x["frac"]) or "&lt;0.382"}, {x["z"]:+.1f}&sigma;)</span>'
+                if x["z"] is not None else x["name"] for x in picks)
+        return ", ".join(x["name"] for x in picks)
+
+    lines = []
+    fav = names("favoured", n=3, detail=True)
+    if fav:
+        lines.append(f'<div class="fib-sum-line"><span class="fib-sum-tag fav">Favoured now</span> {fav} '
+                     f'<span class="fib-dt">&mdash; cheap, golden-pocket pullback, long-term trend intact</span></div>')
+    cs = names("cheap_shallow")
+    if cs:
+        lines.append(f'<div class="fib-sum-line"><span class="fib-sum-tag mid">Cheap, shallow dip</span> {cs} '
+                     f'<span class="fib-dt">&mdash; stretched below trend but only a small pullback</span></div>')
+    nc = names("quality_not_cheap")
+    if nc:
+        lines.append(f'<div class="fib-sum-line"><span class="fib-sum-tag mid">Quality, not on sale</span> {nc} '
+                     f'<span class="fib-dt">&mdash; strong trend, wait for a deeper dip / negative z</span></div>')
+    ca = names("caution")
+    if ca:
+        lines.append(f'<div class="fib-sum-line"><span class="fib-sum-tag warn">Caution</span> {ca} '
+                     f'<span class="fib-dt">&mdash; weekly trend rolling over / barely above 200w (value-trap risk)</span></div>')
+    br = names("broken")
+    if br:
+        lines.append(f'<div class="fib-sum-line"><span class="fib-sum-tag skip">Skip</span> {br} '
+                     f'<span class="fib-dt">&mdash; price below the swing low, trend broken</span></div>')
+    return '<div class="fib-summary"><div class="fib-sum-head">DCA read (auto)</div>' + "".join(lines) + '</div>'
+
+
 def fib_section_html(all_data, config):
     """Build the Fibonacci retracement table for stocks with a qualifying uptrend."""
     stocks = config["watchlist"].get("Stocks", {})
-    entries = []
+    items = []
     for yf_ticker, display_name in stocks.items():
         data = all_data.get(yf_ticker, {})
         fib = data.get("fib")
@@ -190,16 +240,32 @@ def fib_section_html(all_data, config):
             continue
         frac = (sh - price) / (sh - sl)
         weekly = data.get("weekly", {}) or {}
-        entries.append((display_name, fib, price, frac, daily, weekly))
+        z = daily.get("sma_zscore")
+        sma50 = daily.get("sma_50")
+        s50_dist = (price - sma50) / sma50 * 100 if sma50 else None
+        s50_dir = daily.get("sma_50_dir")
+        support = daily.get("support")
+        sup_dist = (price - support) / price * 100 if support else None
+        ema200w = weekly.get("ema_200w")
+        w200 = (price - ema200w) / ema200w * 100 if ema200w else None
+        wk_bull = bool(weekly.get("bullish")) if weekly.get("bullish") is not None else False
+        score = favorability(frac, z, s50_dist, s50_dir, sup_dist, w200, wk_bull)
+        items.append({
+            "name": display_name, "fib": fib, "price": price, "frac": frac,
+            "daily": daily, "weekly": weekly, "z": z, "sma50": sma50, "support": support,
+            "score": score, "tier": tier(frac, z, w200, wk_bull),
+        })
 
-    if not entries:
+    if not items:
         return ""
 
-    # Deepest retracements first (closest to a buy zone); broken (>=100%) last.
-    entries.sort(key=lambda e: (e[3] >= 1.0, -e[3]))
+    # Rank by favorability score (highest first); broken setups (score None) last.
+    items.sort(key=lambda x: (x["score"] is None, -(x["score"] or 0)))
 
     rows = ""
-    for name, fib, price, frac, daily, weekly in entries:
+    for rank, it in enumerate(items, 1):
+        name, fib, price, frac, daily, weekly = (
+            it["name"], it["fib"], it["price"], it["frac"], it["daily"], it["weekly"])
         broken = frac >= 1.0
         lo = f'{fmt_price(fib["swing_low"])} <span class="fib-dt">({_fmt_date(fib["swing_low_date"])})</span>'
         hi = f'{fmt_price(fib["swing_high"])} <span class="fib-dt">({_fmt_date(fib["swing_high_date"])})</span>'
@@ -209,28 +275,34 @@ def fib_section_html(all_data, config):
             depth_html = f'<span class="fib-pct" style="color:{color};">{pct_label}</span> <span class="fib-broken">below low</span>'
         else:
             depth_html = f'<span class="fib-pct" style="color:{color};">{pct_label} <span class="fib-lvl">{fib_level_label(frac)}</span></span>'
-        sma50 = daily.get("sma_50")
-        support = daily.get("support")
-        z = daily.get("sma_zscore")
+        z = it["z"]
         z_html = (f'<span style="color:{zscore_color(z)};">{z:+.1f}&sigma;</span>'
                   if z is not None else '<span class="fib-dt">&mdash;</span>')
+        sc = it["score"]
+        sc_html = (f'<span style="color:{score_color(sc)};font-weight:700;">{sc:.1f}</span>'
+                   if sc is not None else '<span class="fib-dt">skip</span>')
         rows += f'''<tr>
+            <td class="fib-rank">{rank}</td>
+            <td class="fib-scorecell">{sc_html}</td>
             <td class="ticker">{name}</td>
             <td class="fib-range-cell">{lo} &rarr; {hi}</td>
             <td class="fib-gain">+{fib["gain"] * 100:.0f}%</td>
             <td class="fib-price">{fmt_price(price)}</td>
-            <td class="fib-lv">{level_cell(sma50, price)}{slope_arrow(daily.get("sma_50_dir"))}</td>
-            <td class="fib-lv">{level_cell(support, price)}</td>
+            <td class="fib-lv">{level_cell(it["sma50"], price)}{slope_arrow(daily.get("sma_50_dir"))}</td>
+            <td class="fib-lv">{level_cell(it["support"], price)}</td>
             <td class="fib-z">{z_html}</td>
             <td class="fib-lt">{long_term_cell(price, weekly.get("ema_200w"), weekly.get("bullish"))}</td>
             <td class="fib-meter-cell">{fib_meter_html(frac)}{depth_html}</td>
         </tr>\n'''
 
     return f'''
-    <h2 class="fib-title">Fibonacci Retracements <span class="fib-sub">weekly uptrend &middot; deeper = closer to buy zone &middot; <span class="fib-near">green</span> = price within 5% of the level &middot; <span style="color:#00e676;">&#9650;</span>/<span style="color:#ff5252;">&#9660;</span> = 50d SMA rising/falling</span></h2>
+    <h2 class="fib-title">Fibonacci Retracements <span class="fib-sub">ranked by buy-and-hold DCA favorability &middot; <span class="fib-near">green</span> = price within 5% of the level &middot; <span style="color:#00e676;">&#9650;</span>/<span style="color:#ff5252;">&#9660;</span> = 50d SMA rising/falling</span></h2>
+    {fib_summary_html(items)}
     <table class="fib-table">
         <thead>
             <tr>
+                <th>#</th>
+                <th>Score</th>
                 <th>Ticker</th>
                 <th>Uptrend (low &rarr; high)</th>
                 <th>Gain</th>
@@ -1107,6 +1179,33 @@ def generate_html(all_data, config):
     .fib-z {{ white-space: nowrap; }}
     .fib-lt {{ white-space: nowrap; }}
     .fib-near {{ color: #00e676; font-weight: 600; }}
+    .fib-rank {{ color: #666; text-align: right; width: 24px; }}
+    .fib-scorecell {{ white-space: nowrap; }}
+    .fib-summary {{
+        margin-top: 10px;
+        padding: 12px 14px;
+        background: #20203a;
+        border: 1px solid #2a2a44;
+        border-radius: 6px;
+        font-size: 13px;
+        line-height: 1.7;
+    }}
+    .fib-sum-head {{ color: #888; font-weight: 600; margin-bottom: 4px; }}
+    .fib-sum-line {{ margin: 2px 0; }}
+    .fib-sum-tag {{
+        display: inline-block;
+        min-width: 128px;
+        padding: 1px 8px;
+        margin-right: 8px;
+        border-radius: 4px;
+        font-size: 0.82em;
+        font-weight: 600;
+        text-align: center;
+    }}
+    .fib-sum-tag.fav {{ background: #10391f; color: #00e676; }}
+    .fib-sum-tag.mid {{ background: #3a3320; color: #e0c04a; }}
+    .fib-sum-tag.warn {{ background: #3a2320; color: #ff8a5c; }}
+    .fib-sum-tag.skip {{ background: #2a2a30; color: #888; }}
     .fib-meter-cell {{ white-space: nowrap; }}
     .fib-meter {{
         position: relative;
