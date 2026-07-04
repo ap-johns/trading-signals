@@ -10,5 +10,23 @@
     "source": "Jacob @ Invest Answers",
     "date": "2026-06-12",
     "notes": "Pulling back from highs, looking for support at the 50-day MA (~$359 as of 12 Jun)."
+  },
+  "TSLA": {
+    "buy_levels": [368],
+    "source": "Jacob @ Invest Answers",
+    "date": "2026-07-02",
+    "notes": "Major support zone (~$368) for TSLA stacking."
+  },
+  "PLTR": {
+    "buy_levels": [100],
+    "source": "Jacob @ Invest Answers",
+    "date": "2026-07-02",
+    "notes": "Psychological/whole-number support at $100; also reclaiming the ATR Level 4 area (proprietary, not priced here)."
+  },
+  "QQQ": {
+    "buy_levels": [708.51],
+    "source": "Jacob @ Invest Answers",
+    "date": "2026-07-02",
+    "notes": "Finding support on the rising 50-day MA (~$709 as of 2 Jul; drifts). Lower highs / higher lows — ranging, not crashing."
   }
 }
