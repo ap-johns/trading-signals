@@ -21,41 +21,66 @@
     "zscore_neg": []
   },
   "ALAB": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [],
+    "fib_swing_high": 499.47601318359375
   },
   "AMD": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [],
+    "fib_swing_high": 584.72998046875
   },
   "ARM": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [
+      0.382
+    ],
+    "fib_swing_high": 452.70001220703125
   },
   "ASML": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [],
+    "fib_swing_high": 1999.9599609375
   },
   "AVGO": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [
+      0.382,
+      0.5
+    ],
+    "fib_swing_high": 494.21781760890264
   },
   "GOOG": {
     "zscore_neg": [],
     "analyst_alerted": [
       359.0
-    ]
+    ],
+    "fib_alerted": [],
+    "fib_swing_high": 404.2267181336527
   },
   "META": {
     "zscore_neg": []
   },
   "MRVL": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [],
+    "fib_swing_high": 329.8800048828125
   },
   "MSFT": {
     "zscore_neg": []
   },
   "MU": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [],
+    "fib_swing_high": 1255.0
   },
   "NVDA": {
     "zscore_neg": [],
-    "analyst_alerted": []
+    "analyst_alerted": [],
+    "fib_alerted": [
+      0.382
+    ],
+    "fib_swing_high": 236.26463268418732
   },
   "PLTR": {
     "zscore_neg": []
@@ -63,18 +88,29 @@
   "SATS": {
     "zscore_neg": [
       2.0
-    ]
+    ],
+    "fib_alerted": [],
+    "fib_swing_high": 147.2519989013672
   },
   "TSLA": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [
+      0.382,
+      0.5
+    ],
+    "fib_swing_high": 498.8299865722656
   },
   "TSM": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [],
+    "fib_swing_high": 479.0
   },
   "GBPUSD": {
     "zscore_neg": []
   },
   "COPA": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [],
+    "fib_swing_high": 57.75
   }
 }
