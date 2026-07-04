@@ -357,7 +357,7 @@ def fib_section_html(all_data, config):
     if not sections:
         return ""
     return f'''
-    <h2 class="fib-title">Fibonacci Retracements <span class="fib-sub">ranked by buy-and-hold DCA favorability &middot; <span class="fib-near">green</span> = price within 5% of the level &middot; <span style="color:#00e676;">&#9650;</span>/<span style="color:#ff5252;">&#9660;</span> = 50d SMA rising/falling</span></h2>
+    <h2 class="fib-title">DCA Buy Levels <span class="fib-sub">ranked by buy-and-hold favourability &mdash; fib retracement depth + trend, value (z), regime &amp; confluence &middot; <span class="fib-near">green</span> = price within 5% of the level &middot; <span style="color:#00e676;">&#9650;</span>/<span style="color:#ff5252;">&#9660;</span> = 50d SMA rising/falling</span></h2>
     {sections}'''
 
 
