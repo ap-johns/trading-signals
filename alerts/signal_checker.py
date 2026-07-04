@@ -539,22 +539,18 @@ def check_ia_levels(config: dict, cycle_state: dict) -> list:
     if not cfg.get("enabled", False):
         return []
     watch = cfg.get("levels", [5, 4, 3])
-    tickers = cfg.get("tickers", [])
+    categories = cfg.get("categories", ["Stocks"])
     # Depth/conviction tag by level (backtest: deeper touches had bigger forward edge)
     depth = {5: "mild dip", 4: "moderate dip", 3: "deep dip — higher conviction",
              2: "very deep", 1: "extreme"}
 
-    name_to_yf = {}
-    for category, names in config["watchlist"].items():
-        for yf_ticker, display_name in names.items():
-            name_to_yf[display_name] = (yf_ticker, category)
+    watch_tickers = []
+    for category in categories:
+        for yf_ticker, display_name in config["watchlist"].get(category, {}).items():
+            watch_tickers.append((display_name, yf_ticker, category))
 
     signals = []
-    for display_name in tickers:
-        if display_name not in name_to_yf:
-            print(f"  IA-level ticker '{display_name}' not in watchlist - skipping")
-            continue
-        yf_ticker, category = name_to_yf[display_name]
+    for display_name, yf_ticker, category in watch_tickers:
         try:
             df = fetch_daily_data(yf_ticker)
             if df.empty or len(df) < 2:

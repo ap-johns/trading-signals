@@ -40,7 +40,7 @@
     "ia_level_alerts": {
         "enabled": true,
         "levels": [5, 4, 3],
-        "tickers": ["MRVL", "ARM", "PLTR", "ALAB", "GOOG", "ASML"]
+        "categories": ["Stocks"]
     },
     "macro": {
         "enabled": true,
