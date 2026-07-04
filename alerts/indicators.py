@@ -144,6 +144,30 @@ def calculate_sma(close: pd.Series, period: int = 200) -> pd.Series:
     return close.rolling(window=period, min_periods=period).mean()
 
 
+# "IA-ATR-Model" (Invest Answers) support ladder, reverse-engineered from charts
+# across 11 tickers: despite the name, the levels are Fibonacci retracement
+# percentages BELOW THE TRAILING HIGH (not ATR multiples). Level 6 = the high;
+# Levels 5..1 sit 23.6 / 38.2 / 50 / 61.8 / 78.6% below it — volatility-independent,
+# matching Jacob's stated "~23% to Level 5" across low- and high-vol names alike.
+IA_LEVEL_RATIOS = {6: 0.0, 5: 0.236, 4: 0.382, 3: 0.5, 2: 0.618, 1: 0.786}
+
+
+def atr_levels(high: pd.Series, lookback: int = 252, ratios: dict = IA_LEVEL_RATIOS):
+    """
+    Compute the IA-style support levels: Level_k = trailing_high * (1 - ratio_k).
+
+    `high` is a daily High series. Anchor = the highest high over `lookback` bars.
+    Returns {6: price, ..., 1: price} (Level 6 = the high) or None if no data.
+    """
+    high = high.dropna()
+    if len(high) < 2:
+        return None
+    anchor = float(high.iloc[-lookback:].max())
+    if anchor <= 0:
+        return None
+    return {lv: anchor * (1.0 - r) for lv, r in ratios.items()}
+
+
 def calculate_fib_levels(
     high: pd.Series,
     low: pd.Series,

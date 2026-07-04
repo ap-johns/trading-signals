@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import yfinance as yf
 import pandas as pd
 
-from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels
+from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels, atr_levels, IA_LEVEL_RATIOS
 from fib_score import favorability, tier, level_reached, fib_params, rank_key
 from seasonality import seasonality_context, seasonality_banner_html
 from macro import macro_context, macro_banner_html
@@ -344,6 +344,91 @@ def _fib_section_for(items, title):
     </table>'''
 
 
+def ia_levels_section_html(all_data, config):
+    """Compact 'IA Levels' table — Fibonacci-% pullback bands from the trailing high
+    (the reverse-engineered Invest Answers 'ATR' levels). Highlights the band price is
+    currently in; L4-L5 is Jacob's accumulation zone."""
+    cats = config.get("fib_alerts", {}).get("categories", ["Stocks"])
+    labels = [6, 5, 4, 3, 2, 1]
+    hdr_pct = {6: "high", 5: "-24%", 4: "-38%", 3: "-50%", 2: "-62%", 1: "-79%"}
+
+    def depth_word(pct_off):
+        if pct_off < 24:
+            return "shallow dip", "#7aa2f7"
+        if pct_off < 38:
+            return "moderate dip", "#5fb87a"
+        if pct_off < 50:
+            return "deep dip", "#e0c04a"
+        if pct_off < 62:
+            return "very deep", "#e8925d"
+        return "extreme", "#d97a6c"
+
+    body = ""
+    any_rows = False
+    for cat in cats:
+        cat_rows = ""
+        for yf_ticker, name in config["watchlist"].get(cat, {}).items():
+            d = all_data.get(yf_ticker, {}).get("daily", {})
+            lv = d.get("ia_levels")
+            price = d.get("price")
+            if not lv or price is None:
+                continue
+            any_rows = True
+            at_below = [k for k in labels if lv[k] <= price]
+            support = max(at_below, key=lambda k: lv[k]) if at_below else 1
+            cells = ""
+            for k in labels:
+                cls = "ia-here" if k == support and at_below else "ia-cell"
+                cells += f'<td class="{cls}">{fmt_price(lv[k])}</td>'
+
+            # Pullback: how far below the high (Level 6), in plain terms
+            pct_off = (lv[6] - price) / lv[6] * 100 if lv[6] else 0
+            if price >= lv[6]:
+                pull_html = '<span style="color:#7aa2f7;">at the high</span>'
+            else:
+                word, wcol = depth_word(pct_off)
+                pull_html = f'<span style="color:{wcol};">&minus;{pct_off:.0f}% &middot; {word}</span>'
+
+            # Nearest level: a labelled bar (lower level | price marker | upper level)
+            above = [k for k in labels if lv[k] > price]
+            below = [k for k in labels if lv[k] <= price]
+            upper_lv = min(above, key=lambda k: lv[k]) if above else None
+            lower_lv = max(below, key=lambda k: lv[k]) if below else None
+            if upper_lv and lower_lv:
+                lo, up = lv[lower_lv], lv[upper_lv]
+                pos = max(0.0, min(100.0, (price - lo) / (up - lo) * 100)) if up > lo else 50.0
+                d_up, d_lo = (up - price) / price * 100, (price - lo) / price * 100
+                nearest_lv, dist = (upper_lv, d_up) if d_up <= d_lo else (lower_lv, d_lo)
+                arrow = "&uarr;" if nearest_lv == upper_lv else "&darr;"
+                txt_cls = "ia-prox-txt near" if dist <= 3.0 else "ia-prox-txt"
+                prox = (f'<span class="ia-prox">'
+                        f'<span class="ia-endlbl">L{lower_lv}<br>{fmt_price(lo)}</span>'
+                        f'<span class="ia-prox-track">'
+                        f'<span class="ia-prox-marker" style="left:{pos:.0f}%"></span></span>'
+                        f'<span class="ia-endlbl">L{upper_lv}<br>{fmt_price(up)}</span>'
+                        f'<span class="{txt_cls}">{arrow}{dist:.1f}% to L{nearest_lv}</span></span>')
+            elif not above:
+                prox = '<span class="ia-prox-txt">at the high</span>'
+            else:
+                prox = '<span class="ia-prox-txt">below L1</span>'
+            cat_rows += (f'<tr><td class="ticker">{name}</td>'
+                         f'<td class="fib-price">{fmt_price(price)}</td>{cells}'
+                         f'<td class="ia-zone">{pull_html}</td>'
+                         f'<td class="ia-prox-cell">{prox}</td></tr>\n')
+        if cat_rows:
+            body += f'<tr class="category-row"><td colspan="10">{cat}</td></tr>\n{cat_rows}'
+
+    if not any_rows:
+        return ""
+    heads = "".join(f'<th>L{k}<span class="ia-hpct">{hdr_pct[k]}</span></th>' for k in labels)
+    return f'''
+    <h2 class="fib-title">IA Levels <span class="fib-sub">Fibonacci-% pullback bands from the trailing high (Invest Answers) &middot; <span style="color:#5fb87a;">green</span> = the band price sits in &middot; L4&ndash;L5 = accumulation zone</span></h2>
+    <table class="fib-table ia-table">
+        <thead><tr><th>Ticker</th><th class="fib-price">Price</th>{heads}<th>Pullback<br>from high</th><th>Nearest level<br><span class="ia-hpct">(where price sits between two levels)</span></th></tr></thead>
+        <tbody>{body}</tbody>
+    </table>'''
+
+
 def fib_section_html(all_data, config):
     """Fib retracement area: one ranked table per asset class (Stocks, Indices...)."""
     fib_cfg = config.get("fib_alerts", {})
@@ -429,6 +514,7 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
                 "sma_200d": sma_200d,
                 "sma_200d_dir": sma_200d_dir,
                 "support": support,
+                "ia_levels": atr_levels(df["High"]),
                 "mavg": ott_df["mavg"].iloc[-1],
                 "ott": ott_df["ott"].iloc[-1],
                 "bullish": mavg_above_ott,
@@ -951,6 +1037,7 @@ def generate_html(all_data, config):
                 </tr>\n'''
 
     fib_section = fib_section_html(all_data, config)
+    ia_section = ia_levels_section_html(all_data, config)
     season_banner = seasonality_banner_html(seasonality_context(datetime.now().month))
     macro_banner = macro_banner_html(macro_context(config))
 
@@ -1306,6 +1393,40 @@ def generate_html(all_data, config):
     .fib-z {{ white-space: nowrap; }}
     .fib-lt {{ white-space: nowrap; }}
     .fib-near {{ color: #00e676; font-weight: 600; }}
+    .ia-cell {{ color: var(--ink-soft); white-space: nowrap; }}
+    .ia-here {{
+        color: #5fb87a;
+        font-weight: 700;
+        background: rgba(95,184,122,0.12);
+        border-radius: 4px;
+        white-space: nowrap;
+    }}
+    .ia-hpct {{ display: block; font-size: 0.78em; font-weight: 400; color: var(--ink-faint); }}
+    .ia-zone {{ white-space: nowrap; font-weight: 600; }}
+    .ia-prox-cell {{ white-space: nowrap; }}
+    .ia-prox {{ display: inline-flex; align-items: center; gap: 7px; }}
+    .ia-endlbl {{ font-size: 0.72em; line-height: 1.1; color: var(--ink-faint); text-align: center; }}
+    .ia-prox-track {{
+        position: relative;
+        display: inline-block;
+        width: 84px;
+        height: 8px;
+        background: var(--surface-raised);
+        border-radius: 4px;
+        vertical-align: middle;
+    }}
+    .ia-prox-marker {{
+        position: absolute;
+        top: -3px;
+        width: 3px;
+        height: 14px;
+        margin-left: -1px;
+        background: #e8e6e0;
+        border-radius: 2px;
+        box-shadow: 0 0 0 2px var(--surface);
+    }}
+    .ia-prox-txt {{ color: var(--ink-soft); font-size: 0.9em; margin-left: 2px; }}
+    .ia-prox-txt.near {{ color: #5fb87a; font-weight: 700; }}
     .fib-sector {{
         margin-left: 7px;
         padding: 1px 7px;
@@ -1410,6 +1531,7 @@ def generate_html(all_data, config):
     {macro_banner}
     {season_banner}
     {fib_section}
+    {ia_section}
     <div class="legend">
         <span class="signal-pill buy-signal">date</span> = Buy signal &nbsp;
         <span class="signal-pill sell-signal">date</span> = Sell signal &nbsp; | &nbsp;

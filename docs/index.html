@@ -350,6 +350,40 @@
     .fib-z { white-space: nowrap; }
     .fib-lt { white-space: nowrap; }
     .fib-near { color: #00e676; font-weight: 600; }
+    .ia-cell { color: var(--ink-soft); white-space: nowrap; }
+    .ia-here {
+        color: #5fb87a;
+        font-weight: 700;
+        background: rgba(95,184,122,0.12);
+        border-radius: 4px;
+        white-space: nowrap;
+    }
+    .ia-hpct { display: block; font-size: 0.78em; font-weight: 400; color: var(--ink-faint); }
+    .ia-zone { white-space: nowrap; font-weight: 600; }
+    .ia-prox-cell { white-space: nowrap; }
+    .ia-prox { display: inline-flex; align-items: center; gap: 7px; }
+    .ia-endlbl { font-size: 0.72em; line-height: 1.1; color: var(--ink-faint); text-align: center; }
+    .ia-prox-track {
+        position: relative;
+        display: inline-block;
+        width: 84px;
+        height: 8px;
+        background: var(--surface-raised);
+        border-radius: 4px;
+        vertical-align: middle;
+    }
+    .ia-prox-marker {
+        position: absolute;
+        top: -3px;
+        width: 3px;
+        height: 14px;
+        margin-left: -1px;
+        background: #e8e6e0;
+        border-radius: 2px;
+        box-shadow: 0 0 0 2px var(--surface);
+    }
+    .ia-prox-txt { color: var(--ink-soft); font-size: 0.9em; margin-left: 2px; }
+    .ia-prox-txt.near { color: #5fb87a; font-weight: 700; }
     .fib-sector {
         margin-left: 7px;
         padding: 1px 7px;
@@ -426,7 +460,7 @@
 </head>
 <body>
     <h1>OTT Signal Dashboard</h1>
-    <div class="updated">Last updated: 2026-07-04 17:55:01.020932</div>
+    <div class="updated">Last updated: 2026-07-04 18:41:11.530198</div>
     <div class="params">OTT Period: 10 | OTT Percent: 3.0 | Source: Open | MA Type: VAR | EMA: 200</div>
     <div class="controls">
         <div class="tf-toggle">
@@ -459,7 +493,7 @@
                         </tr>
 <tr data-tf="daily">
                             <td class="ticker"><span class="trend-icon bearish">&#9660;</span> SOLUSD</td>
-                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('SOLUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$206.47</span></span><span id="SOLUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$13.43</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$148.05</span></span></span> <span class="strat-label">-29% from 200w EMA <span style="color:#ffffff;">(+2.1σ vs 200d SMA)</span> | Next window: 1 Dec 26 (149d)</span></td>
+                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('SOLUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$206.47</span></span><span id="SOLUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$13.43</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$148.05</span></span></span> <span class="strat-label">-29% from 200w EMA <span style="color:#ffffff;">(+2.2σ vs 200d SMA)</span> | Next window: 1 Dec 26 (149d)</span></td>
                         </tr>
 <tr class="category-row"><td colspan="6">Indices <span class="strat-label">Always-In: sell on any OTT sell, buy back on OTT buy or 5% dip from sell</span></td></tr>
 <tr class="" data-tf="daily">
@@ -1211,6 +1245,33 @@
         </tr>
 
         </tbody>
+    </table>
+    
+    <h2 class="fib-title">IA Levels <span class="fib-sub">Fibonacci-% pullback bands from the trailing high (Invest Answers) &middot; <span style="color:#5fb87a;">green</span> = the band price sits in &middot; L4&ndash;L5 = accumulation zone</span></h2>
+    <table class="fib-table ia-table">
+        <thead><tr><th>Ticker</th><th class="fib-price">Price</th><th>L6<span class="ia-hpct">high</span></th><th>L5<span class="ia-hpct">-24%</span></th><th>L4<span class="ia-hpct">-38%</span></th><th>L3<span class="ia-hpct">-50%</span></th><th>L2<span class="ia-hpct">-62%</span></th><th>L1<span class="ia-hpct">-79%</span></th><th>Pullback<br>from high</th><th>Nearest level<br><span class="ia-hpct">(where price sits between two levels)</span></th></tr></thead>
+        <tbody><tr class="category-row"><td colspan="10">Stocks</td></tr>
+<tr><td class="ticker">ALAB</td><td class="fib-price">$406.42</td><td class="ia-cell">$499.48</td><td class="ia-here">$381.60</td><td class="ia-cell">$308.68</td><td class="ia-cell">$249.74</td><td class="ia-cell">$190.80</td><td class="ia-cell">$106.89</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;19% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$381.60</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:21%"></span></span><span class="ia-endlbl">L6<br>$499.48</span><span class="ia-prox-txt">&darr;6.1% to L5</span></span></td></tr>
+<tr><td class="ticker">COPA</td><td class="fib-price">$48.28</td><td class="ia-cell">$57.75</td><td class="ia-here">$44.12</td><td class="ia-cell">$35.69</td><td class="ia-cell">$28.88</td><td class="ia-cell">$22.06</td><td class="ia-cell">$12.36</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;16% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$44.12</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:31%"></span></span><span class="ia-endlbl">L6<br>$57.75</span><span class="ia-prox-txt">&darr;8.6% to L5</span></span></td></tr>
+<tr><td class="ticker">AMD</td><td class="fib-price">$517.82</td><td class="ia-cell">$584.73</td><td class="ia-here">$446.73</td><td class="ia-cell">$361.36</td><td class="ia-cell">$292.36</td><td class="ia-cell">$223.37</td><td class="ia-cell">$125.13</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;11% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$446.73</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:52%"></span></span><span class="ia-endlbl">L6<br>$584.73</span><span class="ia-prox-txt">&uarr;12.9% to L6</span></span></td></tr>
+<tr><td class="ticker">ARM</td><td class="fib-price">$315.28</td><td class="ia-cell">$452.70</td><td class="ia-cell">$345.86</td><td class="ia-here">$279.77</td><td class="ia-cell">$226.35</td><td class="ia-cell">$172.93</td><td class="ia-cell">$96.88</td><td class="ia-zone"><span style="color:#5fb87a;">&minus;30% &middot; moderate dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$279.77</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:54%"></span></span><span class="ia-endlbl">L5<br>$345.86</span><span class="ia-prox-txt">&uarr;9.7% to L5</span></span></td></tr>
+<tr><td class="ticker">ASML</td><td class="fib-price">$1.8k</td><td class="ia-cell">$2.0k</td><td class="ia-here">$1.5k</td><td class="ia-cell">$1.2k</td><td class="ia-cell">$999.98</td><td class="ia-cell">$763.98</td><td class="ia-cell">$427.99</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;12% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$1.5k</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:51%"></span></span><span class="ia-endlbl">L6<br>$2.0k</span><span class="ia-prox-txt">&uarr;13.0% to L6</span></span></td></tr>
+<tr><td class="ticker">AVGO</td><td class="fib-price">$360.45</td><td class="ia-cell">$494.22</td><td class="ia-cell">$377.58</td><td class="ia-here">$305.43</td><td class="ia-cell">$247.11</td><td class="ia-cell">$188.79</td><td class="ia-cell">$105.76</td><td class="ia-zone"><span style="color:#5fb87a;">&minus;27% &middot; moderate dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$305.43</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:76%"></span></span><span class="ia-endlbl">L5<br>$377.58</span><span class="ia-prox-txt">&uarr;4.8% to L5</span></span></td></tr>
+<tr><td class="ticker">GOOG</td><td class="fib-price">$356.18</td><td class="ia-cell">$404.23</td><td class="ia-here">$308.83</td><td class="ia-cell">$249.81</td><td class="ia-cell">$202.11</td><td class="ia-cell">$154.41</td><td class="ia-cell">$86.50</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;12% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$308.83</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:50%"></span></span><span class="ia-endlbl">L6<br>$404.23</span><span class="ia-prox-txt">&darr;13.3% to L5</span></span></td></tr>
+<tr><td class="ticker">META</td><td class="fib-price">$582.90</td><td class="ia-cell">$793.65</td><td class="ia-cell">$606.35</td><td class="ia-here">$490.47</td><td class="ia-cell">$396.82</td><td class="ia-cell">$303.17</td><td class="ia-cell">$169.84</td><td class="ia-zone"><span style="color:#5fb87a;">&minus;27% &middot; moderate dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$490.47</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:80%"></span></span><span class="ia-endlbl">L5<br>$606.35</span><span class="ia-prox-txt">&uarr;4.0% to L5</span></span></td></tr>
+<tr><td class="ticker">MRVL</td><td class="fib-price">$245.29</td><td class="ia-cell">$329.88</td><td class="ia-cell">$252.03</td><td class="ia-here">$203.87</td><td class="ia-cell">$164.94</td><td class="ia-cell">$126.01</td><td class="ia-cell">$70.59</td><td class="ia-zone"><span style="color:#5fb87a;">&minus;26% &middot; moderate dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$203.87</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:86%"></span></span><span class="ia-endlbl">L5<br>$252.03</span><span class="ia-prox-txt near">&uarr;2.7% to L5</span></span></td></tr>
+<tr><td class="ticker">MSFT</td><td class="fib-price">$390.49</td><td class="ia-cell">$551.05</td><td class="ia-cell">$421.00</td><td class="ia-here">$340.55</td><td class="ia-cell">$275.52</td><td class="ia-cell">$210.50</td><td class="ia-cell">$117.92</td><td class="ia-zone"><span style="color:#5fb87a;">&minus;29% &middot; moderate dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$340.55</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:62%"></span></span><span class="ia-endlbl">L5<br>$421.00</span><span class="ia-prox-txt">&uarr;7.8% to L5</span></span></td></tr>
+<tr><td class="ticker">MU</td><td class="fib-price">$975.56</td><td class="ia-cell">$1.3k</td><td class="ia-here">$958.82</td><td class="ia-cell">$775.59</td><td class="ia-cell">$627.50</td><td class="ia-cell">$479.41</td><td class="ia-cell">$268.57</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;22% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$958.82</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:6%"></span></span><span class="ia-endlbl">L6<br>$1.3k</span><span class="ia-prox-txt near">&darr;1.7% to L5</span></span></td></tr>
+<tr><td class="ticker">NVDA</td><td class="fib-price">$194.83</td><td class="ia-cell">$236.26</td><td class="ia-here">$180.51</td><td class="ia-cell">$146.01</td><td class="ia-cell">$118.13</td><td class="ia-cell">$90.25</td><td class="ia-cell">$50.56</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;18% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$180.51</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:26%"></span></span><span class="ia-endlbl">L6<br>$236.26</span><span class="ia-prox-txt">&darr;7.4% to L5</span></span></td></tr>
+<tr><td class="ticker">PLTR</td><td class="fib-price">$129.30</td><td class="ia-cell">$207.52</td><td class="ia-cell">$158.55</td><td class="ia-here">$128.25</td><td class="ia-cell">$103.76</td><td class="ia-cell">$79.27</td><td class="ia-cell">$44.41</td><td class="ia-zone"><span style="color:#5fb87a;">&minus;38% &middot; moderate dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$128.25</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:3%"></span></span><span class="ia-endlbl">L5<br>$158.55</span><span class="ia-prox-txt near">&darr;0.8% to L4</span></span></td></tr>
+<tr><td class="ticker">SATS</td><td class="fib-price">$101.50</td><td class="ia-cell">$147.25</td><td class="ia-cell">$112.50</td><td class="ia-here">$91.00</td><td class="ia-cell">$73.63</td><td class="ia-cell">$56.25</td><td class="ia-cell">$31.51</td><td class="ia-zone"><span style="color:#5fb87a;">&minus;31% &middot; moderate dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$91.00</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:49%"></span></span><span class="ia-endlbl">L5<br>$112.50</span><span class="ia-prox-txt">&darr;10.3% to L4</span></span></td></tr>
+<tr><td class="ticker">TSLA</td><td class="fib-price">$393.45</td><td class="ia-cell">$498.83</td><td class="ia-here">$381.11</td><td class="ia-cell">$308.28</td><td class="ia-cell">$249.41</td><td class="ia-cell">$190.55</td><td class="ia-cell">$106.75</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;21% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$381.11</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:10%"></span></span><span class="ia-endlbl">L6<br>$498.83</span><span class="ia-prox-txt">&darr;3.1% to L5</span></span></td></tr>
+<tr><td class="ticker">TSM</td><td class="fib-price">$434.16</td><td class="ia-cell">$479.00</td><td class="ia-here">$365.96</td><td class="ia-cell">$296.02</td><td class="ia-cell">$239.50</td><td class="ia-cell">$182.98</td><td class="ia-cell">$102.51</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;9% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$365.96</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:60%"></span></span><span class="ia-endlbl">L6<br>$479.00</span><span class="ia-prox-txt">&uarr;10.3% to L6</span></span></td></tr>
+<tr class="category-row"><td colspan="10">Indices</td></tr>
+<tr><td class="ticker">SPX</td><td class="fib-price">$7.5k</td><td class="ia-cell">$7.6k</td><td class="ia-here">$5.8k</td><td class="ia-cell">$4.7k</td><td class="ia-cell">$3.8k</td><td class="ia-cell">$2.9k</td><td class="ia-cell">$1.6k</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;2% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$5.8k</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:92%"></span></span><span class="ia-endlbl">L6<br>$7.6k</span><span class="ia-prox-txt near">&uarr;1.8% to L6</span></span></td></tr>
+<tr><td class="ticker">QQQ</td><td class="fib-price">$712.60</td><td class="ia-cell">$747.83</td><td class="ia-here">$571.34</td><td class="ia-cell">$462.16</td><td class="ia-cell">$373.91</td><td class="ia-cell">$285.67</td><td class="ia-cell">$160.04</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;5% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$571.34</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:80%"></span></span><span class="ia-endlbl">L6<br>$747.83</span><span class="ia-prox-txt">&uarr;4.9% to L6</span></span></td></tr>
+<tr><td class="ticker">MAGS</td><td class="fib-price">$65.10</td><td class="ia-cell">$71.16</td><td class="ia-here">$54.37</td><td class="ia-cell">$43.98</td><td class="ia-cell">$35.58</td><td class="ia-cell">$27.18</td><td class="ia-cell">$15.23</td><td class="ia-zone"><span style="color:#7aa2f7;">&minus;9% &middot; shallow dip</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$54.37</span><span class="ia-prox-track"><span class="ia-prox-marker" style="left:64%"></span></span><span class="ia-endlbl">L6<br>$71.16</span><span class="ia-prox-txt">&uarr;9.3% to L6</span></span></td></tr>
+</tbody>
     </table>
     <div class="legend">
         <span class="signal-pill buy-signal">date</span> = Buy signal &nbsp;
