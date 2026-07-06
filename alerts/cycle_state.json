@@ -12,13 +12,20 @@
     "window_alerted": false
   },
   "SPX": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [],
+    "fib_swing_high": 7620.89990234375
   },
   "QQQ": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [],
+    "fib_swing_high": 747.8281862002862,
+    "analyst_alerted": []
   },
   "MAGS": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [],
+    "fib_swing_high": 71.16000366210938
   },
   "ALAB": {
     "zscore_neg": [],
@@ -32,9 +39,7 @@
   },
   "ARM": {
     "zscore_neg": [],
-    "fib_alerted": [
-      0.382
-    ],
+    "fib_alerted": [],
     "fib_swing_high": 452.70001220703125
   },
   "ASML": {
@@ -48,18 +53,21 @@
       0.382,
       0.5
     ],
-    "fib_swing_high": 494.21781760890264
+    "fib_swing_high": 494.21780481836413
   },
   "GOOG": {
     "zscore_neg": [],
-    "analyst_alerted": [
-      359.0
-    ],
+    "analyst_alerted": [],
     "fib_alerted": [],
-    "fib_swing_high": 404.2267181336527
+    "fib_swing_high": 404.22673078989135
   },
   "META": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [
+      0.382,
+      0.5
+    ],
+    "fib_swing_high": 793.6488143059948
   },
   "MRVL": {
     "zscore_neg": [],
@@ -67,7 +75,13 @@
     "fib_swing_high": 329.8800048828125
   },
   "MSFT": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "fib_alerted": [
+      0.382,
+      0.5,
+      0.618
+    ],
+    "fib_swing_high": 551.0484665795923
   },
   "MU": {
     "zscore_neg": [],
@@ -78,12 +92,14 @@
     "zscore_neg": [],
     "analyst_alerted": [],
     "fib_alerted": [
-      0.382
+      0.382,
+      0.5
     ],
-    "fib_swing_high": 236.26463268418732
+    "fib_swing_high": 236.264633339045
   },
   "PLTR": {
-    "zscore_neg": []
+    "zscore_neg": [],
+    "analyst_alerted": []
   },
   "SATS": {
     "zscore_neg": [
@@ -96,9 +112,11 @@
     "zscore_neg": [],
     "fib_alerted": [
       0.382,
-      0.5
+      0.5,
+      0.618
     ],
-    "fib_swing_high": 498.8299865722656
+    "fib_swing_high": 498.8299865722656,
+    "analyst_alerted": []
   },
   "TSM": {
     "zscore_neg": [],
