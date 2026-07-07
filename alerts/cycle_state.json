@@ -39,7 +39,9 @@
   },
   "ARM": {
     "zscore_neg": [],
-    "fib_alerted": [],
+    "fib_alerted": [
+      0.382
+    ],
     "fib_swing_high": 452.70001220703125
   },
   "ASML": {
@@ -71,7 +73,9 @@
   },
   "MRVL": {
     "zscore_neg": [],
-    "fib_alerted": [],
+    "fib_alerted": [
+      0.382
+    ],
     "fib_swing_high": 329.8800048828125
   },
   "MSFT": {
@@ -86,7 +90,7 @@
   "MU": {
     "zscore_neg": [],
     "fib_alerted": [],
-    "fib_swing_high": 1255.0
+    "fib_swing_high": 1254.807069757193
   },
   "NVDA": {
     "zscore_neg": [],
@@ -95,7 +99,7 @@
       0.382,
       0.5
     ],
-    "fib_swing_high": 236.264633339045
+    "fib_swing_high": 236.5399932861328
   },
   "PLTR": {
     "zscore_neg": [],
@@ -113,7 +117,8 @@
     "fib_alerted": [
       0.382,
       0.5,
-      0.618
+      0.618,
+      0.786
     ],
     "fib_swing_high": 498.8299865722656,
     "analyst_alerted": []
