@@ -59,7 +59,9 @@
   },
   "GOOG": {
     "zscore_neg": [],
-    "analyst_alerted": [],
+    "analyst_alerted": [
+      359.0
+    ],
     "fib_alerted": [],
     "fib_swing_high": 404.22673078989135
   },
@@ -73,9 +75,7 @@
   },
   "MRVL": {
     "zscore_neg": [],
-    "fib_alerted": [
-      0.382
-    ],
+    "fib_alerted": [],
     "fib_swing_high": 329.8800048828125
   },
   "MSFT": {
@@ -83,7 +83,8 @@
     "fib_alerted": [
       0.382,
       0.5,
-      0.618
+      0.618,
+      0.786
     ],
     "fib_swing_high": 551.0484665795923
   },
@@ -96,8 +97,7 @@
     "zscore_neg": [],
     "analyst_alerted": [],
     "fib_alerted": [
-      0.382,
-      0.5
+      0.382
     ],
     "fib_swing_high": 236.5399932861328
   },
