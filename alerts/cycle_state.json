@@ -39,9 +39,7 @@
   },
   "ARM": {
     "zscore_neg": [],
-    "fib_alerted": [
-      0.382
-    ],
+    "fib_alerted": [],
     "fib_swing_high": 452.70001220703125
   },
   "ASML": {
@@ -52,8 +50,7 @@
   "AVGO": {
     "zscore_neg": [],
     "fib_alerted": [
-      0.382,
-      0.5
+      0.382
     ],
     "fib_swing_high": 494.21780481836413
   },
