@@ -59,14 +59,15 @@
     "analyst_alerted": [
       359.0
     ],
-    "fib_alerted": [],
+    "fib_alerted": [
+      0.382
+    ],
     "fib_swing_high": 404.22673078989135
   },
   "META": {
     "zscore_neg": [],
     "fib_alerted": [
-      0.382,
-      0.5
+      0.382
     ],
     "fib_swing_high": 793.6488143059948
   },
@@ -93,9 +94,7 @@
   "NVDA": {
     "zscore_neg": [],
     "analyst_alerted": [],
-    "fib_alerted": [
-      0.382
-    ],
+    "fib_alerted": [],
     "fib_swing_high": 236.5399932861328
   },
   "PLTR": {
@@ -114,8 +113,7 @@
     "fib_alerted": [
       0.382,
       0.5,
-      0.618,
-      0.786
+      0.618
     ],
     "fib_swing_high": 498.8299865722656,
     "analyst_alerted": []
