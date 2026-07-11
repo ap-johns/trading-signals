@@ -456,6 +456,158 @@ def ia_levels_section_html(all_data, config):
     </table>'''
 
 
+REC_LABELS = {
+    "strong_buy": ("Strong Buy", "#00e676"),
+    "buy": ("Buy", "#7ed957"),
+    "hold": ("Hold", "#e0c04a"),
+    "underperform": ("Underperform", "#ff8a5c"),
+    "sell": ("Sell", "#ff5252"),
+    "strong_sell": ("Strong Sell", "#ff5252"),
+}
+
+
+def upside_color(pct):
+    """Colour for implied upside to the consensus target (higher = more green)."""
+    if pct is None:
+        return "#888"
+    if pct >= 30:
+        return "#00e676"
+    if pct >= 15:
+        return "#7ed957"
+    if pct >= 0:
+        return "#e0c04a"
+    if pct >= -10:
+        return "#ff8a5c"
+    return "#ff5252"
+
+
+def target_range_html(low, high, mean, price):
+    """A horizontal meter spanning the analyst low -> high target, with a marker
+    for the current price and a tick for the mean. Shows at a glance whether price
+    is below the street's floor, mid-range, or stretched past the top target."""
+    if not (low and high and high > low):
+        return '<span class="fib-dt">&mdash;</span>'
+    span = high - low
+    def pos(v):
+        return max(0.0, min(100.0, (v - low) / span * 100))
+    price_pos = pos(price) if price else 50.0
+    mean_pos = pos(mean) if mean else None
+    # Flag price outside the analyst range (marker clamped to the edge)
+    if price and price > high:
+        mk_cls = "at-mk-over"
+    elif price and price < low:
+        mk_cls = "at-mk-under"
+    else:
+        mk_cls = "at-mk"
+    mean_tick = (f'<span class="at-mean-tick" style="left:{mean_pos:.0f}%" title="Mean ${mean:,.0f}"></span>'
+                 if mean_pos is not None else "")
+    return (
+        f'<span class="at-range">'
+        f'<span class="at-endlbl">{fmt_price(low)}<br><span class="at-endsub">low</span></span>'
+        f'<span class="at-track">'
+        f'{mean_tick}'
+        f'<span class="{mk_cls}" style="left:{price_pos:.0f}%" title="Price {fmt_price(price)}"></span>'
+        f'</span>'
+        f'<span class="at-endlbl">{fmt_price(high)}<br><span class="at-endsub">high</span></span>'
+        f'</span>'
+    )
+
+
+def analyst_summary_html(items):
+    """Short auto read: names with the most upside, and any trading above consensus."""
+    lines = []
+    top = [it for it in items if it["upside"] is not None and it["upside"] >= 15][:4]
+    if top:
+        names = ", ".join(
+            f'{it["name"]} <span class="fib-dt">(+{it["upside"]:.0f}%)</span>' for it in top)
+        lines.append(f'<div class="fib-sum-line"><span class="fib-sum-tag fav">Most upside</span> {names} '
+                     f'<span class="fib-dt">&mdash; furthest below the street\'s mean target</span></div>')
+    over = [it for it in items if it["upside"] is not None and it["upside"] < 0]
+    if over:
+        names = ", ".join(
+            f'{it["name"]} <span class="fib-dt">({it["upside"]:.0f}%)</span>' for it in over)
+        lines.append(f'<div class="fib-sum-line"><span class="fib-sum-tag warn">Above consensus</span> {names} '
+                     f'<span class="fib-dt">&mdash; price already past the mean target (stretched vs. the street)</span></div>')
+    if not lines:
+        return ""
+    return '<div class="fib-summary"><div class="fib-sum-head">Analyst read (auto)</div>' + "".join(lines) + '</div>'
+
+
+def analyst_targets_section_html(all_data, config):
+    """Wall Street price-target table (stocks only), ranked by implied upside to
+    the consensus (mean) target."""
+    cfg = config.get("analyst_targets", {})
+    if not cfg.get("enabled", False):
+        return ""
+    categories = cfg.get("categories", ["Stocks"])
+    sectors = config.get("sectors", {})
+
+    items = []
+    for cat in categories:
+        for yf_ticker, name in config["watchlist"].get(cat, {}).items():
+            a = all_data.get(yf_ticker, {}).get("analyst")
+            if not a or not a.get("mean"):
+                continue
+            price, mean = a.get("price"), a["mean"]
+            upside = (mean - price) / price * 100 if price else None
+            items.append({
+                "name": name, "sector": sectors.get(name), "upside": upside, **a,
+            })
+    if not items:
+        return ""
+    # Rank by implied upside, most first; unknowns last.
+    items.sort(key=lambda x: (x["upside"] is None, -(x["upside"] or 0)))
+
+    rows = ""
+    for rank, it in enumerate(items, 1):
+        sector_html = f'<span class="fib-sector">{it["sector"]}</span>' if it.get("sector") else ""
+        price = it.get("price")
+        price_html = fmt_price(price) if price else '<span class="fib-dt">&mdash;</span>'
+        mean, median = it["mean"], it.get("median")
+        target_html = f'{fmt_price(mean)}'
+        if median and abs(median - mean) / mean > 0.01:
+            target_html += f' <span class="fib-dt">med {fmt_price(median)}</span>'
+        up = it["upside"]
+        if up is not None:
+            arrow = "&#9650;" if up >= 0 else "&#9660;"
+            up_html = f'<span style="color:{upside_color(up)};font-weight:700;">{arrow} {up:+.0f}%</span>'
+        else:
+            up_html = '<span class="fib-dt">&mdash;</span>'
+        label, rec_color = REC_LABELS.get(it.get("rec_key"), (it.get("rec_key") or "&mdash;", "#888"))
+        n = it.get("n")
+        n_html = f' <span class="fib-dt">{n} an.</span>' if n else ""
+        rec_html = f'<span style="color:{rec_color};font-weight:600;">{label}</span>{n_html}'
+        rows += f'''<tr>
+            <td class="fib-rank">{rank}</td>
+            <td class="ticker">{it["name"]}{sector_html}</td>
+            <td class="fib-price">{price_html}</td>
+            <td class="fib-price">{target_html}</td>
+            <td class="at-upside">{up_html}</td>
+            <td>{rec_html}</td>
+            <td class="at-range-cell">{target_range_html(it.get("low"), it.get("high"), mean, price)}</td>
+        </tr>\n'''
+
+    return f'''
+    <h2 class="fib-title">Analyst Price Targets <span class="fib-sub">~12-month Wall Street consensus (yfinance/Yahoo) &middot; ranked by implied upside to the mean target &middot; <span style="color:#00e676;">green</span> = below target (upside), <span style="color:#ff5252;">red</span> = above target (stretched)</span></h2>
+    {analyst_summary_html(items)}
+    <table class="fib-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Ticker</th>
+                <th class="fib-price">Price</th>
+                <th class="fib-price">Consensus target</th>
+                <th>Upside</th>
+                <th>Rating</th>
+                <th>Target range <span class="fib-scale">low&nbsp;&larr;&nbsp;|&nbsp;price&nbsp;&amp;&nbsp;mean&nbsp;|&nbsp;&rarr;&nbsp;high</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {rows}
+        </tbody>
+    </table>'''
+
+
 def fib_section_html(all_data, config):
     """Fib retracement area: one ranked table per asset class (Stocks, Indices...)."""
     fib_cfg = config.get("fib_alerts", {})
@@ -475,7 +627,8 @@ def fib_section_html(all_data, config):
 
 def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
                     fib_enabled=True, fib_lookback=104, fib_min_gain=0.30,
-                    fib_reversal=0.14, fib_levels=(0.382, 0.5, 0.618, 0.786)):
+                    fib_reversal=0.14, fib_levels=(0.382, 0.5, 0.618, 0.786),
+                    analyst_enabled=False):
     """Fetch data and calculate OTT for both timeframes."""
     results = {}
 
@@ -645,6 +798,29 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
                     )
     except Exception as e:
         results["weekly"] = {"error": str(e)}
+
+    # Analyst price targets (Wall Street consensus) — stocks only; ETFs/indices
+    # return nulls. One extra .info call per ticker, so it's gated by a flag.
+    if analyst_enabled:
+        try:
+            info = yf.Ticker(yf_ticker).info
+            mean = info.get("targetMeanPrice")
+            if mean:
+                # Prefer the daily close we already computed for consistency with
+                # the rest of the dashboard; fall back to info's currentPrice.
+                price = results.get("daily", {}).get("price") or info.get("currentPrice")
+                results["analyst"] = {
+                    "price": price,
+                    "mean": mean,
+                    "median": info.get("targetMedianPrice"),
+                    "high": info.get("targetHighPrice"),
+                    "low": info.get("targetLowPrice"),
+                    "n": info.get("numberOfAnalystOpinions"),
+                    "rec_key": info.get("recommendationKey"),
+                    "rec_mean": info.get("recommendationMean"),
+                }
+        except Exception:
+            pass
 
     return results
 
@@ -1069,6 +1245,7 @@ def generate_html(all_data, config):
 
     fib_section = fib_section_html(all_data, config)
     ia_section = ia_levels_section_html(all_data, config)
+    analyst_section = analyst_targets_section_html(all_data, config)
     season_banner = seasonality_banner_html(seasonality_context(datetime.now().month))
     macro_banner = macro_banner_html(macro_context(config))
 
@@ -1477,6 +1654,50 @@ def generate_html(all_data, config):
     }}
     .ia-prox-txt {{ color: var(--ink-soft); font-size: 0.9em; margin-left: 2px; }}
     .ia-prox-txt.near {{ color: #5fb87a; font-weight: 700; }}
+    .at-upside {{ white-space: nowrap; font-family: var(--mono); }}
+    .at-range-cell {{ white-space: nowrap; }}
+    .at-range {{ display: inline-flex; align-items: center; gap: 9px; }}
+    .at-endlbl {{ font-size: 0.78em; line-height: 1.15; color: var(--ink-soft); text-align: center; flex: 0 0 auto; font-family: var(--mono); }}
+    .at-endsub {{ color: var(--ink-faint); font-size: 0.85em; font-family: var(--sans); }}
+    .at-track {{
+        position: relative;
+        display: inline-block;
+        width: 150px;
+        flex: 0 0 150px;
+        height: 8px;
+        background: var(--surface-raised);
+        border-radius: 4px;
+        vertical-align: middle;
+    }}
+    .at-mean-tick {{
+        position: absolute; top: -3px; bottom: -3px;
+        width: 2px;
+        background: var(--accent);
+        transform: translateX(-50%);
+    }}
+    .at-mk {{
+        position: absolute; top: 50%;
+        width: 12px; height: 12px;
+        background: #e8e6e0;
+        border: 2px solid var(--surface);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.25);
+    }}
+    .at-mk-over {{
+        position: absolute; top: 50%; left: 100%;
+        width: 0; height: 0;
+        border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+        border-left: 9px solid #ff5252;
+        transform: translate(-2px, -50%);
+    }}
+    .at-mk-under {{
+        position: absolute; top: 50%; left: 0;
+        width: 0; height: 0;
+        border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+        border-right: 9px solid #00e676;
+        transform: translate(2px, -50%);
+    }}
     .fib-sector {{
         margin-left: 7px;
         padding: 1px 7px;
@@ -1582,6 +1803,7 @@ def generate_html(all_data, config):
     {season_banner}
     {fib_section}
     {ia_section}
+    {analyst_section}
     <div class="legend">
         <span class="signal-pill buy-signal">date</span> = Buy signal &nbsp;
         <span class="signal-pill sell-signal">date</span> = Sell signal &nbsp; | &nbsp;
@@ -1643,6 +1865,8 @@ def main():
     ema_period = config["ema_period"]
     fib_cfg = config.get("fib_alerts", {})
     fib_categories = fib_cfg.get("categories", ["Stocks"])
+    analyst_cfg = config.get("analyst_targets", {})
+    analyst_categories = analyst_cfg.get("categories", ["Stocks"]) if analyst_cfg.get("enabled", False) else []
 
     print(f"OTT Dashboard Generator - {datetime.now().strftime('%Y-%m-%d %H:%M')}")
 
@@ -1662,6 +1886,7 @@ def main():
             fib_enabled=category in fib_categories,
             fib_lookback=fp["lookback"], fib_min_gain=fp["min_gain"],
             fib_reversal=fp["reversal"], fib_levels=fp["levels"],
+            analyst_enabled=category in analyst_categories,
         )
         print("done")
 

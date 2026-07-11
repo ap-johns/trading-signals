@@ -42,6 +42,10 @@
         "levels": [5, 4, 3],
         "categories": ["Stocks"]
     },
+    "analyst_targets": {
+        "enabled": true,
+        "categories": ["Stocks"]
+    },
     "macro": {
         "enabled": true,
         "note": "18-yr real estate / Kuznets cycle ~year 15-17 — late-cycle, elevated crash risk into ~2026-28. Business cycle: late expansion. Favor keeping some dry powder to deploy into a real downturn."
