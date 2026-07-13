@@ -403,6 +403,50 @@
     }
     .ia-prox-txt { color: var(--ink-soft); font-size: 0.9em; margin-left: 2px; }
     .ia-prox-txt.near { color: #5fb87a; font-weight: 700; }
+    .at-upside { white-space: nowrap; font-family: var(--mono); }
+    .at-range-cell { white-space: nowrap; }
+    .at-range { display: inline-flex; align-items: center; gap: 9px; }
+    .at-endlbl { font-size: 0.78em; line-height: 1.15; color: var(--ink-soft); text-align: center; flex: 0 0 auto; font-family: var(--mono); }
+    .at-endsub { color: var(--ink-faint); font-size: 0.85em; font-family: var(--sans); }
+    .at-track {
+        position: relative;
+        display: inline-block;
+        width: 150px;
+        flex: 0 0 150px;
+        height: 8px;
+        background: var(--surface-raised);
+        border-radius: 4px;
+        vertical-align: middle;
+    }
+    .at-mean-tick {
+        position: absolute; top: -3px; bottom: -3px;
+        width: 2px;
+        background: var(--accent);
+        transform: translateX(-50%);
+    }
+    .at-mk {
+        position: absolute; top: 50%;
+        width: 12px; height: 12px;
+        background: #e8e6e0;
+        border: 2px solid var(--surface);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.25);
+    }
+    .at-mk-over {
+        position: absolute; top: 50%; left: 100%;
+        width: 0; height: 0;
+        border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+        border-left: 9px solid #ff5252;
+        transform: translate(-2px, -50%);
+    }
+    .at-mk-under {
+        position: absolute; top: 50%; left: 0;
+        width: 0; height: 0;
+        border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+        border-right: 9px solid #00e676;
+        transform: translate(2px, -50%);
+    }
     .fib-sector {
         margin-left: 7px;
         padding: 1px 7px;
@@ -479,7 +523,7 @@
 </head>
 <body>
     <h1>OTT Signal Dashboard</h1>
-    <div class="updated">Last updated: 2026-07-10 18:18:44.499330</div>
+    <div class="updated">Last updated: 2026-07-13 17:48:23.603584</div>
     <div class="params">OTT Period: 10 | OTT Percent: 3.0 | Source: Open | MA Type: VAR | EMA: 200</div>
     <div class="controls">
         <div class="tf-toggle">
@@ -504,106 +548,106 @@
             <tr class="category-row"><td colspan="6">Crypto <span class="strat-label">4yr Cycle: buy on cycle timing or -10/-20/-30% below 200w EMA, sell near cycle peak</span></td></tr>
 <tr data-tf="daily">
                             <td class="ticker"><span class="trend-icon bearish">&#9660;</span> BTCUSD</td>
-                            <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('BTCUSD_cycle').classList.toggle('show')">22 Jun 26<br><span class="sig-price">$59.5k</span></span><span id="BTCUSD_cycle" class="older-signals"> <span class="signal-pill sell-signal">1 Sep 25<br><span class="sig-price">$111.2k</span></span> <span class="signal-pill buy-signal">14 Aug 23<br><span class="sig-price">$26.2k</span></span> <span class="signal-pill buy-signal">1 May 23<br><span class="sig-price">$28.5k</span></span> <span class="signal-pill buy-signal">17 Apr 23<br><span class="sig-price">$27.6k</span></span> <span class="signal-pill buy-signal">27 Feb 23<br><span class="sig-price">$22.4k</span></span> <span class="signal-pill buy-signal">6 Feb 23<br><span class="sig-price">$21.8k</span></span> <span class="signal-pill buy-signal">3 Oct 22<br><span class="sig-price">$19.4k</span></span></span> <span class="strat-label">-9% from 200w EMA <span style="color:#888;">(+0.5σ vs 200d SMA)</span> | Next window: 2 Sep 26 (53d)</span></td>
+                            <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('BTCUSD_cycle').classList.toggle('show')">22 Jun 26<br><span class="sig-price">$59.5k</span></span><span id="BTCUSD_cycle" class="older-signals"> <span class="signal-pill sell-signal">1 Sep 25<br><span class="sig-price">$111.2k</span></span> <span class="signal-pill buy-signal">9 Oct 23<br><span class="sig-price">$27.2k</span></span> <span class="signal-pill buy-signal">14 Aug 23<br><span class="sig-price">$26.2k</span></span> <span class="signal-pill buy-signal">29 May 23<br><span class="sig-price">$27.1k</span></span> <span class="signal-pill buy-signal">8 May 23<br><span class="sig-price">$26.9k</span></span> <span class="signal-pill buy-signal">17 Apr 23<br><span class="sig-price">$27.6k</span></span> <span class="signal-pill buy-signal">6 Feb 23<br><span class="sig-price">$21.8k</span></span></span> <span class="strat-label">-8% from 200w EMA <span style="color:#888;">(+0.6σ vs 200d SMA)</span> | Next window: 2 Sep 26 (50d)</span></td>
                         </tr>
 <tr data-tf="daily">
                             <td class="ticker"><span class="trend-icon bearish">&#9660;</span> ETHUSD</td>
-                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('ETHUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$4.3k</span></span><span id="ETHUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">17 Apr 23<br><span class="sig-price">$1.9k</span></span> <span class="signal-pill buy-signal">6 Feb 23<br><span class="sig-price">$1.5k</span></span> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$1.3k</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$3.4k</span></span></span> <span class="strat-label">-31% from 200w EMA <span style="color:#888;">(+0.8σ vs 200d SMA)</span> | Next window: 1 Dec 26 (143d)</span></td>
+                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('ETHUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$4.3k</span></span><span id="ETHUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">8 May 23<br><span class="sig-price">$1.8k</span></span> <span class="signal-pill buy-signal">20 Feb 23<br><span class="sig-price">$1.6k</span></span> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$1.3k</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$3.4k</span></span></span> <span class="strat-label">-29% from 200w EMA <span style="color:#888;">(+1.1σ vs 200d SMA)</span> | Next window: 1 Dec 26 (140d)</span></td>
                         </tr>
 <tr data-tf="daily">
                             <td class="ticker"><span class="trend-icon bearish">&#9660;</span> SOLUSD</td>
-                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('SOLUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$206.47</span></span><span id="SOLUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$13.43</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$148.05</span></span></span> <span class="strat-label">-33% from 200w EMA <span style="color:#f0d060;">(+1.6σ vs 200d SMA)</span> | Next window: 1 Dec 26 (143d)</span></td>
+                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('SOLUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$206.47</span></span><span id="SOLUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$13.43</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$148.05</span></span></span> <span class="strat-label">-32% from 200w EMA <span style="color:#f0d060;">(+1.6σ vs 200d SMA)</span> | Next window: 1 Dec 26 (140d)</span></td>
                         </tr>
 <tr class="category-row"><td colspan="6">Indices <span class="strat-label">Always-In: sell on any OTT sell, buy back on OTT buy or 5% dip from sell</span></td></tr>
 <tr class="" data-tf="daily">
                             <td class="ticker"><span class="trend-icon bullish">&#9650;</span> SPX</td>
-                            <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('SPX_idx').classList.toggle('show')">15 Apr 26<br><span class="sig-price">$7.0k</span></span><span id="SPX_idx" class="older-signals"> <span class="signal-pill sell-signal">23 Mar 26<br><span class="sig-price">$6.6k</span></span> <span class="signal-pill buy-signal">2 May 25<br><span class="sig-price">$5.7k</span></span> <span class="signal-pill sell-signal">7 Apr 25<br><span class="sig-price">$5.1k</span></span></span> <span class="above-ema" style="margin-right:8px;font-size:0.85em;">+8.7% from 200d SMA <span style="color:#888;">(+0.5σ)</span></span> <span class="above-ema" style="font-size:0.85em;">+39.2% from 200w SMA</span></td>
+                            <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('SPX_idx').classList.toggle('show')">15 Apr 26<br><span class="sig-price">$7.0k</span></span><span id="SPX_idx" class="older-signals"> <span class="signal-pill sell-signal">23 Mar 26<br><span class="sig-price">$6.6k</span></span> <span class="signal-pill buy-signal">2 May 25<br><span class="sig-price">$5.7k</span></span> <span class="signal-pill sell-signal">7 Apr 25<br><span class="sig-price">$5.1k</span></span></span> <span class="above-ema" style="margin-right:8px;font-size:0.85em;">+8.0% from 200d SMA <span style="color:#888;">(+0.3σ)</span></span> <span class="above-ema" style="font-size:0.85em;">+38.0% from 200w SMA</span></td>
                         </tr>
 <tr class="" data-tf="daily">
                             <td class="ticker"><span class="trend-icon bullish">&#9650;</span> QQQ</td>
-                            <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('QQQ_idx').classList.toggle('show')">14 Apr 26<br><span class="sig-price">$627.91</span></span><span id="QQQ_idx" class="older-signals"> <span class="signal-pill buy-signal">27 Mar 26<br><span class="sig-price">$561.96</span></span> <span class="signal-pill sell-signal">19 Mar 26<br><span class="sig-price">$591.62</span></span> <span class="signal-pill buy-signal">2 May 25<br><span class="sig-price">$485.94</span></span> <span class="signal-pill sell-signal">7 Apr 25<br><span class="sig-price">$421.19</span></span></span> <span class="above-ema" style="margin-right:8px;font-size:0.85em;">+13.9% from 200d SMA <span style="color:#888;">(+0.7σ)</span></span> <span class="above-ema" style="font-size:0.85em;">+56.8% from 200w SMA</span> <span class="analyst-level" title="Jacob @ Invest Answers · 2026-07-02">&#9733; buy: <span class="analyst-pending">$708.51</span></span></td>
+                            <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('QQQ_idx').classList.toggle('show')">14 Apr 26<br><span class="sig-price">$627.91</span></span><span id="QQQ_idx" class="older-signals"> <span class="signal-pill buy-signal">27 Mar 26<br><span class="sig-price">$561.96</span></span> <span class="signal-pill sell-signal">19 Mar 26<br><span class="sig-price">$591.62</span></span> <span class="signal-pill buy-signal">2 May 25<br><span class="sig-price">$485.94</span></span> <span class="signal-pill sell-signal">7 Apr 25<br><span class="sig-price">$421.19</span></span></span> <span class="above-ema" style="margin-right:8px;font-size:0.85em;">+11.9% from 200d SMA <span style="color:#888;">(+0.4σ)</span></span> <span class="above-ema" style="font-size:0.85em;">+53.5% from 200w SMA</span> <span class="analyst-level" title="Jacob @ Invest Answers · 2026-07-02">&#9733; buy: <span class="analyst-pending">$708.51</span></span></td>
                         </tr>
 <tr class="" data-tf="daily">
                             <td class="ticker"><span class="trend-icon bullish">&#9650;</span> MAGS</td>
-                            <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MAGS_idx').classList.toggle('show')">25 Jun 26<br><span class="sig-price">$61.07</span></span><span id="MAGS_idx" class="older-signals"> <span class="signal-pill sell-signal">11 Jun 26<br><span class="sig-price">$64.91</span></span> <span class="signal-pill buy-signal">15 Apr 26<br><span class="sig-price">$65.26</span></span> <span class="signal-pill buy-signal">20 Mar 26<br><span class="sig-price">$58.37</span></span> <span class="signal-pill sell-signal">12 Feb 26<br><span class="sig-price">$61.73</span></span></span> <span class="above-ema" style="margin-right:8px;font-size:0.85em;">+4.6% from 200d SMA <span style="color:#888;">(-0.3σ)</span></span></td>
+                            <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MAGS_idx').classList.toggle('show')">25 Jun 26<br><span class="sig-price">$61.07</span></span><span id="MAGS_idx" class="older-signals"> <span class="signal-pill sell-signal">11 Jun 26<br><span class="sig-price">$64.91</span></span> <span class="signal-pill buy-signal">15 Apr 26<br><span class="sig-price">$65.26</span></span> <span class="signal-pill buy-signal">20 Mar 26<br><span class="sig-price">$58.37</span></span> <span class="signal-pill sell-signal">12 Feb 26<br><span class="sig-price">$61.73</span></span></span> <span class="above-ema" style="margin-right:8px;font-size:0.85em;">+4.1% from 200d SMA <span style="color:#888;">(-0.4σ)</span></span></td>
                         </tr>
 <tr class="category-row"><td colspan="6">Stocks <span class="strat-label">OTT + SMA: buy on OTT or 50 SMA cross, sell on OTT above 200 SMA</span></td></tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> ALAB</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('ALAB_daily').classList.toggle('show')">13 Apr 26<br><span class="sig-price">$166.79</span></span><span id="ALAB_daily" class="older-signals"> <span class="signal-pill sell-signal">3 Feb 26<br><span class="sig-price">$158.52</span></span> <span class="signal-pill buy-signal">2 Jan 26<br><span class="sig-price">$179.56</span></span> <span class="signal-pill sell-signal">13 Nov 25<br><span class="sig-price">$144.47</span></span> <span class="signal-pill buy-signal">3 Nov 25<br><span class="sig-price">$191.56</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+107.8% from 200d SMA <span style="color:#f0d060;">(+1.8σ)</span></span></td>
-                    <td class="detail-col price">$415.20</td>
-                    <td class="detail-col ema">$199.77</td>
-                    <td class="detail-col mavg">$369.23</td>
-                    <td class="detail-col ott">$362.53</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('ALAB_daily').classList.toggle('show')">13 Apr 26<br><span class="sig-price">$166.79</span></span><span id="ALAB_daily" class="older-signals"> <span class="signal-pill sell-signal">3 Feb 26<br><span class="sig-price">$158.52</span></span> <span class="signal-pill buy-signal">2 Jan 26<br><span class="sig-price">$179.56</span></span> <span class="signal-pill sell-signal">13 Nov 25<br><span class="sig-price">$144.47</span></span> <span class="signal-pill buy-signal">3 Nov 25<br><span class="sig-price">$191.56</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+76.1% from 200d SMA <span style="color:#888;">(+1.1σ)</span></span></td>
+                    <td class="detail-col price">$352.89</td>
+                    <td class="detail-col ema">$200.38</td>
+                    <td class="detail-col mavg">$369.37</td>
+                    <td class="detail-col ott">$362.70</td>
                 </tr>
-<tr class="" data-tf="4h">
-                    <td class="ticker"><span class="trend-icon bullish">&#9650;</span> ALAB</td>
-                    <td class="signals"><span class="no-signal">No recent signals</span> </td>
-                    <td class="detail-col price">$415.72</td>
+<tr class="recent-sell-row" data-tf="4h">
+                    <td class="ticker"><span class="trend-icon bearish">&#9660;</span> ALAB</td>
+                    <td class="signals"><span class="signal-pill sell-signal recent-signal">13 Jul 26 12:00<br><span class="sig-price">$352.89</span></span> </td>
+                    <td class="detail-col price">$352.89</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$402.48</td>
-                    <td class="detail-col ott">$400.72</td>
+                    <td class="detail-col mavg">$399.93</td>
+                    <td class="detail-col ott">$400.70</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> ALAB</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('ALAB_weekly').classList.toggle('show')">27 Apr 26<br><span class="sig-price">$202.68</span></span><span id="ALAB_weekly" class="older-signals"> <span class="signal-pill sell-signal">17 Nov 25<br><span class="sig-price">$141.80</span></span> <span class="signal-pill buy-signal">2 Jun 25<br><span class="sig-price">$90.75</span></span> <span class="signal-pill sell-signal">17 Feb 25<br><span class="sig-price">$85.72</span></span> <span class="signal-pill buy-signal">7 Oct 24<br><span class="sig-price">$66.69</span></span></span> </td>
-                    <td class="detail-col price">$415.20</td>
+                    <td class="detail-col price">$352.89</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$319.64</td>
-                    <td class="detail-col ott">$283.83</td>
+                    <td class="detail-col mavg">$330.29</td>
+                    <td class="detail-col ott">$298.83</td>
                 </tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> AMD</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('AMD_daily').classList.toggle('show')">10 Apr 26<br><span class="sig-price">$245.04</span></span><span id="AMD_daily" class="older-signals"> <span class="signal-pill sell-signal">5 Feb 26<br><span class="sig-price">$192.50</span></span> <span class="signal-pill buy-signal">22 Jan 26<br><span class="sig-price">$253.73</span></span> <span class="signal-pill sell-signal">24 Nov 25<br><span class="sig-price">$215.05</span></span> <span class="signal-pill buy-signal">6 Oct 25<br><span class="sig-price">$203.71</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+93.1% from 200d SMA <span style="color:#888;">(+1.2σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+250.8% from 200w SMA</span></td>
-                    <td class="detail-col price">$555.52</td>
-                    <td class="detail-col ema">$287.65</td>
-                    <td class="detail-col mavg">$487.56</td>
-                    <td class="detail-col ott">$477.65</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('AMD_daily').classList.toggle('show')">10 Apr 26<br><span class="sig-price">$245.04</span></span><span id="AMD_daily" class="older-signals"> <span class="signal-pill sell-signal">5 Feb 26<br><span class="sig-price">$192.50</span></span> <span class="signal-pill buy-signal">22 Jan 26<br><span class="sig-price">$253.73</span></span> <span class="signal-pill sell-signal">24 Nov 25<br><span class="sig-price">$215.05</span></span> <span class="signal-pill buy-signal">6 Oct 25<br><span class="sig-price">$203.71</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+85.7% from 200d SMA <span style="color:#888;">(+1.0σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+234.7% from 200w SMA</span></td>
+                    <td class="detail-col price">$537.84</td>
+                    <td class="detail-col ema">$289.55</td>
+                    <td class="detail-col mavg">$488.56</td>
+                    <td class="detail-col ott">$478.07</td>
                 </tr>
 <tr class="" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> AMD</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('AMD_4h').classList.toggle('show')">15 Jun 26 08:00<br><span class="sig-price">$551.04</span></span><span id="AMD_4h" class="older-signals"> <span class="signal-pill sell-signal">10 Jun 26 12:00<br><span class="sig-price">$451.67</span></span></span> </td>
-                    <td class="detail-col price">$555.52</td>
+                    <td class="detail-col price">$537.84</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$525.12</td>
-                    <td class="detail-col ott">$517.62</td>
+                    <td class="detail-col mavg">$526.11</td>
+                    <td class="detail-col ott">$517.60</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> AMD</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('AMD_weekly').classList.toggle('show')">23 Jun 25<br><span class="sig-price">$143.81</span></span><span id="AMD_weekly" class="older-signals"> <span class="signal-pill sell-signal">29 Jul 24<br><span class="sig-price">$132.50</span></span> <span class="signal-pill buy-signal">15 Jul 24<br><span class="sig-price">$151.58</span></span> <span class="signal-pill sell-signal">6 May 24<br><span class="sig-price">$151.92</span></span> <span class="signal-pill buy-signal">20 Feb 23<br><span class="sig-price">$78.09</span></span></span> </td>
-                    <td class="detail-col price">$555.76</td>
-                    <td class="detail-col ema">$158.38</td>
-                    <td class="detail-col mavg">$442.42</td>
-                    <td class="detail-col ott">$415.03</td>
+                    <td class="detail-col price">$537.84</td>
+                    <td class="detail-col ema">$160.70</td>
+                    <td class="detail-col mavg">$448.62</td>
+                    <td class="detail-col ott">$425.22</td>
                 </tr>
 <tr class="recent-sell-row" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> ARM</td>
-                    <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('ARM_daily').classList.toggle('show')">6 Jul 26<br><span class="sig-price">$322.24</span></span><span id="ARM_daily" class="older-signals"> <span class="signal-pill buy-signal">11 Feb 26<br><span class="sig-price">$125.28</span></span> <span class="signal-pill sell-signal">13 Nov 25<br><span class="sig-price">$140.31</span></span> <span class="signal-pill buy-signal">2 Oct 25<br><span class="sig-price">$152.15</span></span> <span class="signal-pill sell-signal">30 Sep 25<br><span class="sig-price">$141.49</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+79.3% from 200d SMA <span style="color:#888;">(+1.0σ)</span></span></td>
-                    <td class="detail-col price">$325.11</td>
-                    <td class="detail-col ema">$181.35</td>
-                    <td class="detail-col mavg">$335.86</td>
-                    <td class="detail-col ott">$342.73</td>
+                    <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('ARM_daily').classList.toggle('show')">6 Jul 26<br><span class="sig-price">$322.24</span></span><span id="ARM_daily" class="older-signals"> <span class="signal-pill buy-signal">11 Feb 26<br><span class="sig-price">$125.28</span></span> <span class="signal-pill sell-signal">13 Nov 25<br><span class="sig-price">$140.31</span></span> <span class="signal-pill buy-signal">2 Oct 25<br><span class="sig-price">$152.15</span></span> <span class="signal-pill sell-signal">30 Sep 25<br><span class="sig-price">$141.49</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+63.9% from 200d SMA <span style="color:#888;">(+0.7σ)</span></span></td>
+                    <td class="detail-col price">$298.59</td>
+                    <td class="detail-col ema">$182.13</td>
+                    <td class="detail-col mavg">$334.68</td>
+                    <td class="detail-col ott">$341.07</td>
                 </tr>
 <tr class="" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> ARM</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('ARM_4h').classList.toggle('show')">24 Jun 26 12:00<br><span class="sig-price">$359.05</span></span><span id="ARM_4h" class="older-signals"> <span class="signal-pill buy-signal">16 Jun 26 08:00<br><span class="sig-price">$406.00</span></span> <span class="signal-pill sell-signal">9 Jun 26 12:00<br><span class="sig-price">$324.56</span></span></span> </td>
-                    <td class="detail-col price">$325.11</td>
+                    <td class="detail-col price">$298.59</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$341.82</td>
-                    <td class="detail-col ott">$347.05</td>
+                    <td class="detail-col mavg">$340.48</td>
+                    <td class="detail-col ott">$346.85</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> ARM</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('ARM_weekly').classList.toggle('show')">6 Apr 26<br><span class="sig-price">$148.93</span></span><span id="ARM_weekly" class="older-signals"> <span class="signal-pill sell-signal">15 Dec 25<br><span class="sig-price">$114.03</span></span> <span class="signal-pill buy-signal">16 Jun 25<br><span class="sig-price">$145.04</span></span> <span class="signal-pill sell-signal">17 Mar 25<br><span class="sig-price">$119.07</span></span> <span class="signal-pill buy-signal">3 Feb 25<br><span class="sig-price">$162.51</span></span></span> </td>
-                    <td class="detail-col price">$325.11</td>
+                    <td class="detail-col price">$298.59</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$284.33</td>
-                    <td class="detail-col ott">$275.33</td>
+                    <td class="detail-col mavg">$285.46</td>
+                    <td class="detail-col ott">$277.98</td>
                 </tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> ASML</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('ASML_daily').classList.toggle('show')">14 Apr 26<br><span class="sig-price">$1.5k</span></span><span id="ASML_daily" class="older-signals"> <span class="signal-pill sell-signal">9 Mar 26<br><span class="sig-price">$1.4k</span></span> <span class="signal-pill buy-signal">27 Aug 25<br><span class="sig-price">$765.95</span></span> <span class="signal-pill sell-signal">23 Jul 25<br><span class="sig-price">$711.36</span></span> <span class="signal-pill buy-signal">2 May 25<br><span class="sig-price">$684.96</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+35.1% from 200d SMA <span style="color:#888;">(-0.4σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+112.3% from 200w SMA</span></td>
-                    <td class="detail-col price">$1.8k</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('ASML_daily').classList.toggle('show')">14 Apr 26<br><span class="sig-price">$1.5k</span></span><span id="ASML_daily" class="older-signals"> <span class="signal-pill sell-signal">9 Mar 26<br><span class="sig-price">$1.4k</span></span> <span class="signal-pill buy-signal">27 Aug 25<br><span class="sig-price">$765.95</span></span> <span class="signal-pill sell-signal">23 Jul 25<br><span class="sig-price">$711.36</span></span> <span class="signal-pill buy-signal">2 May 25<br><span class="sig-price">$684.96</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+29.9% from 200d SMA <span style="color:#888;">(-0.9σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+103.2% from 200w SMA</span></td>
+                    <td class="detail-col price">$1.7k</td>
                     <td class="detail-col ema">$1.3k</td>
                     <td class="detail-col mavg">$1.8k</td>
                     <td class="detail-col ott">$1.8k</td>
@@ -611,7 +655,7 @@
 <tr class="" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> ASML</td>
                     <td class="signals"><span class="no-signal">No recent signals</span> </td>
-                    <td class="detail-col price">$1.8k</td>
+                    <td class="detail-col price">$1.7k</td>
                     <td class="detail-col ema">$nan</td>
                     <td class="detail-col mavg">$1.8k</td>
                     <td class="detail-col ott">$1.8k</td>
@@ -619,167 +663,167 @@
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> ASML</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('ASML_weekly').classList.toggle('show')">30 Jun 25<br><span class="sig-price">$788.32</span></span><span id="ASML_weekly" class="older-signals"> <span class="signal-pill sell-signal">5 Aug 24<br><span class="sig-price">$847.46</span></span> <span class="signal-pill buy-signal">27 Nov 23<br><span class="sig-price">$677.81</span></span> <span class="signal-pill sell-signal">18 Sep 23<br><span class="sig-price">$573.43</span></span> <span class="signal-pill buy-signal">21 Nov 22<br><span class="sig-price">$573.84</span></span></span> </td>
-                    <td class="detail-col price">$1.8k</td>
-                    <td class="detail-col ema">$848.57</td>
+                    <td class="detail-col price">$1.7k</td>
+                    <td class="detail-col ema">$854.97</td>
                     <td class="detail-col mavg">$1.6k</td>
                     <td class="detail-col ott">$1.5k</td>
                 </tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> AVGO</td>
-                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('AVGO_daily').classList.toggle('show')">11 Jun 26<br><span class="sig-price">$384.96</span></span><span id="AVGO_daily" class="older-signals"> <span class="signal-pill buy-signal">10 Apr 26<br><span class="sig-price">$370.96</span></span> <span class="signal-pill sell-signal">18 Dec 25<br><span class="sig-price">$328.04</span></span> <span class="signal-pill buy-signal">25 Apr 25<br><span class="sig-price">$190.46</span></span> <span class="signal-pill sell-signal">31 Mar 25<br><span class="sig-price">$165.82</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+10.7% from 200d SMA <span style="color:#888;">(-0.4σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+117.2% from 200w SMA</span></td>
-                    <td class="detail-col price">$399.87</td>
-                    <td class="detail-col ema">$361.25</td>
-                    <td class="detail-col mavg">$399.53</td>
+                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('AVGO_daily').classList.toggle('show')">11 Jun 26<br><span class="sig-price">$384.96</span></span><span id="AVGO_daily" class="older-signals"> <span class="signal-pill buy-signal">10 Apr 26<br><span class="sig-price">$370.96</span></span> <span class="signal-pill sell-signal">18 Dec 25<br><span class="sig-price">$328.04</span></span> <span class="signal-pill buy-signal">28 Apr 25<br><span class="sig-price">$190.62</span></span> <span class="signal-pill sell-signal">7 Mar 25<br><span class="sig-price">$192.50</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+7.2% from 200d SMA <span style="color:#888;">(-0.6σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+108.5% from 200w SMA</span></td>
+                    <td class="detail-col price">$387.36</td>
+                    <td class="detail-col ema">$361.51</td>
+                    <td class="detail-col mavg">$399.22</td>
                     <td class="detail-col ott">$405.33</td>
                 </tr>
 <tr class="recent-buy-row" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> AVGO</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal recent-signal" onclick="document.getElementById('AVGO_4h').classList.toggle('show')">10 Jul 26 12:00<br><span class="sig-price">$399.83</span></span><span id="AVGO_4h" class="older-signals"> <span class="signal-pill sell-signal">5 Jun 26 12:00<br><span class="sig-price">$385.73</span></span></span> </td>
-                    <td class="detail-col price">$399.83</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal recent-signal" onclick="document.getElementById('AVGO_4h').classList.toggle('show')">10 Jul 26 12:00<br><span class="sig-price">$399.99</span></span><span id="AVGO_4h" class="older-signals"> <span class="signal-pill sell-signal">5 Jun 26 12:00<br><span class="sig-price">$385.73</span></span></span> </td>
+                    <td class="detail-col price">$387.35</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$388.48</td>
-                    <td class="detail-col ott">$387.19</td>
+                    <td class="detail-col mavg">$389.32</td>
+                    <td class="detail-col ott">$388.20</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> AVGO</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('AVGO_weekly').classList.toggle('show')">20 Apr 26<br><span class="sig-price">$422.09</span></span><span id="AVGO_weekly" class="older-signals"> <span class="signal-pill sell-signal">9 Mar 26<br><span class="sig-price">$320.98</span></span> <span class="signal-pill buy-signal">19 May 25<br><span class="sig-price">$226.52</span></span> <span class="signal-pill sell-signal">7 Apr 25<br><span class="sig-price">$180.19</span></span> <span class="signal-pill buy-signal">12 Dec 22<br><span class="sig-price">$52.52</span></span></span> </td>
-                    <td class="detail-col price">$399.87</td>
-                    <td class="detail-col ema">$184.06</td>
-                    <td class="detail-col mavg">$386.13</td>
+                    <td class="detail-col price">$387.35</td>
+                    <td class="detail-col ema">$185.76</td>
+                    <td class="detail-col mavg">$386.39</td>
                     <td class="detail-col ott">$381.49</td>
                 </tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> COPA</td>
-                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('COPA_daily').classList.toggle('show')">29 Jun 26<br><span class="sig-price">$47.24</span></span><span id="COPA_daily" class="older-signals"> <span class="signal-pill buy-signal">13 Apr 26<br><span class="sig-price">$48.56</span></span> <span class="signal-pill sell-signal">11 Mar 26<br><span class="sig-price">$47.45</span></span> <span class="signal-pill buy-signal">22 Apr 25<br><span class="sig-price">$21.23</span></span> <span class="signal-pill sell-signal">4 Apr 25<br><span class="sig-price">$18.56</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+7.1% from 200d SMA <span style="color:#f0d060;">(-1.6σ)</span></span></td>
-                    <td class="detail-col price">$47.68</td>
-                    <td class="detail-col ema">$44.53</td>
+                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('COPA_daily').classList.toggle('show')">29 Jun 26<br><span class="sig-price">$47.24</span></span><span id="COPA_daily" class="older-signals"> <span class="signal-pill buy-signal">13 Apr 26<br><span class="sig-price">$48.56</span></span> <span class="signal-pill sell-signal">11 Mar 26<br><span class="sig-price">$47.45</span></span> <span class="signal-pill buy-signal">23 Apr 25<br><span class="sig-price">$21.60</span></span> <span class="signal-pill sell-signal">4 Apr 25<br><span class="sig-price">$18.56</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+6.8% from 200d SMA <span style="color:#f0d060;">(-1.6σ)</span></span></td>
+                    <td class="detail-col price">$47.66</td>
+                    <td class="detail-col ema">$44.61</td>
                     <td class="detail-col mavg">$49.27</td>
-                    <td class="detail-col ott">$50.11</td>
+                    <td class="detail-col ott">$50.02</td>
                 </tr>
 <tr class="" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> COPA</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('COPA_4h').classList.toggle('show')">24 Jun 26 08:00<br><span class="sig-price">$47.44</span></span><span id="COPA_4h" class="older-signals"> <span class="signal-pill buy-signal">16 Jun 26 08:00<br><span class="sig-price">$55.03</span></span> <span class="signal-pill sell-signal">9 Jun 26 08:00<br><span class="sig-price">$48.75</span></span></span> </td>
-                    <td class="detail-col price">$47.68</td>
+                    <td class="detail-col price">$47.66</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$48.41</td>
-                    <td class="detail-col ott">$49.17</td>
+                    <td class="detail-col mavg">$48.39</td>
+                    <td class="detail-col ott">$49.14</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> COPA</td>
                     <td class="signals"><span class="no-signal">No recent signals</span> </td>
-                    <td class="detail-col price">$47.68</td>
+                    <td class="detail-col price">$47.66</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$47.39</td>
+                    <td class="detail-col mavg">$47.38</td>
                     <td class="detail-col ott">$46.61</td>
                 </tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> GOOG</td>
-                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('GOOG_daily').classList.toggle('show')">4 Jun 26<br><span class="sig-price">$369.05</span></span><span id="GOOG_daily" class="older-signals"> <span class="signal-pill buy-signal">10 Apr 26<br><span class="sig-price">$315.53</span></span> <span class="signal-pill sell-signal">17 Feb 26<br><span class="sig-price">$302.42</span></span> <span class="signal-pill buy-signal">21 May 25<br><span class="sig-price">$169.37</span></span> <span class="signal-pill sell-signal">31 Mar 25<br><span class="sig-price">$155.60</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+11.1% from 200d SMA <span style="color:#888;">(-1.4σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+92.9% from 200w SMA</span> <span class="analyst-level" title="Jacob @ Invest Answers · 2026-06-12">&#9733; buy: <span class="analyst-hit">$359.00</span></span></td>
-                    <td class="detail-col price">$353.18</td>
-                    <td class="detail-col ema">$317.91</td>
-                    <td class="detail-col mavg">$358.84</td>
+                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('GOOG_daily').classList.toggle('show')">4 Jun 26<br><span class="sig-price">$369.05</span></span><span id="GOOG_daily" class="older-signals"> <span class="signal-pill buy-signal">10 Apr 26<br><span class="sig-price">$315.53</span></span> <span class="signal-pill sell-signal">17 Feb 26<br><span class="sig-price">$302.42</span></span> <span class="signal-pill buy-signal">20 May 25<br><span class="sig-price">$164.65</span></span> <span class="signal-pill sell-signal">8 May 25<br><span class="sig-price">$155.12</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+11.1% from 200d SMA <span style="color:#888;">(-1.4σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+91.9% from 200w SMA</span> <span class="analyst-level" title="Jacob @ Invest Answers · 2026-06-12">&#9733; buy: <span class="analyst-hit">$359.00</span></span></td>
+                    <td class="detail-col price">$353.66</td>
+                    <td class="detail-col ema">$318.43</td>
+                    <td class="detail-col mavg">$358.58</td>
                     <td class="detail-col ott">$363.76</td>
                 </tr>
 <tr class="recent-buy-row" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> GOOG</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal recent-signal" onclick="document.getElementById('GOOG_4h').classList.toggle('show')">7 Jul 26 12:00<br><span class="sig-price">$363.65</span></span><span id="GOOG_4h" class="older-signals"> <span class="signal-pill sell-signal">3 Jun 26 08:00<br><span class="sig-price">$355.44</span></span></span> </td>
-                    <td class="detail-col price">$353.18</td>
+                    <td class="detail-col price">$353.73</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$356.58</td>
-                    <td class="detail-col ott">$355.81</td>
+                    <td class="detail-col mavg">$356.24</td>
+                    <td class="detail-col ott">$356.19</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> GOOG</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('GOOG_weekly').classList.toggle('show')">14 Jul 25<br><span class="sig-price">$185.41</span></span><span id="GOOG_weekly" class="older-signals"> <span class="signal-pill sell-signal">24 Mar 25<br><span class="sig-price">$155.43</span></span> <span class="signal-pill buy-signal">11 Nov 24<br><span class="sig-price">$172.79</span></span> <span class="signal-pill sell-signal">16 Sep 24<br><span class="sig-price">$163.60</span></span> <span class="signal-pill buy-signal">15 May 23<br><span class="sig-price">$122.17</span></span></span> </td>
-                    <td class="detail-col price">$353.18</td>
-                    <td class="detail-col ema">$183.05</td>
-                    <td class="detail-col mavg">$343.83</td>
+                    <td class="detail-col price">$353.73</td>
+                    <td class="detail-col ema">$184.31</td>
+                    <td class="detail-col mavg">$344.64</td>
                     <td class="detail-col ott">$337.79</td>
                 </tr>
 <tr class="recent-buy-row" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> META</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal recent-signal" onclick="document.getElementById('META_daily').classList.toggle('show')">10 Jul 26<br><span class="sig-price">$670.22</span></span><span id="META_daily" class="older-signals"> <span class="signal-pill sell-signal">4 May 26<br><span class="sig-price">$609.84</span></span> <span class="signal-pill buy-signal">13 Apr 26<br><span class="sig-price">$633.94</span></span> <span class="signal-pill sell-signal">18 Feb 26<br><span class="sig-price">$642.07</span></span> <span class="signal-pill buy-signal">29 Jan 26<br><span class="sig-price">$737.00</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+4.4% from 200d SMA <span style="color:#ffffff;">(+2.2σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+42.9% from 200w SMA</span></td>
-                    <td class="detail-col price">$670.22</td>
-                    <td class="detail-col ema">$641.68</td>
-                    <td class="detail-col mavg">$599.36</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal recent-signal" onclick="document.getElementById('META_daily').classList.toggle('show')">10 Jul 26<br><span class="sig-price">$669.21</span></span><span id="META_daily" class="older-signals"> <span class="signal-pill sell-signal">4 May 26<br><span class="sig-price">$609.84</span></span> <span class="signal-pill buy-signal">13 Apr 26<br><span class="sig-price">$633.94</span></span> <span class="signal-pill sell-signal">18 Feb 26<br><span class="sig-price">$642.07</span></span> <span class="signal-pill buy-signal">29 Jan 26<br><span class="sig-price">$737.00</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+3.3% from 200d SMA <span style="color:#f0d060;">(+1.9σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+40.5% from 200w SMA</span></td>
+                    <td class="detail-col price">$662.44</td>
+                    <td class="detail-col ema">$641.22</td>
+                    <td class="detail-col mavg">$605.45</td>
                     <td class="detail-col ott">$595.64</td>
                 </tr>
 <tr class="" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> META</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('META_4h').classList.toggle('show')">1 Jul 26 12:00<br><span class="sig-price">$612.95</span></span><span id="META_4h" class="older-signals"> <span class="signal-pill sell-signal">10 Jun 26 12:00<br><span class="sig-price">$570.79</span></span></span> </td>
-                    <td class="detail-col price">$670.22</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('META_4h').classList.toggle('show')">1 Jul 26 12:00<br><span class="sig-price">$612.95</span></span><span id="META_4h" class="older-signals"> <span class="signal-pill sell-signal">11 Jun 26 08:00<br><span class="sig-price">$563.54</span></span></span> </td>
+                    <td class="detail-col price">$662.44</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$600.57</td>
-                    <td class="detail-col ott">$577.57</td>
+                    <td class="detail-col mavg">$609.53</td>
+                    <td class="detail-col ott">$591.16</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> META</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('META_weekly').classList.toggle('show')">17 Nov 25<br><span class="sig-price">$592.71</span></span><span id="META_weekly" class="older-signals"> <span class="signal-pill buy-signal">9 Jun 25<br><span class="sig-price">$680.12</span></span> <span class="signal-pill sell-signal">7 Apr 25<br><span class="sig-price">$541.38</span></span> <span class="signal-pill buy-signal">30 Jan 23<br><span class="sig-price">$184.91</span></span> <span class="signal-pill sell-signal">24 Jan 22<br><span class="sig-price">$299.08</span></span></span> </td>
-                    <td class="detail-col price">$670.22</td>
-                    <td class="detail-col ema">$469.01</td>
-                    <td class="detail-col mavg">$625.04</td>
-                    <td class="detail-col ott">$644.05</td>
+                    <td class="detail-col price">$662.44</td>
+                    <td class="detail-col ema">$471.59</td>
+                    <td class="detail-col mavg">$626.97</td>
+                    <td class="detail-col ott">$634.67</td>
                 </tr>
 <tr class="recent-sell-row" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MRVL</td>
-                    <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('MRVL_daily').classList.toggle('show')">10 Jul 26<br><span class="sig-price">$236.41</span></span><span id="MRVL_daily" class="older-signals"> <span class="signal-pill buy-signal">10 Mar 26<br><span class="sig-price">$93.25</span></span> <span class="signal-pill sell-signal">17 Dec 25<br><span class="sig-price">$81.60</span></span> <span class="signal-pill buy-signal">3 Dec 25<br><span class="sig-price">$100.08</span></span> <span class="signal-pill sell-signal">19 Nov 25<br><span class="sig-price">$81.22</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+86.6% from 200d SMA <span style="color:#888;">(+0.7σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+205.1% from 200w SMA</span></td>
-                    <td class="detail-col price">$236.41</td>
-                    <td class="detail-col ema">$126.71</td>
-                    <td class="detail-col mavg">$245.60</td>
-                    <td class="detail-col ott">$245.71</td>
+                    <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('MRVL_daily').classList.toggle('show')">10 Jul 26<br><span class="sig-price">$235.81</span></span><span id="MRVL_daily" class="older-signals"> <span class="signal-pill buy-signal">10 Mar 26<br><span class="sig-price">$93.23</span></span> <span class="signal-pill sell-signal">17 Dec 25<br><span class="sig-price">$81.58</span></span> <span class="signal-pill buy-signal">3 Dec 25<br><span class="sig-price">$100.05</span></span> <span class="signal-pill sell-signal">19 Nov 25<br><span class="sig-price">$81.20</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+71.6% from 200d SMA <span style="color:#888;">(+0.4σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+179.1% from 200w SMA</span></td>
+                    <td class="detail-col price">$218.60</td>
+                    <td class="detail-col ema">$127.40</td>
+                    <td class="detail-col mavg">$244.27</td>
+                    <td class="detail-col ott">$245.65</td>
                 </tr>
 <tr class="" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MRVL</td>
                     <td class="signals"><span class="signal-pill sell-signal">26 Jun 26 12:00<br><span class="sig-price">$266.13</span></span> </td>
-                    <td class="detail-col price">$236.38</td>
+                    <td class="detail-col price">$218.49</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$257.27</td>
-                    <td class="detail-col ott">$262.66</td>
+                    <td class="detail-col mavg">$253.85</td>
+                    <td class="detail-col ott">$261.26</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> MRVL</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MRVL_weekly').classList.toggle('show')">6 Oct 25<br><span class="sig-price">$85.51</span></span><span id="MRVL_weekly" class="older-signals"> <span class="signal-pill sell-signal">1 Sep 25<br><span class="sig-price">$63.21</span></span> <span class="signal-pill buy-signal">30 Jun 25<br><span class="sig-price">$74.98</span></span> <span class="signal-pill sell-signal">10 Mar 25<br><span class="sig-price">$68.48</span></span> <span class="signal-pill buy-signal">2 Sep 24<br><span class="sig-price">$65.86</span></span></span> </td>
-                    <td class="detail-col price">$236.38</td>
-                    <td class="detail-col ema">$77.48</td>
-                    <td class="detail-col mavg">$223.11</td>
-                    <td class="detail-col ott">$212.25</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MRVL_weekly').classList.toggle('show')">6 Oct 25<br><span class="sig-price">$85.48</span></span><span id="MRVL_weekly" class="older-signals"> <span class="signal-pill sell-signal">1 Sep 25<br><span class="sig-price">$63.20</span></span> <span class="signal-pill buy-signal">30 Jun 25<br><span class="sig-price">$74.96</span></span> <span class="signal-pill sell-signal">10 Mar 25<br><span class="sig-price">$68.46</span></span> <span class="signal-pill buy-signal">2 Sep 24<br><span class="sig-price">$65.84</span></span></span> </td>
+                    <td class="detail-col price">$218.49</td>
+                    <td class="detail-col ema">$78.32</td>
+                    <td class="detail-col mavg">$223.31</td>
+                    <td class="detail-col ott">$217.29</td>
                 </tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MSFT</td>
-                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('MSFT_daily').classList.toggle('show')">15 Jun 26<br><span class="sig-price">$399.76</span></span><span id="MSFT_daily" class="older-signals"> <span class="signal-pill buy-signal">16 Apr 26<br><span class="sig-price">$419.35</span></span> <span class="signal-pill sell-signal">11 Nov 25<br><span class="sig-price">$505.48</span></span></span> <span class="below-ema" style="margin-left:8px;font-size:0.85em;">-12.9% from 200d SMA <span style="color:#888;">(-0.4σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+0.2% from 200w SMA</span></td>
-                    <td class="detail-col price">$383.83</td>
-                    <td class="detail-col ema">$440.70</td>
-                    <td class="detail-col mavg">$382.77</td>
+                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('MSFT_daily').classList.toggle('show')">15 Jun 26<br><span class="sig-price">$399.76</span></span><span id="MSFT_daily" class="older-signals"> <span class="signal-pill buy-signal">16 Apr 26<br><span class="sig-price">$419.35</span></span> <span class="signal-pill sell-signal">11 Nov 25<br><span class="sig-price">$505.48</span></span></span> <span class="below-ema" style="margin-left:8px;font-size:0.85em;">-10.8% from 200d SMA <span style="color:#888;">(-0.2σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+2.3% from 200w SMA</span></td>
+                    <td class="detail-col price">$392.67</td>
+                    <td class="detail-col ema">$440.14</td>
+                    <td class="detail-col mavg">$382.92</td>
                     <td class="detail-col ott">$387.30</td>
                 </tr>
 <tr class="recent-buy-row" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> MSFT</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal recent-signal" onclick="document.getElementById('MSFT_4h').classList.toggle('show')">7 Jul 26 12:00<br><span class="sig-price">$388.83</span></span><span id="MSFT_4h" class="older-signals"> <span class="signal-pill sell-signal">9 Jun 26 12:00<br><span class="sig-price">$403.10</span></span></span> </td>
-                    <td class="detail-col price">$383.83</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal recent-signal" onclick="document.getElementById('MSFT_4h').classList.toggle('show')">7 Jul 26 12:00<br><span class="sig-price">$388.83</span></span><span id="MSFT_4h" class="older-signals"> <span class="signal-pill sell-signal">11 Jun 26 08:00<br><span class="sig-price">$387.98</span></span></span> </td>
+                    <td class="detail-col price">$392.67</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$382.70</td>
-                    <td class="detail-col ott">$382.39</td>
+                    <td class="detail-col mavg">$382.62</td>
+                    <td class="detail-col ott">$382.03</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MSFT</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('MSFT_weekly').classList.toggle('show')">22 Jun 26<br><span class="sig-price">$372.97</span></span><span id="MSFT_weekly" class="older-signals"> <span class="signal-pill buy-signal">1 Jun 26<br><span class="sig-price">$416.67</span></span> <span class="signal-pill sell-signal">12 Jan 26<br><span class="sig-price">$457.82</span></span> <span class="signal-pill buy-signal">19 May 25<br><span class="sig-price">$446.61</span></span> <span class="signal-pill sell-signal">10 Mar 25<br><span class="sig-price">$384.77</span></span></span> </td>
-                    <td class="detail-col price">$383.83</td>
-                    <td class="detail-col ema">$383.22</td>
-                    <td class="detail-col mavg">$415.28</td>
+                    <td class="detail-col price">$392.64</td>
+                    <td class="detail-col ema">$384.00</td>
+                    <td class="detail-col mavg">$414.68</td>
                     <td class="detail-col ott">$419.18</td>
                 </tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> MU</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MU_daily').classList.toggle('show')">13 Apr 26<br><span class="sig-price">$426.49</span></span><span id="MU_daily" class="older-signals"> <span class="signal-pill sell-signal">27 Mar 26<br><span class="sig-price">$357.02</span></span> <span class="signal-pill buy-signal">16 Mar 26<br><span class="sig-price">$441.55</span></span> <span class="signal-pill sell-signal">9 Mar 26<br><span class="sig-price">$389.10</span></span> <span class="signal-pill buy-signal">13 Aug 25<br><span class="sig-price">$124.07</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+112.7% from 200d SMA <span style="color:#888;">(+0.1σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+491.2% from 200w SMA</span></td>
-                    <td class="detail-col price">$987.60</td>
-                    <td class="detail-col ema">$464.34</td>
-                    <td class="detail-col mavg">$979.80</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MU_daily').classList.toggle('show')">13 Apr 26<br><span class="sig-price">$426.49</span></span><span id="MU_daily" class="older-signals"> <span class="signal-pill sell-signal">27 Mar 26<br><span class="sig-price">$357.02</span></span> <span class="signal-pill buy-signal">16 Mar 26<br><span class="sig-price">$441.55</span></span> <span class="signal-pill sell-signal">9 Mar 26<br><span class="sig-price">$389.10</span></span> <span class="signal-pill buy-signal">13 Aug 25<br><span class="sig-price">$124.07</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+98.1% from 200d SMA <span style="color:#888;">(-0.3σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+441.1% from 200w SMA</span></td>
+                    <td class="detail-col price">$927.49</td>
+                    <td class="detail-col ema">$468.11</td>
+                    <td class="detail-col mavg">$975.74</td>
                     <td class="detail-col ott">$971.28</td>
                 </tr>
 <tr class="recent-sell-row" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> MU</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal recent-signal" onclick="document.getElementById('MU_4h').classList.toggle('show')">6 Jul 26 08:00<br><span class="sig-price">$1.0k</span></span><span id="MU_4h" class="older-signals"> <span class="signal-pill buy-signal">15 Jun 26 12:00<br><span class="sig-price">$1.1k</span></span> <span class="signal-pill sell-signal">9 Jun 26 12:00<br><span class="sig-price">$935.89</span></span></span> </td>
-                    <td class="detail-col price">$987.60</td>
+                    <td class="detail-col price">$928.15</td>
                     <td class="detail-col ema">$nan</td>
                     <td class="detail-col mavg">$1.0k</td>
                     <td class="detail-col ott">$1.0k</td>
@@ -787,122 +831,122 @@
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> MU</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('MU_weekly').classList.toggle('show')">9 Jun 25<br><span class="sig-price">$115.31</span></span><span id="MU_weekly" class="older-signals"> <span class="signal-pill sell-signal">5 Aug 24<br><span class="sig-price">$92.50</span></span> <span class="signal-pill buy-signal">22 May 23<br><span class="sig-price">$72.98</span></span> <span class="signal-pill sell-signal">21 Mar 22<br><span class="sig-price">$76.35</span></span> <span class="signal-pill buy-signal">6 Dec 21<br><span class="sig-price">$83.53</span></span></span> </td>
-                    <td class="detail-col price">$987.56</td>
-                    <td class="detail-col ema">$167.06</td>
-                    <td class="detail-col mavg">$818.22</td>
-                    <td class="detail-col ott">$748.51</td>
+                    <td class="detail-col price">$928.15</td>
+                    <td class="detail-col ema">$171.40</td>
+                    <td class="detail-col mavg">$821.25</td>
+                    <td class="detail-col ott">$790.05</td>
                 </tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> NVDA</td>
-                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('NVDA_daily').classList.toggle('show')">18 Jun 26<br><span class="sig-price">$210.69</span></span><span id="NVDA_daily" class="older-signals"> <span class="signal-pill buy-signal">14 Apr 26<br><span class="sig-price">$196.51</span></span> <span class="signal-pill sell-signal">20 Jan 26<br><span class="sig-price">$178.06</span></span> <span class="signal-pill buy-signal">16 Jan 26<br><span class="sig-price">$186.22</span></span> <span class="signal-pill sell-signal">14 Jan 26<br><span class="sig-price">$183.13</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+9.7% from 200d SMA <span style="color:#888;">(-0.2σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+98.9% from 200w SMA</span> <span class="analyst-level" title="Jacob @ Invest Answers · 2026-06-12">&#9733; buy: <span class="analyst-pending">$189.00</span></span></td>
-                    <td class="detail-col price">$210.27</td>
-                    <td class="detail-col ema">$191.66</td>
-                    <td class="detail-col mavg">$203.65</td>
-                    <td class="detail-col ott">$206.71</td>
+                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('NVDA_daily').classList.toggle('show')">22 Jun 26<br><span class="sig-price">$208.65</span></span><span id="NVDA_daily" class="older-signals"> <span class="signal-pill buy-signal">14 Apr 26<br><span class="sig-price">$196.28</span></span> <span class="signal-pill sell-signal">20 Jan 26<br><span class="sig-price">$177.85</span></span> <span class="signal-pill buy-signal">16 Jan 26<br><span class="sig-price">$186.00</span></span> <span class="signal-pill sell-signal">14 Jan 26<br><span class="sig-price">$182.92</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+7.0% from 200d SMA <span style="color:#888;">(-0.5σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+92.4% from 200w SMA</span> <span class="analyst-level" title="Jacob @ Invest Answers · 2026-06-12">&#9733; buy: <span class="analyst-pending">$189.00</span></span></td>
+                    <td class="detail-col price">$205.04</td>
+                    <td class="detail-col ema">$191.60</td>
+                    <td class="detail-col mavg">$204.02</td>
+                    <td class="detail-col ott">$206.65</td>
                 </tr>
 <tr class="" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> NVDA</td>
                     <td class="signals"><span class="signal-pill sell-signal">9 Jun 26 12:00<br><span class="sig-price">$208.19</span></span> </td>
-                    <td class="detail-col price">$210.27</td>
+                    <td class="detail-col price">$205.05</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$200.89</td>
-                    <td class="detail-col ott">$202.60</td>
+                    <td class="detail-col mavg">$201.41</td>
+                    <td class="detail-col ott">$202.12</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> NVDA</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('NVDA_weekly').classList.toggle('show')">9 Jun 25<br><span class="sig-price">$141.95</span></span><span id="NVDA_weekly" class="older-signals"> <span class="signal-pill sell-signal">31 Mar 25<br><span class="sig-price">$94.29</span></span> <span class="signal-pill buy-signal">23 Jan 23<br><span class="sig-price">$20.34</span></span> <span class="signal-pill sell-signal">26 Dec 22<br><span class="sig-price">$14.60</span></span> <span class="signal-pill buy-signal">19 Dec 22<br><span class="sig-price">$15.19</span></span></span> </td>
-                    <td class="detail-col price">$210.27</td>
-                    <td class="detail-col ema">$105.73</td>
-                    <td class="detail-col mavg">$194.84</td>
-                    <td class="detail-col ott">$191.87</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('NVDA_weekly').classList.toggle('show')">9 Jun 25<br><span class="sig-price">$141.78</span></span><span id="NVDA_weekly" class="older-signals"> <span class="signal-pill sell-signal">31 Mar 25<br><span class="sig-price">$94.18</span></span> <span class="signal-pill buy-signal">23 Jan 23<br><span class="sig-price">$20.32</span></span> <span class="signal-pill sell-signal">26 Dec 22<br><span class="sig-price">$14.58</span></span> <span class="signal-pill buy-signal">19 Dec 22<br><span class="sig-price">$15.17</span></span></span> </td>
+                    <td class="detail-col price">$205.05</td>
+                    <td class="detail-col ema">$106.57</td>
+                    <td class="detail-col mavg">$194.91</td>
+                    <td class="detail-col ott">$191.75</td>
                 </tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> PLTR</td>
-                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('PLTR_daily').classList.toggle('show')">12 Jun 26<br><span class="sig-price">$127.99</span></span><span id="PLTR_daily" class="older-signals"> <span class="signal-pill buy-signal">1 Jun 26<br><span class="sig-price">$160.65</span></span> <span class="signal-pill sell-signal">9 Apr 26<br><span class="sig-price">$130.49</span></span> <span class="signal-pill buy-signal">9 Mar 26<br><span class="sig-price">$156.43</span></span> <span class="signal-pill sell-signal">20 Jan 26<br><span class="sig-price">$168.53</span></span></span> <span class="below-ema" style="margin-left:8px;font-size:0.85em;">-19.5% from 200d SMA <span style="color:#888;">(-0.9σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+84.3% from 200w SMA</span> <span class="analyst-level" title="Jacob @ Invest Answers · 2026-07-02">&#9733; buy: <span class="analyst-pending">$100.00</span></span></td>
-                    <td class="detail-col price">$126.16</td>
-                    <td class="detail-col ema">$156.80</td>
-                    <td class="detail-col mavg">$127.14</td>
+                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('PLTR_daily').classList.toggle('show')">12 Jun 26<br><span class="sig-price">$127.99</span></span><span id="PLTR_daily" class="older-signals"> <span class="signal-pill buy-signal">1 Jun 26<br><span class="sig-price">$160.65</span></span> <span class="signal-pill sell-signal">9 Apr 26<br><span class="sig-price">$130.49</span></span> <span class="signal-pill buy-signal">9 Mar 26<br><span class="sig-price">$156.43</span></span> <span class="signal-pill sell-signal">20 Jan 26<br><span class="sig-price">$168.53</span></span></span> <span class="below-ema" style="margin-left:8px;font-size:0.85em;">-17.0% from 200d SMA <span style="color:#888;">(-0.8σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+88.3% from 200w SMA</span> <span class="analyst-level" title="Jacob @ Invest Answers · 2026-07-02">&#9733; buy: <span class="analyst-pending">$100.00</span></span></td>
+                    <td class="detail-col price">$129.99</td>
+                    <td class="detail-col ema">$156.54</td>
+                    <td class="detail-col mavg">$127.15</td>
                     <td class="detail-col ott">$127.58</td>
                 </tr>
 <tr class="" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> PLTR</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('PLTR_4h').classList.toggle('show')">2 Jul 26 08:00<br><span class="sig-price">$129.82</span></span><span id="PLTR_4h" class="older-signals"> <span class="signal-pill sell-signal">8 Jun 26 08:00<br><span class="sig-price">$136.26</span></span></span> </td>
-                    <td class="detail-col price">$126.16</td>
+                    <td class="detail-col price">$130.00</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$127.30</td>
-                    <td class="detail-col ott">$125.26</td>
+                    <td class="detail-col mavg">$127.34</td>
+                    <td class="detail-col ott">$125.30</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> PLTR</td>
                     <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('PLTR_weekly').classList.toggle('show')">9 Feb 26<br><span class="sig-price">$131.41</span></span><span id="PLTR_weekly" class="older-signals"> <span class="signal-pill buy-signal">22 May 23<br><span class="sig-price">$13.65</span></span> <span class="signal-pill sell-signal">29 Nov 21<br><span class="sig-price">$18.98</span></span> <span class="signal-pill buy-signal">21 Jun 21<br><span class="sig-price">$26.78</span></span> <span class="signal-pill sell-signal">17 May 21<br><span class="sig-price">$20.75</span></span></span> </td>
-                    <td class="detail-col price">$126.16</td>
-                    <td class="detail-col ema">$68.44</td>
-                    <td class="detail-col mavg">$145.79</td>
-                    <td class="detail-col ott">$150.24</td>
+                    <td class="detail-col price">$130.03</td>
+                    <td class="detail-col ema">$69.05</td>
+                    <td class="detail-col mavg">$145.49</td>
+                    <td class="detail-col ott">$148.66</td>
                 </tr>
-<tr class="" data-tf="4h">
-                    <td class="ticker"><span class="trend-icon bullish">&#9650;</span> SPCX</td>
-                    <td class="signals"><span class="no-signal">No recent signals</span> </td>
-                    <td class="detail-col price">$148.53</td>
+<tr class="recent-sell-row" data-tf="4h">
+                    <td class="ticker"><span class="trend-icon bearish">&#9660;</span> SPCX</td>
+                    <td class="signals"><span class="signal-pill sell-signal recent-signal">13 Jul 26 08:00<br><span class="sig-price">$138.54</span></span> </td>
+                    <td class="detail-col price">$139.01</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$152.62</td>
-                    <td class="detail-col ott">$152.34</td>
+                    <td class="detail-col mavg">$149.39</td>
+                    <td class="detail-col ott">$152.58</td>
                 </tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> TSLA</td>
-                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('TSLA_daily').classList.toggle('show')">12 Jun 26<br><span class="sig-price">$406.43</span></span><span id="TSLA_daily" class="older-signals"> <span class="signal-pill buy-signal">8 May 26<br><span class="sig-price">$428.35</span></span> <span class="signal-pill sell-signal">7 Jan 26<br><span class="sig-price">$431.41</span></span> <span class="signal-pill buy-signal">4 Dec 25<br><span class="sig-price">$454.53</span></span> <span class="signal-pill sell-signal">17 Nov 25<br><span class="sig-price">$408.92</span></span></span> <span class="below-ema" style="margin-left:8px;font-size:0.85em;">-2.0% from 200d SMA <span style="color:#888;">(-0.7σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+45.4% from 200w SMA</span> <span class="analyst-level" title="Jacob @ Invest Answers · 2026-07-02">&#9733; buy: <span class="analyst-pending">$368.00</span></span></td>
-                    <td class="detail-col price">$409.95</td>
-                    <td class="detail-col ema">$418.15</td>
-                    <td class="detail-col mavg">$402.28</td>
+                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('TSLA_daily').classList.toggle('show')">12 Jun 26<br><span class="sig-price">$406.43</span></span><span id="TSLA_daily" class="older-signals"> <span class="signal-pill buy-signal">8 May 26<br><span class="sig-price">$428.35</span></span> <span class="signal-pill sell-signal">7 Jan 26<br><span class="sig-price">$431.41</span></span> <span class="signal-pill buy-signal">4 Dec 25<br><span class="sig-price">$454.53</span></span> <span class="signal-pill sell-signal">17 Nov 25<br><span class="sig-price">$408.92</span></span></span> <span class="below-ema" style="margin-left:8px;font-size:0.85em;">-5.8% from 200d SMA <span style="color:#888;">(-1.0σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+39.4% from 200w SMA</span> <span class="analyst-level" title="Jacob @ Invest Answers · 2026-07-02">&#9733; buy: <span class="analyst-pending">$368.00</span></span></td>
+                    <td class="detail-col price">$393.85</td>
+                    <td class="detail-col ema">$417.98</td>
+                    <td class="detail-col mavg">$402.35</td>
                     <td class="detail-col ott">$404.61</td>
                 </tr>
 <tr class="" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> TSLA</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('TSLA_4h').classList.toggle('show')">1 Jul 26 08:00<br><span class="sig-price">$428.00</span></span><span id="TSLA_4h" class="older-signals"> <span class="signal-pill sell-signal">5 Jun 26 12:00<br><span class="sig-price">$390.97</span></span></span> </td>
-                    <td class="detail-col price">$409.86</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('TSLA_4h').classList.toggle('show')">1 Jul 26 08:00<br><span class="sig-price">$428.00</span></span><span id="TSLA_4h" class="older-signals"> <span class="signal-pill sell-signal">8 Jun 26 08:00<br><span class="sig-price">$404.86</span></span></span> </td>
+                    <td class="detail-col price">$393.85</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$405.39</td>
-                    <td class="detail-col ott">$400.95</td>
+                    <td class="detail-col mavg">$404.66</td>
+                    <td class="detail-col ott">$401.16</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> TSLA</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('TSLA_weekly').classList.toggle('show')">1 Jun 26<br><span class="sig-price">$391.00</span></span><span id="TSLA_weekly" class="older-signals"> <span class="signal-pill sell-signal">23 Mar 26<br><span class="sig-price">$361.83</span></span> <span class="signal-pill buy-signal">19 May 25<br><span class="sig-price">$339.34</span></span> <span class="signal-pill sell-signal">10 Mar 25<br><span class="sig-price">$249.98</span></span> <span class="signal-pill buy-signal">8 Jul 24<br><span class="sig-price">$248.23</span></span></span> </td>
-                    <td class="detail-col price">$409.86</td>
-                    <td class="detail-col ema">$281.99</td>
-                    <td class="detail-col mavg">$393.56</td>
+                    <td class="detail-col price">$393.85</td>
+                    <td class="detail-col ema">$282.44</td>
+                    <td class="detail-col mavg">$393.86</td>
                     <td class="detail-col ott">$390.89</td>
                 </tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> TSM</td>
-                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('TSM_daily').classList.toggle('show')">9 Apr 26<br><span class="sig-price">$364.64</span></span><span id="TSM_daily" class="older-signals"> <span class="signal-pill sell-signal">30 Mar 26<br><span class="sig-price">$315.76</span></span> <span class="signal-pill buy-signal">2 May 25<br><span class="sig-price">$176.67</span></span> <span class="signal-pill sell-signal">4 Apr 25<br><span class="sig-price">$144.67</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+25.9% from 200d SMA <span style="color:#888;">(-0.6σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+141.2% from 200w SMA</span></td>
-                    <td class="detail-col price">$436.78</td>
-                    <td class="detail-col ema">$346.89</td>
-                    <td class="detail-col mavg">$425.63</td>
-                    <td class="detail-col ott">$418.56</td>
+                    <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('TSM_daily').classList.toggle('show')">9 Apr 26<br><span class="sig-price">$364.64</span></span><span id="TSM_daily" class="older-signals"> <span class="signal-pill sell-signal">30 Mar 26<br><span class="sig-price">$315.76</span></span> <span class="signal-pill buy-signal">2 May 25<br><span class="sig-price">$176.67</span></span> <span class="signal-pill sell-signal">4 Apr 25<br><span class="sig-price">$144.67</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+22.6% from 200d SMA <span style="color:#888;">(-1.1σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+133.1% from 200w SMA</span></td>
+                    <td class="detail-col price">$426.14</td>
+                    <td class="detail-col ema">$347.60</td>
+                    <td class="detail-col mavg">$425.68</td>
+                    <td class="detail-col ott">$418.75</td>
                 </tr>
 <tr class="" data-tf="4h">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> TSM</td>
                     <td class="signals"><span class="no-signal">No recent signals</span> </td>
-                    <td class="detail-col price">$436.78</td>
+                    <td class="detail-col price">$426.14</td>
                     <td class="detail-col ema">$nan</td>
-                    <td class="detail-col mavg">$441.14</td>
-                    <td class="detail-col ott">$436.51</td>
+                    <td class="detail-col mavg">$439.83</td>
+                    <td class="detail-col ott">$436.17</td>
                 </tr>
 <tr class="" data-tf="weekly">
                     <td class="ticker"><span class="trend-icon bullish">&#9650;</span> TSM</td>
                     <td class="signals"><span class="signal-pill clickable buy-signal" onclick="document.getElementById('TSM_weekly').classList.toggle('show')">9 Jun 25<br><span class="sig-price">$208.79</span></span><span id="TSM_weekly" class="older-signals"> <span class="signal-pill sell-signal">31 Mar 25<br><span class="sig-price">$144.67</span></span> <span class="signal-pill buy-signal">20 Nov 23<br><span class="sig-price">$94.25</span></span> <span class="signal-pill sell-signal">2 Oct 23<br><span class="sig-price">$86.02</span></span> <span class="signal-pill buy-signal">12 Dec 22<br><span class="sig-price">$72.45</span></span></span> </td>
-                    <td class="detail-col price">$436.78</td>
-                    <td class="detail-col ema">$181.10</td>
-                    <td class="detail-col mavg">$401.76</td>
-                    <td class="detail-col ott">$390.95</td>
+                    <td class="detail-col price">$426.14</td>
+                    <td class="detail-col ema">$182.85</td>
+                    <td class="detail-col mavg">$402.98</td>
+                    <td class="detail-col ott">$392.38</td>
                 </tr>
 <tr class="category-row"><td colspan="6">FX <span class="strat-label"></span></td></tr>
 <tr class="" data-tf="daily">
                     <td class="ticker"><span class="trend-icon bearish">&#9660;</span> GBPUSD</td>
-                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('GBPUSD_daily').classList.toggle('show')">19 Jun 26<br><span class="sig-price">$1.32</span></span><span id="GBPUSD_daily" class="older-signals"> <span class="signal-pill buy-signal">15 Apr 26<br><span class="sig-price">$1.36</span></span> <span class="signal-pill sell-signal">6 Apr 26<br><span class="sig-price">$1.32</span></span> <span class="signal-pill buy-signal">24 Dec 25<br><span class="sig-price">$1.35</span></span> <span class="signal-pill sell-signal">3 Nov 25<br><span class="sig-price">$1.31</span></span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+0.0% from 200d SMA <span style="color:#888;">(-0.2σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+4.7% from 200w SMA</span></td>
+                    <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('GBPUSD_daily').classList.toggle('show')">19 Jun 26<br><span class="sig-price">$1.32</span></span><span id="GBPUSD_daily" class="older-signals"> <span class="signal-pill buy-signal">15 Apr 26<br><span class="sig-price">$1.36</span></span> <span class="signal-pill sell-signal">6 Apr 26<br><span class="sig-price">$1.32</span></span> <span class="signal-pill buy-signal">24 Dec 25<br><span class="sig-price">$1.35</span></span> <span class="signal-pill sell-signal">3 Nov 25<br><span class="sig-price">$1.31</span></span></span> <span class="below-ema" style="margin-left:8px;font-size:0.85em;">-0.3% from 200d SMA <span style="color:#888;">(-0.5σ)</span></span> <span class="above-ema" style="margin-left:8px;font-size:0.85em;">+4.4% from 200w SMA</span></td>
                     <td class="detail-col price">$1.34</td>
                     <td class="detail-col ema">$1.34</td>
-                    <td class="detail-col mavg">$1.33</td>
+                    <td class="detail-col mavg">$1.34</td>
                     <td class="detail-col ott">$1.34</td>
                 </tr>
 <tr class="recent-buy-row" data-tf="4h">
@@ -924,13 +968,13 @@
 
         </tbody>
     </table>
-    <div class="macro-banner"><span class="season-icon">&#127757;</span> <b>Macro context</b> &nbsp; Yield curve (10Y&minus;3M): <b style="color:#5fb87a;">+0.88%</b> <span style="color:#5fb87a;">normal</span> &nbsp;&middot;&nbsp; VIX: <b style="color:#5fb87a;">15.4</b> <span style="color:#5fb87a;">calm</span><div class="macro-take">&rarr; Markets are calm; the yield curve isn't flagging a recession. No acute stress — a normal backdrop for steady DCA; keep a little reserve for opportunities.</div><div class="macro-note">Cycle: 18-yr real estate / Kuznets cycle ~year 15-17 — late-cycle, elevated crash risk into ~2026-28. Business cycle: late expansion. Favor keeping some dry powder to deploy into a real downturn.</div></div>
+    <div class="macro-banner"><span class="season-icon">&#127757;</span> <b>Macro context</b> &nbsp; Yield curve (10Y&minus;3M): <b style="color:#5fb87a;">+0.88%</b> <span style="color:#5fb87a;">normal</span> &nbsp;&middot;&nbsp; VIX: <b style="color:#5fb87a;">16.7</b> <span style="color:#5fb87a;">calm</span><div class="macro-take">&rarr; Markets are calm; the yield curve isn't flagging a recession. No acute stress — a normal backdrop for steady DCA; keep a little reserve for opportunities.</div><div class="macro-note">Cycle: 18-yr real estate / Kuznets cycle ~year 15-17 — late-cycle, elevated crash risk into ~2026-28. Business cycle: late expansion. Favor keeping some dry powder to deploy into a real downturn.</div></div>
     <div class="season-banner"><span class="season-icon">&#128197;</span> <b>Seasonality</b> (S&amp;P 500, since 1985): Jul avg <b style="color:#5fb87a;">+1.4%</b> (62% positive) &middot; <span style="color:#5fb87a;">strong month</span> &middot; May–Oct softer window. <span class="season-note">Market-wide tilt &mdash; context for sizing, not a ranking factor.</span></div>
     
     <h2 class="fib-title">DCA Buy Levels <span class="fib-sub">ranked by buy-and-hold favourability &mdash; fib retracement depth + trend, value (z), regime &amp; confluence &middot; <span class="fib-near">green</span> = price within 5% of the level &middot; <span style="color:#00e676;">&#9650;</span>/<span style="color:#ff5252;">&#9660;</span> = 50d SMA rising/falling</span></h2>
     
     <h3 class="fib-subtitle">Stocks</h3>
-    <div class="fib-summary"><div class="fib-sum-head">DCA read (auto)</div><div class="fib-sum-line"><span class="fib-sum-tag mid">Cheap, shallow dip</span> GOOG, COPA <span class="fib-dt">&mdash; stretched below trend but only a small pullback</span></div><div class="fib-sum-line"><span class="fib-sum-tag mid">Quality, not on sale</span> AVGO, TSM, ASML, NVDA, MRVL, ALAB, AMD, ARM, MU <span class="fib-dt">&mdash; strong trend, wait for a deeper dip / negative z</span></div><div class="fib-sum-line"><span class="fib-sum-tag warn">Caution</span> TSLA, META, MSFT <span class="fib-dt">&mdash; weekly trend rolling over / barely above 200w (value-trap risk)</span></div><div class="fib-sum-line"><span class="fib-sum-tag skip">Skip</span> PLTR <span class="fib-dt">&mdash; price below the swing low, trend broken</span></div></div>
+    <div class="fib-summary"><div class="fib-sum-head">DCA read (auto)</div><div class="fib-sum-line"><span class="fib-sum-tag mid">Cheap, shallow dip</span> COPA, ASML, GOOG, TSM <span class="fib-dt">&mdash; stretched below trend but only a small pullback</span></div><div class="fib-sum-line"><span class="fib-sum-tag mid">Quality, not on sale</span> AVGO, ARM, NVDA, MU, MRVL, ALAB, AMD <span class="fib-dt">&mdash; strong trend, wait for a deeper dip / negative z</span></div><div class="fib-sum-line"><span class="fib-sum-tag warn">Caution</span> TSLA, MSFT, META <span class="fib-dt">&mdash; weekly trend rolling over / barely above 200w (value-trap risk)</span></div><div class="fib-sum-line"><span class="fib-sum-tag skip">Skip</span> PLTR <span class="fib-dt">&mdash; price below the swing low, trend broken</span></div><div class="fib-sum-line"><span class="fib-sum-tag warn">Concentration</span> 2 of the 4 most-actionable names are <b>Semis</b> <span class="fib-dt">&mdash; they move together; pair one with a non-Semis name to diversify</span></div></div>
     <table class="fib-table">
         <thead>
             <tr>
@@ -951,199 +995,199 @@
         <tbody>
             <tr>
             <td class="fib-rank">1</td>
-            <td class="fib-scorecell"><span style="color:#00e676;font-weight:700;">8.1</span></td>
-            <td class="ticker">GOOG<span class="fib-sector">Internet</span></td>
-            <td class="fib-range-cell">$271.37 <span class="fib-dt">(30 Mar 26)</span> &rarr; $404.23 <span class="fib-dt">(18 May 26)</span></td>
-            <td class="fib-gain">+49%</td>
-            <td class="fib-price">$353.18</td>
-            <td class="fib-lv"><span class="fib-near">$369.78</span> <span class="fib-dt">-5%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$317.91</span> <span class="fib-dt">+10%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$333.69</span> <span class="fib-dt">+6%</span></td>
-            <td class="fib-z"><span style="color:#888;">-1.4&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($208)">+70% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:38.4%;background:#e0c04a;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#e0c04a;">38% <span class="fib-lvl">0.382</span></span></td>
-        </tr>
-<tr>
-            <td class="fib-rank">2</td>
             <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">7.4</span></td>
             <td class="ticker">COPA<span class="fib-sector">Copper</span></td>
             <td class="fib-range-cell">$17.69 <span class="fib-dt">(7 Apr 25)</span> &rarr; $57.75 <span class="fib-dt">(26 Jan 26)</span></td>
             <td class="fib-gain">+226%</td>
-            <td class="fib-price">$47.68</td>
-            <td class="fib-lv"><span class="fib-near">$49.97</span> <span class="fib-dt">-5%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$44.53</span> <span class="fib-dt">+7%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-price">$47.66</td>
+            <td class="fib-lv"><span class="fib-near">$50.01</span> <span class="fib-dt">-5%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$44.61</span> <span class="fib-dt">+6%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
             <td class="fib-lv"><span class="fib-near">$47.05</span> <span class="fib-dt">+1%</span></td>
             <td class="fib-z"><span style="color:#f0d060;">-1.6&sigma;</span></td>
             <td class="fib-lt"><span class="fib-dt" title="not enough weekly history">&mdash; 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:25.1%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">25% <span class="fib-lvl">above 0.382</span></span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:25.2%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">25% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
-            <td class="fib-rank">3</td>
-            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">6.6</span></td>
-            <td class="ticker">AVGO<span class="fib-sector">Semis</span></td>
-            <td class="fib-range-cell">$289.50 <span class="fib-dt">(30 Mar 26)</span> &rarr; $494.22 <span class="fib-dt">(1 Jun 26)</span></td>
-            <td class="fib-gain">+71%</td>
-            <td class="fib-price">$399.87</td>
-            <td class="fib-lv"><span class="fib-near">$405.97</span> <span class="fib-dt">-2%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$361.25</span> <span class="fib-dt">+10%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$369.74</span> <span class="fib-dt">+8%</span></td>
-            <td class="fib-z"><span style="color:#888;">-0.4&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($218)">+83% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:46.1%;background:#e0c04a;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#e0c04a;">46% <span class="fib-lvl">0.382</span></span></td>
-        </tr>
-<tr>
-            <td class="fib-rank">4</td>
-            <td class="fib-scorecell"><span style="color:#e0c04a;font-weight:700;">5.9</span></td>
-            <td class="ticker">TSM<span class="fib-sector">Semis</span></td>
-            <td class="fib-range-cell">$313.07 <span class="fib-dt">(30 Mar 26)</span> &rarr; $479.00 <span class="fib-dt">(29 Jun 26)</span></td>
-            <td class="fib-gain">+53%</td>
-            <td class="fib-price">$436.78</td>
-            <td class="fib-lv"><span class="fib-near">$423.43</span> <span class="fib-dt">+3%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$346.89</span> <span class="fib-dt">+21%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$404.56</span> <span class="fib-dt">+7%</span></td>
-            <td class="fib-z"><span style="color:#888;">-0.6&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($215)">+103% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:25.4%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">25% <span class="fib-lvl">above 0.382</span></span></td>
-        </tr>
-<tr>
-            <td class="fib-rank">5</td>
-            <td class="fib-scorecell"><span style="color:#e0c04a;font-weight:700;">5.5</span></td>
+            <td class="fib-rank">2</td>
+            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">7.3</span></td>
             <td class="ticker">ASML<span class="fib-sector">Semis</span></td>
             <td class="fib-range-cell">$1.2k <span class="fib-dt">(30 Mar 26)</span> &rarr; $2.0k <span class="fib-dt">(29 Jun 26)</span></td>
             <td class="fib-gain">+61%</td>
-            <td class="fib-price">$1.8k</td>
-            <td class="fib-lv"><span class="">$1.7k</span> <span class="fib-dt">+7%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$1.3k</span> <span class="fib-dt">+26%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="fib-near">$1.7k</span> <span class="fib-dt">+5%</span></td>
-            <td class="fib-z"><span style="color:#888;">-0.4&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($919)">+96% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:26.3%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">26% <span class="fib-lvl">above 0.382</span></span></td>
+            <td class="fib-price">$1.7k</td>
+            <td class="fib-lv"><span class="fib-near">$1.7k</span> <span class="fib-dt">+3%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$1.3k</span> <span class="fib-dt">+23%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$1.7k</span> <span class="fib-dt">+1%</span></td>
+            <td class="fib-z"><span style="color:#888;">-0.9&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($927)">+87% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:34.8%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">35% <span class="fib-lvl">above 0.382</span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">3</td>
+            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">7.0</span></td>
+            <td class="ticker">GOOG<span class="fib-sector">Internet</span></td>
+            <td class="fib-range-cell">$271.37 <span class="fib-dt">(30 Mar 26)</span> &rarr; $404.23 <span class="fib-dt">(18 May 26)</span></td>
+            <td class="fib-gain">+49%</td>
+            <td class="fib-price">$353.66</td>
+            <td class="fib-lv"><span class="fib-near">$369.94</span> <span class="fib-dt">-5%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$318.43</span> <span class="fib-dt">+10%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$333.69</span> <span class="fib-dt">+6%</span></td>
+            <td class="fib-z"><span style="color:#888;">-1.4&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($209)">+69% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:38.1%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">38% <span class="fib-lvl">above 0.382</span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">4</td>
+            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">6.7</span></td>
+            <td class="ticker">TSM<span class="fib-sector">Semis</span></td>
+            <td class="fib-range-cell">$313.07 <span class="fib-dt">(30 Mar 26)</span> &rarr; $479.00 <span class="fib-dt">(29 Jun 26)</span></td>
+            <td class="fib-gain">+53%</td>
+            <td class="fib-price">$426.14</td>
+            <td class="fib-lv"><span class="fib-near">$424.04</span> <span class="fib-dt">+0%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$347.60</span> <span class="fib-dt">+18%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$404.56</span> <span class="fib-dt">+5%</span></td>
+            <td class="fib-z"><span style="color:#888;">-1.1&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($217)">+96% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:31.9%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">32% <span class="fib-lvl">above 0.382</span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">5</td>
+            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">7.9</span></td>
+            <td class="ticker">AVGO<span class="fib-sector">Semis</span></td>
+            <td class="fib-range-cell">$289.50 <span class="fib-dt">(30 Mar 26)</span> &rarr; $494.22 <span class="fib-dt">(1 Jun 26)</span></td>
+            <td class="fib-gain">+71%</td>
+            <td class="fib-price">$387.36</td>
+            <td class="fib-lv"><span class="fib-near">$405.63</span> <span class="fib-dt">-5%</span> <span style="color:#888;" title="50d SMA flat">&#9644;</span></td>
+            <td class="fib-lv"><span class="">$361.51</span> <span class="fib-dt">+7%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$369.74</span> <span class="fib-dt">+5%</span></td>
+            <td class="fib-z"><span style="color:#888;">-0.6&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($220)">+76% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:52.2%;background:#f0a83c;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#f0a83c;">52% <span class="fib-lvl">0.5</span></span></td>
         </tr>
 <tr>
             <td class="fib-rank">6</td>
-            <td class="fib-scorecell"><span style="color:#e0c04a;font-weight:700;">5.2</span></td>
-            <td class="ticker">NVDA<span class="fib-sector">Semis</span></td>
-            <td class="fib-range-cell">$164.27 <span class="fib-dt">(30 Mar 26)</span> &rarr; $236.54 <span class="fib-dt">(11 May 26)</span></td>
-            <td class="fib-gain">+44%</td>
-            <td class="fib-price">$210.27</td>
-            <td class="fib-lv"><span class="fib-near">$209.19</span> <span class="fib-dt">+1%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$191.66</span> <span class="fib-dt">+9%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$194.74</span> <span class="fib-dt">+7%</span></td>
-            <td class="fib-z"><span style="color:#888;">-0.2&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($122)">+72% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:36.3%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">36% <span class="fib-lvl">above 0.382</span></span></td>
-        </tr>
-<tr>
-            <td class="fib-rank">7</td>
-            <td class="fib-scorecell"><span style="color:#e0c04a;font-weight:700;">5.0</span></td>
-            <td class="ticker">MRVL<span class="fib-sector">Semis</span></td>
-            <td class="fib-range-cell">$70.65 <span class="fib-dt">(2 Feb 26)</span> &rarr; $329.88 <span class="fib-dt">(15 Jun 26)</span></td>
-            <td class="fib-gain">+367%</td>
-            <td class="fib-price">$236.41</td>
-            <td class="fib-lv"><span class="fib-near">$231.48</span> <span class="fib-dt">+2%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$126.71</span> <span class="fib-dt">+46%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$222.94</span> <span class="fib-dt">+6%</span></td>
-            <td class="fib-z"><span style="color:#888;">+0.7&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($88)">+167% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:36.1%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">36% <span class="fib-lvl">above 0.382</span></span></td>
-        </tr>
-<tr>
-            <td class="fib-rank">8</td>
-            <td class="fib-scorecell"><span style="color:#e0c04a;font-weight:700;">4.0</span></td>
-            <td class="ticker">ALAB<span class="fib-sector">Semis</span></td>
-            <td class="fib-range-cell">$97.89 <span class="fib-dt">(30 Mar 26)</span> &rarr; $499.48 <span class="fib-dt">(29 Jun 26)</span></td>
-            <td class="fib-gain">+410%</td>
-            <td class="fib-price">$415.20</td>
-            <td class="fib-lv"><span class="">$325.21</span> <span class="fib-dt">+22%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$199.77</span> <span class="fib-dt">+52%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$366.66</span> <span class="fib-dt">+12%</span></td>
-            <td class="fib-z"><span style="color:#f0d060;">+1.8&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($127)">+227% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:21.0%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">21% <span class="fib-lvl">above 0.382</span></span></td>
-        </tr>
-<tr>
-            <td class="fib-rank">9</td>
-            <td class="fib-scorecell"><span style="color:#e0c04a;font-weight:700;">4.0</span></td>
-            <td class="ticker">AMD<span class="fib-sector">Semis</span></td>
-            <td class="fib-range-cell">$188.22 <span class="fib-dt">(2 Mar 26)</span> &rarr; $584.73 <span class="fib-dt">(29 Jun 26)</span></td>
-            <td class="fib-gain">+211%</td>
-            <td class="fib-price">$555.52</td>
-            <td class="fib-lv"><span class="">$481.85</span> <span class="fib-dt">+13%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$287.65</span> <span class="fib-dt">+48%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$437.23</span> <span class="fib-dt">+21%</span></td>
-            <td class="fib-z"><span style="color:#888;">+1.2&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($182)">+205% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:7.4%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">7% <span class="fib-lvl">above 0.382</span></span></td>
-        </tr>
-<tr>
-            <td class="fib-rank">10</td>
-            <td class="fib-scorecell"><span style="color:#e0c04a;font-weight:700;">4.0</span></td>
+            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">7.0</span></td>
             <td class="ticker">ARM<span class="fib-sector">Semis</span></td>
             <td class="fib-range-cell">$100.02 <span class="fib-dt">(2 Feb 26)</span> &rarr; $452.70 <span class="fib-dt">(15 Jun 26)</span></td>
             <td class="fib-gain">+353%</td>
-            <td class="fib-price">$325.11</td>
-            <td class="fib-lv"><span class="fib-near">$309.23</span> <span class="fib-dt">+5%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$181.35</span> <span class="fib-dt">+44%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$298.38</span> <span class="fib-dt">+8%</span></td>
-            <td class="fib-z"><span style="color:#888;">+1.0&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($134)">+143% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:36.2%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">36% <span class="fib-lvl">above 0.382</span></span></td>
+            <td class="fib-price">$298.59</td>
+            <td class="fib-lv"><span class="fib-near">$311.13</span> <span class="fib-dt">-4%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$182.13</span> <span class="fib-dt">+39%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$290.45</span> <span class="fib-dt">+3%</span></td>
+            <td class="fib-z"><span style="color:#888;">+0.7&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($136)">+120% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:43.7%;background:#e0c04a;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#e0c04a;">44% <span class="fib-lvl">0.382</span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">7</td>
+            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">6.8</span></td>
+            <td class="ticker">NVDA<span class="fib-sector">Semis</span></td>
+            <td class="fib-range-cell">$164.08 <span class="fib-dt">(30 Mar 26)</span> &rarr; $236.26 <span class="fib-dt">(11 May 26)</span></td>
+            <td class="fib-gain">+44%</td>
+            <td class="fib-price">$205.04</td>
+            <td class="fib-lv"><span class="fib-near">$208.99</span> <span class="fib-dt">-2%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$191.60</span> <span class="fib-dt">+7%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$194.51</span> <span class="fib-dt">+5%</span></td>
+            <td class="fib-z"><span style="color:#888;">-0.5&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($123)">+67% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:43.3%;background:#e0c04a;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#e0c04a;">43% <span class="fib-lvl">0.382</span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">8</td>
+            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">6.5</span></td>
+            <td class="ticker">MU<span class="fib-sector">Semis</span></td>
+            <td class="fib-range-cell">$311.44 <span class="fib-dt">(30 Mar 26)</span> &rarr; $1.3k <span class="fib-dt">(22 Jun 26)</span></td>
+            <td class="fib-gain">+303%</td>
+            <td class="fib-price">$927.49</td>
+            <td class="fib-lv"><span class="fib-near">$907.11</span> <span class="fib-dt">+2%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$468.11</span> <span class="fib-dt">+50%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$891.66</span> <span class="fib-dt">+4%</span></td>
+            <td class="fib-z"><span style="color:#888;">-0.3&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($236)">+292% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:34.7%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">35% <span class="fib-lvl">above 0.382</span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">9</td>
+            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">6.0</span></td>
+            <td class="ticker">MRVL<span class="fib-sector">Semis</span></td>
+            <td class="fib-range-cell">$70.64 <span class="fib-dt">(2 Feb 26)</span> &rarr; $329.80 <span class="fib-dt">(15 Jun 26)</span></td>
+            <td class="fib-gain">+367%</td>
+            <td class="fib-price">$218.60</td>
+            <td class="fib-lv"><span class="">$232.66</span> <span class="fib-dt">-6%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$127.40</span> <span class="fib-dt">+42%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$217.33</span> <span class="fib-dt">+1%</span></td>
+            <td class="fib-z"><span style="color:#888;">+0.4&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($90)">+144% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:42.9%;background:#e0c04a;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#e0c04a;">43% <span class="fib-lvl">0.382</span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">10</td>
+            <td class="fib-scorecell"><span style="color:#e0c04a;font-weight:700;">5.0</span></td>
+            <td class="ticker">ALAB<span class="fib-sector">Semis</span></td>
+            <td class="fib-range-cell">$97.89 <span class="fib-dt">(30 Mar 26)</span> &rarr; $499.48 <span class="fib-dt">(29 Jun 26)</span></td>
+            <td class="fib-gain">+410%</td>
+            <td class="fib-price">$352.89</td>
+            <td class="fib-lv"><span class="">$328.29</span> <span class="fib-dt">+7%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$200.38</span> <span class="fib-dt">+43%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$351.30</span> <span class="fib-dt">+0%</span></td>
+            <td class="fib-z"><span style="color:#888;">+1.1&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($129)">+173% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:36.5%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">37% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="fib-rank">11</td>
             <td class="fib-scorecell"><span style="color:#e0c04a;font-weight:700;">4.0</span></td>
-            <td class="ticker">MU<span class="fib-sector">Semis</span></td>
-            <td class="fib-range-cell">$311.44 <span class="fib-dt">(30 Mar 26)</span> &rarr; $1.3k <span class="fib-dt">(22 Jun 26)</span></td>
-            <td class="fib-gain">+303%</td>
-            <td class="fib-price">$987.60</td>
-            <td class="fib-lv"><span class="">$899.09</span> <span class="fib-dt">+9%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$464.34</span> <span class="fib-dt">+53%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$891.66</span> <span class="fib-dt">+10%</span></td>
-            <td class="fib-z"><span style="color:#888;">+0.1&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($229)">+330% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:28.3%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">28% <span class="fib-lvl">above 0.382</span></span></td>
+            <td class="ticker">AMD<span class="fib-sector">Semis</span></td>
+            <td class="fib-range-cell">$188.22 <span class="fib-dt">(2 Mar 26)</span> &rarr; $584.73 <span class="fib-dt">(29 Jun 26)</span></td>
+            <td class="fib-gain">+211%</td>
+            <td class="fib-price">$537.84</td>
+            <td class="fib-lv"><span class="">$485.91</span> <span class="fib-dt">+10%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$289.55</span> <span class="fib-dt">+46%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$437.23</span> <span class="fib-dt">+19%</span></td>
+            <td class="fib-z"><span style="color:#888;">+1.0&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($186)">+189% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:11.8%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">12% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="fib-rank">12</td>
-            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">7.1</span></td>
+            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">7.5</span></td>
             <td class="ticker">TSLA<span class="fib-sector">Auto/EV</span></td>
             <td class="fib-range-cell">$382.78 <span class="fib-dt">(10 Nov 25)</span> &rarr; $498.83 <span class="fib-dt">(22 Dec 25)</span></td>
             <td class="fib-gain">+30%</td>
-            <td class="fib-price">$409.95</td>
-            <td class="fib-lv"><span class="fib-near">$409.24</span> <span class="fib-dt">+0%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="fib-near">$418.15</span> <span class="fib-dt">-2%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$387.53</span> <span class="fib-dt">+5%</span></td>
-            <td class="fib-z"><span style="color:#888;">-0.7&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($307)">+34% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:76.6%;background:#f07d3c;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#f07d3c;">77% <span class="fib-lvl">0.618</span></span></td>
+            <td class="fib-price">$393.85</td>
+            <td class="fib-lv"><span class="fib-near">$409.62</span> <span class="fib-dt">-4%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$417.98</span> <span class="fib-dt">-6%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$387.53</span> <span class="fib-dt">+2%</span></td>
+            <td class="fib-z"><span style="color:#888;">-1.0&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($308)">+28% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:90.5%;background:#e85d5d;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#e85d5d;">90% <span class="fib-lvl">0.786</span></span></td>
         </tr>
 <tr>
             <td class="fib-rank">13</td>
+            <td class="fib-scorecell"><span style="color:#8a93b8;font-weight:700;">1.8</span></td>
+            <td class="ticker">MSFT<span class="fib-sector">Software</span></td>
+            <td class="fib-range-cell">$341.43 <span class="fib-dt">(7 Apr 25)</span> &rarr; $551.05 <span class="fib-dt">(28 Jul 25)</span></td>
+            <td class="fib-gain">+61%</td>
+            <td class="fib-price">$392.67</td>
+            <td class="fib-lv"><span class="fib-near">$402.71</span> <span class="fib-dt">-3%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
+            <td class="fib-lv"><span class="">$440.14</span> <span class="fib-dt">-12%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
+            <td class="fib-lv"><span class="fib-near">$390.58</span> <span class="fib-dt">+1%</span></td>
+            <td class="fib-z"><span style="color:#888;">-0.2&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($386)">+2% 200w</span> <span style="color:#ff5252;" title="weekly OTT bearish">wk&#9660;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:75.6%;background:#f07d3c;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#f07d3c;">76% <span class="fib-lvl">0.618</span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">14</td>
             <td class="fib-scorecell"><span style="color:#8a93b8;font-weight:700;">0.5</span></td>
             <td class="ticker">META<span class="fib-sector">Internet</span></td>
             <td class="fib-range-cell">$477.86 <span class="fib-dt">(21 Apr 25)</span> &rarr; $793.65 <span class="fib-dt">(11 Aug 25)</span></td>
             <td class="fib-gain">+66%</td>
-            <td class="fib-price">$670.22</td>
-            <td class="fib-lv"><span class="">$600.11</span> <span class="fib-dt">+10%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
-            <td class="fib-lv"><span class="fib-near">$641.68</span> <span class="fib-dt">+4%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
-            <td class="fib-lv"><span class="">$627.03</span> <span class="fib-dt">+6%</span></td>
-            <td class="fib-z"><span style="color:#ffffff;">+2.2&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($513)">+31% 200w</span> <span style="color:#ff5252;" title="weekly OTT bearish">wk&#9660;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:39.1%;background:#e0c04a;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#e0c04a;">39% <span class="fib-lvl">0.382</span></span></td>
-        </tr>
-<tr>
-            <td class="fib-rank">14</td>
-            <td class="fib-scorecell"><span style="color:#8a93b8;font-weight:700;">0.1</span></td>
-            <td class="ticker">MSFT<span class="fib-sector">Software</span></td>
-            <td class="fib-range-cell">$341.43 <span class="fib-dt">(7 Apr 25)</span> &rarr; $551.05 <span class="fib-dt">(28 Jul 25)</span></td>
-            <td class="fib-gain">+61%</td>
-            <td class="fib-price">$383.83</td>
-            <td class="fib-lv"><span class="">$403.30</span> <span class="fib-dt">-5%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
-            <td class="fib-lv"><span class="">$440.70</span> <span class="fib-dt">-15%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
-            <td class="fib-lv"><span class="fib-near">$380.89</span> <span class="fib-dt">+1%</span></td>
-            <td class="fib-z"><span style="color:#888;">-0.4&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#ff5252;" title="vs 200-week EMA ($386)">-1% 200w</span> <span style="color:#ff5252;" title="weekly OTT bearish">wk&#9660;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:79.8%;background:#e85d5d;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#e85d5d;">80% <span class="fib-lvl">0.786</span></span></td>
+            <td class="fib-price">$662.44</td>
+            <td class="fib-lv"><span class="">$599.96</span> <span class="fib-dt">+9%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
+            <td class="fib-lv"><span class="fib-near">$641.22</span> <span class="fib-dt">+3%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
+            <td class="fib-lv"><span class="">$627.03</span> <span class="fib-dt">+5%</span></td>
+            <td class="fib-z"><span style="color:#f0d060;">+1.9&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($515)">+29% 200w</span> <span style="color:#ff5252;" title="weekly OTT bearish">wk&#9660;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:41.6%;background:#e0c04a;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#e0c04a;">42% <span class="fib-lvl">0.382</span></span></td>
         </tr>
 <tr>
             <td class="fib-rank">15</td>
@@ -1151,13 +1195,13 @@
             <td class="ticker">PLTR<span class="fib-sector">Software</span></td>
             <td class="fib-range-cell">$142.34 <span class="fib-dt">(18 Aug 25)</span> &rarr; $207.52 <span class="fib-dt">(3 Nov 25)</span></td>
             <td class="fib-gain">+46%</td>
-            <td class="fib-price">$126.16</td>
-            <td class="fib-lv"><span class="">$133.24</span> <span class="fib-dt">-6%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
-            <td class="fib-lv"><span class="">$156.80</span> <span class="fib-dt">-24%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
-            <td class="fib-lv"><span class="fib-near">$122.68</span> <span class="fib-dt">+3%</span></td>
-            <td class="fib-z"><span style="color:#888;">-0.9&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($89)">+43% 200w</span> <span style="color:#ff5252;" title="weekly OTT bearish">wk&#9660;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:100.0%;background:#6b6b6b;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b6b6b;">125%</span> <span class="fib-broken">below low</span></td>
+            <td class="fib-price">$129.99</td>
+            <td class="fib-lv"><span class="fib-near">$133.09</span> <span class="fib-dt">-2%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
+            <td class="fib-lv"><span class="">$156.54</span> <span class="fib-dt">-20%</span> <span style="color:#ff5252;" title="50d SMA falling">&#9660;</span></td>
+            <td class="fib-lv"><span class="fib-near">$128.75</span> <span class="fib-dt">+1%</span></td>
+            <td class="fib-z"><span style="color:#888;">-0.8&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($89)">+46% 200w</span> <span style="color:#ff5252;" title="weekly OTT bearish">wk&#9660;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:100.0%;background:#6b6b6b;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b6b6b;">119%</span> <span class="fib-broken">below low</span></td>
         </tr>
 
         </tbody>
@@ -1184,17 +1228,17 @@
         <tbody>
             <tr>
             <td class="fib-rank">1</td>
-            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">6.5</span></td>
+            <td class="fib-scorecell"><span style="color:#7ed957;font-weight:700;">6.6</span></td>
             <td class="ticker">MAGS</td>
             <td class="fib-range-cell">$55.08 <span class="fib-dt">(30 Mar 26)</span> &rarr; $71.16 <span class="fib-dt">(11 May 26)</span></td>
             <td class="fib-gain">+29%</td>
-            <td class="fib-price">$67.58</td>
-            <td class="fib-lv"><span class="fib-near">$67.09</span> <span class="fib-dt">+1%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="fib-near">$64.63</span> <span class="fib-dt">+4%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="fib-near">$64.36</span> <span class="fib-dt">+5%</span></td>
+            <td class="fib-price">$67.31</td>
+            <td class="fib-lv"><span class="fib-near">$67.11</span> <span class="fib-dt">+0%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$64.65</span> <span class="fib-dt">+4%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$64.36</span> <span class="fib-dt">+4%</span></td>
             <td class="fib-z"><span style="color:#888;">-0.4&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($48)">+41% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:22.3%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">22% <span class="fib-lvl">above 0.382</span></span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($48)">+40% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:24.0%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">24% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="fib-rank">2</td>
@@ -1202,13 +1246,13 @@
             <td class="ticker">SPX</td>
             <td class="fib-range-cell">$4.8k <span class="fib-dt">(7 Apr 25)</span> &rarr; $7.6k <span class="fib-dt">(1 Jun 26)</span></td>
             <td class="fib-gain">+58%</td>
-            <td class="fib-price">$7.6k</td>
-            <td class="fib-lv"><span class="fib-near">$7.4k</span> <span class="fib-dt">+2%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$7.0k</span> <span class="fib-dt">+8%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-price">$7.5k</td>
+            <td class="fib-lv"><span class="fib-near">$7.4k</span> <span class="fib-dt">+1%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$7.0k</span> <span class="fib-dt">+7%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
             <td class="fib-lv"><span class="fib-near">$7.2k</span> <span class="fib-dt">+4%</span></td>
-            <td class="fib-z"><span style="color:#888;">+0.5&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($5,706)">+33% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:1.9%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">2% <span class="fib-lvl">above 0.382</span></span></td>
+            <td class="fib-z"><span style="color:#888;">+0.3&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($5,724)">+32% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:3.3%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">3% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 <tr>
             <td class="fib-rank">3</td>
@@ -1216,13 +1260,13 @@
             <td class="ticker">QQQ</td>
             <td class="fib-range-cell">$554.99 <span class="fib-dt">(30 Mar 26)</span> &rarr; $747.83 <span class="fib-dt">(1 Jun 26)</span></td>
             <td class="fib-gain">+35%</td>
-            <td class="fib-price">$725.62</td>
-            <td class="fib-lv"><span class="fib-near">$714.59</span> <span class="fib-dt">+2%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="">$636.63</span> <span class="fib-dt">+12%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
-            <td class="fib-lv"><span class="fib-near">$700.91</span> <span class="fib-dt">+3%</span></td>
-            <td class="fib-z"><span style="color:#888;">+0.7&sigma;</span></td>
-            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($494)">+47% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
-            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:11.5%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">12% <span class="fib-lvl">above 0.382</span></span></td>
+            <td class="fib-price">$713.40</td>
+            <td class="fib-lv"><span class="fib-near">$715.64</span> <span class="fib-dt">-0%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="">$637.22</span> <span class="fib-dt">+11%</span> <span style="color:#00e676;" title="50d SMA rising">&#9650;</span></td>
+            <td class="fib-lv"><span class="fib-near">$700.91</span> <span class="fib-dt">+2%</span></td>
+            <td class="fib-z"><span style="color:#888;">+0.4&sigma;</span></td>
+            <td class="fib-lt"><span style="color:#00e676;" title="vs 200-week EMA ($496)">+44% 200w</span> <span style="color:#00e676;" title="weekly OTT bullish">wk&#9650;</span></td>
+            <td class="fib-meter-cell"><span class="fib-meter"><span class="fib-meter-fill" style="width:17.9%;background:#6b7fb0;"></span><span class="fib-tick" style="left:38.2%"></span><span class="fib-tick" style="left:50.0%"></span><span class="fib-tick" style="left:61.8%"></span><span class="fib-tick" style="left:78.6%"></span></span><span class="fib-pct" style="color:#6b7fb0;">18% <span class="fib-lvl">above 0.382</span></span></td>
         </tr>
 
         </tbody>
@@ -1233,26 +1277,189 @@
     <table class="fib-table ia-table">
         <thead><tr><th>Ticker</th><th class="fib-price">Price</th><th>L6<span class="ia-hpct">high</span></th><th>L5<span class="ia-hpct">-24%</span></th><th>L4<span class="ia-hpct">-38%</span></th><th>L3<span class="ia-hpct">-50%</span></th><th>L2<span class="ia-hpct">-62%</span></th><th>L1<span class="ia-hpct">-79%</span></th><th>Pullback<br>from high</th><th>Nearest level<br><span class="ia-hpct">marker = price (5-day): <span style="color:#5fb87a;">&#9654;</span> rising &middot; <span style="color:#d97a6c;">&#9664;</span> falling &middot; <span style="color:#e8e6e0;">&#9612;</span> flat</span></th></tr></thead>
         <tbody><tr class="category-row"><td colspan="10">Stocks</td></tr>
-<tr class=""><td class="ticker">ALAB</td><td class="fib-price">$415.20</td><td class="ia-cell">$499.48</td><td class="ia-here">$381.60</td><td class="ia-cell">$308.68</td><td class="ia-cell">$249.74</td><td class="ia-cell">$190.80</td><td class="ia-cell">$106.89</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;17%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$381.60</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:29%">20.3%</span><span class="ia-prox-marker ia-mk-up" style="left:29%"></span></span><span class="ia-endlbl">L6<br>$499.48</span></span></td></tr>
-<tr class=""><td class="ticker">AMD</td><td class="fib-price">$555.52</td><td class="ia-cell">$584.73</td><td class="ia-here">$446.73</td><td class="ia-cell">$361.36</td><td class="ia-cell">$292.36</td><td class="ia-cell">$223.37</td><td class="ia-cell">$125.13</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;5%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$446.73</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:79%">5.3%</span><span class="ia-prox-marker ia-mk-up" style="left:79%"></span></span><span class="ia-endlbl">L6<br>$584.73</span></span></td></tr>
-<tr class="ia-trig-5"><td class="ticker" title="Price at IA L5 — mild dip">ARM</td><td class="fib-price">$325.11</td><td class="ia-cell">$452.70</td><td class="ia-cell">$345.86</td><td class="ia-here">$279.77</td><td class="ia-cell">$226.35</td><td class="ia-cell">$172.93</td><td class="ia-cell">$96.88</td><td class="ia-zone"><span style="color:#5fb87a;font-weight:600;">&minus;28%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$279.77</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:69%">6.4%</span><span class="ia-prox-marker ia-mk-up" style="left:69%"></span></span><span class="ia-endlbl">L5<br>$345.86</span></span></td></tr>
-<tr class=""><td class="ticker">ASML</td><td class="fib-price">$1.8k</td><td class="ia-cell">$2.0k</td><td class="ia-here">$1.5k</td><td class="ia-cell">$1.2k</td><td class="ia-cell">$999.98</td><td class="ia-cell">$763.98</td><td class="ia-cell">$427.99</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;10%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$1.5k</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:58%">11.0%</span><span class="ia-prox-marker ia-mk-up" style="left:58%"></span></span><span class="ia-endlbl">L6<br>$2.0k</span></span></td></tr>
-<tr class=""><td class="ticker">AVGO</td><td class="fib-price">$399.87</td><td class="ia-cell">$494.22</td><td class="ia-here">$377.58</td><td class="ia-cell">$305.43</td><td class="ia-cell">$247.11</td><td class="ia-cell">$188.79</td><td class="ia-cell">$105.76</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;19%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$377.58</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:19%">23.6%</span><span class="ia-prox-marker ia-mk-up" style="left:19%"></span></span><span class="ia-endlbl">L6<br>$494.22</span></span></td></tr>
-<tr class=""><td class="ticker">COPA</td><td class="fib-price">$47.68</td><td class="ia-cell">$57.75</td><td class="ia-here">$44.12</td><td class="ia-cell">$35.69</td><td class="ia-cell">$28.88</td><td class="ia-cell">$22.06</td><td class="ia-cell">$12.36</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;17%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$44.12</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:26%">7.5%</span><span class="ia-prox-marker ia-mk-dn" style="left:26%"></span></span><span class="ia-endlbl">L6<br>$57.75</span></span></td></tr>
-<tr class=""><td class="ticker">GOOG</td><td class="fib-price">$353.18</td><td class="ia-cell">$404.23</td><td class="ia-here">$308.83</td><td class="ia-cell">$249.81</td><td class="ia-cell">$202.11</td><td class="ia-cell">$154.41</td><td class="ia-cell">$86.50</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;13%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$308.83</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:46%">12.6%</span><span class="ia-prox-marker ia-mk-dn" style="left:46%"></span></span><span class="ia-endlbl">L6<br>$404.23</span></span></td></tr>
-<tr class=""><td class="ticker">META</td><td class="fib-price">$670.22</td><td class="ia-cell">$793.65</td><td class="ia-here">$606.35</td><td class="ia-cell">$490.47</td><td class="ia-cell">$396.82</td><td class="ia-cell">$303.17</td><td class="ia-cell">$169.84</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;16%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$606.35</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:34%">18.4%</span><span class="ia-prox-marker ia-mk-up" style="left:34%"></span></span><span class="ia-endlbl">L6<br>$793.65</span></span></td></tr>
-<tr class="ia-trig-5"><td class="ticker" title="Price at IA L5 — mild dip">MRVL</td><td class="fib-price">$236.41</td><td class="ia-cell">$329.88</td><td class="ia-cell">$252.03</td><td class="ia-here">$203.87</td><td class="ia-cell">$164.94</td><td class="ia-cell">$126.01</td><td class="ia-cell">$70.59</td><td class="ia-zone"><span style="color:#5fb87a;font-weight:600;">&minus;28%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$203.87</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:68%">13.8%</span><span class="ia-prox-marker ia-mk-dn" style="left:68%"></span></span><span class="ia-endlbl">L5<br>$252.03</span></span></td></tr>
-<tr class="ia-trig-5"><td class="ticker" title="Price at IA L5 — mild dip">MSFT</td><td class="fib-price">$383.83</td><td class="ia-cell">$551.05</td><td class="ia-cell">$421.00</td><td class="ia-here">$340.55</td><td class="ia-cell">$275.52</td><td class="ia-cell">$210.50</td><td class="ia-cell">$117.92</td><td class="ia-zone"><span style="color:#5fb87a;font-weight:600;">&minus;30%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$340.55</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:54%">11.3%</span><span class="ia-prox-marker ia-mk-dn" style="left:54%"></span></span><span class="ia-endlbl">L5<br>$421.00</span></span></td></tr>
-<tr class=""><td class="ticker">MU</td><td class="fib-price">$987.60</td><td class="ia-cell">$1.3k</td><td class="ia-here">$958.67</td><td class="ia-cell">$775.47</td><td class="ia-cell">$627.40</td><td class="ia-cell">$479.34</td><td class="ia-cell">$268.53</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;21%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$958.67</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:10%">27.1%</span><span class="ia-prox-marker ia-mk-up" style="left:10%"></span></span><span class="ia-endlbl">L6<br>$1.3k</span></span></td></tr>
-<tr class=""><td class="ticker">NVDA</td><td class="fib-price">$210.27</td><td class="ia-cell">$236.54</td><td class="ia-here">$180.72</td><td class="ia-cell">$146.18</td><td class="ia-cell">$118.27</td><td class="ia-cell">$90.36</td><td class="ia-cell">$50.62</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;11%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$180.72</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:53%">12.5%</span><span class="ia-prox-marker ia-mk-up" style="left:53%"></span></span><span class="ia-endlbl">L6<br>$236.54</span></span></td></tr>
-<tr class="ia-trig-4"><td class="ticker" title="Price at IA L4 — moderate dip">PLTR</td><td class="fib-price">$126.16</td><td class="ia-cell">$207.52</td><td class="ia-cell">$158.55</td><td class="ia-cell">$128.25</td><td class="ia-here">$103.76</td><td class="ia-cell">$79.27</td><td class="ia-cell">$44.41</td><td class="ia-zone"><span style="color:#e0c04a;font-weight:600;">&minus;39%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L3<br>$103.76</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:91%">17.8%</span><span class="ia-prox-marker ia-mk-dn" style="left:91%"></span></span><span class="ia-endlbl">L4<br>$128.25</span></span></td></tr>
-<tr class=""><td class="ticker">TSLA</td><td class="fib-price">$409.95</td><td class="ia-cell">$498.83</td><td class="ia-here">$381.11</td><td class="ia-cell">$308.28</td><td class="ia-cell">$249.41</td><td class="ia-cell">$190.55</td><td class="ia-cell">$106.75</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;18%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$381.11</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:25%">21.7%</span><span class="ia-prox-marker ia-mk-up" style="left:25%"></span></span><span class="ia-endlbl">L6<br>$498.83</span></span></td></tr>
-<tr class=""><td class="ticker">TSM</td><td class="fib-price">$436.78</td><td class="ia-cell">$479.00</td><td class="ia-here">$365.96</td><td class="ia-cell">$296.02</td><td class="ia-cell">$239.50</td><td class="ia-cell">$182.98</td><td class="ia-cell">$102.51</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;9%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$365.96</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:63%">9.7%</span><span class="ia-prox-marker ia-mk-up" style="left:63%"></span></span><span class="ia-endlbl">L6<br>$479.00</span></span></td></tr>
+<tr class="ia-trig-5"><td class="ticker" title="Price at IA L5 — mild dip">ALAB</td><td class="fib-price">$352.89</td><td class="ia-cell">$499.48</td><td class="ia-cell">$381.60</td><td class="ia-here">$308.68</td><td class="ia-cell">$249.74</td><td class="ia-cell">$190.80</td><td class="ia-cell">$106.89</td><td class="ia-zone"><span style="color:#5fb87a;font-weight:600;">&minus;29%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$308.68</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:61%">12.5%</span><span class="ia-prox-marker ia-mk-dn" style="left:61%"></span></span><span class="ia-endlbl">L5<br>$381.60</span></span></td></tr>
+<tr class=""><td class="ticker">AMD</td><td class="fib-price">$537.84</td><td class="ia-cell">$584.73</td><td class="ia-here">$446.73</td><td class="ia-cell">$361.36</td><td class="ia-cell">$292.36</td><td class="ia-cell">$223.37</td><td class="ia-cell">$125.13</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;8%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$446.73</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:66%">16.9%</span><span class="ia-prox-marker ia-mk-dn" style="left:66%"></span></span><span class="ia-endlbl">L6<br>$584.73</span></span></td></tr>
+<tr class="ia-trig-5"><td class="ticker" title="Price at IA L5 — mild dip">ARM</td><td class="fib-price">$298.59</td><td class="ia-cell">$452.70</td><td class="ia-cell">$345.86</td><td class="ia-here">$279.77</td><td class="ia-cell">$226.35</td><td class="ia-cell">$172.93</td><td class="ia-cell">$96.88</td><td class="ia-zone"><span style="color:#5fb87a;font-weight:600;">&minus;34%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$279.77</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:28%">6.3%</span><span class="ia-prox-marker ia-mk-dn" style="left:28%"></span></span><span class="ia-endlbl">L5<br>$345.86</span></span></td></tr>
+<tr class=""><td class="ticker">ASML</td><td class="fib-price">$1.7k</td><td class="ia-cell">$2.0k</td><td class="ia-here">$1.5k</td><td class="ia-cell">$1.2k</td><td class="ia-cell">$999.98</td><td class="ia-cell">$763.98</td><td class="ia-cell">$427.99</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;13%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$1.5k</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:44%">12.0%</span><span class="ia-prox-marker ia-mk-dn" style="left:44%"></span></span><span class="ia-endlbl">L6<br>$2.0k</span></span></td></tr>
+<tr class=""><td class="ticker">AVGO</td><td class="fib-price">$387.36</td><td class="ia-cell">$494.22</td><td class="ia-here">$377.58</td><td class="ia-cell">$305.43</td><td class="ia-cell">$247.11</td><td class="ia-cell">$188.79</td><td class="ia-cell">$105.76</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;22%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$377.58</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:8%">27.6%</span><span class="ia-prox-marker ia-mk-up" style="left:8%"></span></span><span class="ia-endlbl">L6<br>$494.22</span></span></td></tr>
+<tr class=""><td class="ticker">COPA</td><td class="fib-price">$47.66</td><td class="ia-cell">$57.75</td><td class="ia-here">$44.12</td><td class="ia-cell">$35.69</td><td class="ia-cell">$28.88</td><td class="ia-cell">$22.06</td><td class="ia-cell">$12.36</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;17%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$44.12</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:26%">7.4%</span><span class="ia-prox-marker ia-mk-dn" style="left:26%"></span></span><span class="ia-endlbl">L6<br>$57.75</span></span></td></tr>
+<tr class=""><td class="ticker">GOOG</td><td class="fib-price">$353.66</td><td class="ia-cell">$404.23</td><td class="ia-here">$308.83</td><td class="ia-cell">$249.81</td><td class="ia-cell">$202.11</td><td class="ia-cell">$154.41</td><td class="ia-cell">$86.50</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;13%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$308.83</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:47%">12.7%</span><span class="ia-prox-marker ia-mk-dn" style="left:47%"></span></span><span class="ia-endlbl">L6<br>$404.23</span></span></td></tr>
+<tr class=""><td class="ticker">META</td><td class="fib-price">$662.44</td><td class="ia-cell">$793.65</td><td class="ia-here">$606.35</td><td class="ia-cell">$490.47</td><td class="ia-cell">$396.82</td><td class="ia-cell">$303.17</td><td class="ia-cell">$169.84</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;17%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$606.35</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:30%">19.8%</span><span class="ia-prox-marker ia-mk-up" style="left:30%"></span></span><span class="ia-endlbl">L6<br>$793.65</span></span></td></tr>
+<tr class="ia-trig-5"><td class="ticker" title="Price at IA L5 — mild dip">MRVL</td><td class="fib-price">$218.60</td><td class="ia-cell">$329.80</td><td class="ia-cell">$251.97</td><td class="ia-here">$203.82</td><td class="ia-cell">$164.90</td><td class="ia-cell">$125.98</td><td class="ia-cell">$70.58</td><td class="ia-zone"><span style="color:#5fb87a;font-weight:600;">&minus;34%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$203.82</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:31%">6.8%</span><span class="ia-prox-marker ia-mk-dn" style="left:31%"></span></span><span class="ia-endlbl">L5<br>$251.97</span></span></td></tr>
+<tr class="ia-trig-5"><td class="ticker" title="Price at IA L5 — mild dip">MSFT</td><td class="fib-price">$392.67</td><td class="ia-cell">$551.05</td><td class="ia-cell">$421.00</td><td class="ia-here">$340.55</td><td class="ia-cell">$275.52</td><td class="ia-cell">$210.50</td><td class="ia-cell">$117.92</td><td class="ia-zone"><span style="color:#5fb87a;font-weight:600;">&minus;29%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$340.55</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:65%">7.2%</span><span class="ia-prox-marker ia-mk-up" style="left:65%"></span></span><span class="ia-endlbl">L5<br>$421.00</span></span></td></tr>
+<tr class="ia-trig-5"><td class="ticker" title="Price at IA L5 — mild dip">MU</td><td class="fib-price">$927.49</td><td class="ia-cell">$1.3k</td><td class="ia-cell">$958.67</td><td class="ia-here">$775.47</td><td class="ia-cell">$627.40</td><td class="ia-cell">$479.34</td><td class="ia-cell">$268.53</td><td class="ia-zone"><span style="color:#5fb87a;font-weight:600;">&minus;26%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$775.47</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:83%">16.4%</span><span class="ia-prox-marker ia-mk-dn" style="left:83%"></span></span><span class="ia-endlbl">L5<br>$958.67</span></span></td></tr>
+<tr class=""><td class="ticker">NVDA</td><td class="fib-price">$205.04</td><td class="ia-cell">$236.26</td><td class="ia-here">$180.51</td><td class="ia-cell">$146.01</td><td class="ia-cell">$118.13</td><td class="ia-cell">$90.25</td><td class="ia-cell">$50.56</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;13%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$180.51</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:44%">15.2%</span><span class="ia-prox-marker ia-mk-up" style="left:44%"></span></span><span class="ia-endlbl">L6<br>$236.26</span></span></td></tr>
+<tr class="ia-trig-5"><td class="ticker" title="Price at IA L5 — mild dip">PLTR</td><td class="fib-price">$129.99</td><td class="ia-cell">$207.52</td><td class="ia-cell">$158.55</td><td class="ia-here">$128.25</td><td class="ia-cell">$103.76</td><td class="ia-cell">$79.27</td><td class="ia-cell">$44.41</td><td class="ia-zone"><span style="color:#5fb87a;font-weight:600;">&minus;37%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L4<br>$128.25</span><span class="ia-prox-track"><span class="ia-prox-lbl near" style="left:6%">1.3%</span><span class="ia-prox-marker ia-mk-dn" style="left:6%"></span></span><span class="ia-endlbl">L5<br>$158.55</span></span></td></tr>
+<tr class=""><td class="ticker">TSLA</td><td class="fib-price">$393.85</td><td class="ia-cell">$498.83</td><td class="ia-here">$381.11</td><td class="ia-cell">$308.28</td><td class="ia-cell">$249.41</td><td class="ia-cell">$190.55</td><td class="ia-cell">$106.75</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;21%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$381.11</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:11%">3.2%</span><span class="ia-prox-marker ia-mk-dn" style="left:11%"></span></span><span class="ia-endlbl">L6<br>$498.83</span></span></td></tr>
+<tr class=""><td class="ticker">TSM</td><td class="fib-price">$426.14</td><td class="ia-cell">$479.00</td><td class="ia-here">$365.96</td><td class="ia-cell">$296.02</td><td class="ia-cell">$239.50</td><td class="ia-cell">$182.98</td><td class="ia-cell">$102.51</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;11%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$365.96</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:53%">14.1%</span><span class="ia-prox-marker ia-mk-dn" style="left:53%"></span></span><span class="ia-endlbl">L6<br>$479.00</span></span></td></tr>
 <tr class="category-row"><td colspan="10">Indices</td></tr>
-<tr class=""><td class="ticker">SPX</td><td class="fib-price">$7.6k</td><td class="ia-cell">$7.6k</td><td class="ia-here">$5.8k</td><td class="ia-cell">$4.7k</td><td class="ia-cell">$3.8k</td><td class="ia-cell">$2.9k</td><td class="ia-cell">$1.6k</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;1%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$5.8k</span><span class="ia-prox-track"><span class="ia-prox-lbl near" style="left:97%">0.7%</span><span class="ia-prox-marker ia-mk-up" style="left:97%"></span></span><span class="ia-endlbl">L6<br>$7.6k</span></span></td></tr>
-<tr class=""><td class="ticker">QQQ</td><td class="fib-price">$725.62</td><td class="ia-cell">$747.83</td><td class="ia-here">$571.34</td><td class="ia-cell">$462.16</td><td class="ia-cell">$373.91</td><td class="ia-cell">$285.67</td><td class="ia-cell">$160.04</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;3%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$571.34</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:87%">3.1%</span><span class="ia-prox-marker ia-mk-up" style="left:87%"></span></span><span class="ia-endlbl">L6<br>$747.83</span></span></td></tr>
-<tr class=""><td class="ticker">MAGS</td><td class="fib-price">$67.58</td><td class="ia-cell">$71.16</td><td class="ia-here">$54.37</td><td class="ia-cell">$43.98</td><td class="ia-cell">$35.58</td><td class="ia-cell">$27.18</td><td class="ia-cell">$15.23</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;5%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$54.37</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:79%">5.3%</span><span class="ia-prox-marker ia-mk-up" style="left:79%"></span></span><span class="ia-endlbl">L6<br>$71.16</span></span></td></tr>
+<tr class=""><td class="ticker">SPX</td><td class="fib-price">$7.5k</td><td class="ia-cell">$7.6k</td><td class="ia-here">$5.8k</td><td class="ia-cell">$4.7k</td><td class="ia-cell">$3.8k</td><td class="ia-cell">$2.9k</td><td class="ia-cell">$1.6k</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;1%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$5.8k</span><span class="ia-prox-track"><span class="ia-prox-lbl near" style="left:95%">1.2%</span><span class="ia-prox-marker ia-mk-flat" style="left:95%"></span></span><span class="ia-endlbl">L6<br>$7.6k</span></span></td></tr>
+<tr class=""><td class="ticker">QQQ</td><td class="fib-price">$713.40</td><td class="ia-cell">$747.83</td><td class="ia-here">$571.34</td><td class="ia-cell">$462.16</td><td class="ia-cell">$373.91</td><td class="ia-cell">$285.67</td><td class="ia-cell">$160.04</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;5%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$571.34</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:80%">19.9%</span><span class="ia-prox-marker ia-mk-dn" style="left:80%"></span></span><span class="ia-endlbl">L6<br>$747.83</span></span></td></tr>
+<tr class=""><td class="ticker">MAGS</td><td class="fib-price">$67.31</td><td class="ia-cell">$71.16</td><td class="ia-here">$54.37</td><td class="ia-cell">$43.98</td><td class="ia-cell">$35.58</td><td class="ia-cell">$27.18</td><td class="ia-cell">$15.23</td><td class="ia-zone"><span style="color:#7aa2f7;font-weight:600;">&minus;5%</span></td><td class="ia-prox-cell"><span class="ia-prox"><span class="ia-endlbl">L5<br>$54.37</span><span class="ia-prox-track"><span class="ia-prox-lbl" style="left:77%">5.7%</span><span class="ia-prox-marker ia-mk-up" style="left:77%"></span></span><span class="ia-endlbl">L6<br>$71.16</span></span></td></tr>
 </tbody>
+    </table>
+    
+    <h2 class="fib-title">Analyst Price Targets <span class="fib-sub">~12-month Wall Street consensus (yfinance/Yahoo) &middot; ranked by implied upside to the mean target &middot; <span style="color:#00e676;">green</span> = below target (upside), <span style="color:#ff5252;">red</span> = above target (stretched)</span></h2>
+    <div class="fib-summary"><div class="fib-sum-head">Analyst read (auto)</div><div class="fib-sum-line"><span class="fib-sum-tag fav">Most upside</span> SPCX <span class="fib-dt">(+74%)</span>, MU <span class="fib-dt">(+60%)</span>, NVDA <span class="fib-dt">(+47%)</span>, MSFT <span class="fib-dt">(+43%)</span> <span class="fib-dt">&mdash; furthest below the street's mean target</span></div><div class="fib-sum-line"><span class="fib-sum-tag warn">Above consensus</span> AMD <span class="fib-dt">(-4%)</span>, ALAB <span class="fib-dt">(-23%)</span> <span class="fib-dt">&mdash; price already past the mean target (stretched vs. the street)</span></div></div>
+    <table class="fib-table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Ticker</th>
+                <th class="fib-price">Price</th>
+                <th class="fib-price">Consensus target</th>
+                <th>Upside</th>
+                <th>Rating</th>
+                <th>Target range <span class="fib-scale">low&nbsp;&larr;&nbsp;|&nbsp;price&nbsp;&amp;&nbsp;mean&nbsp;|&nbsp;&rarr;&nbsp;high</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            <td class="fib-rank">1</td>
+            <td class="ticker">SPCX<span class="fib-sector">Space</span></td>
+            <td class="fib-price">$139.13</td>
+            <td class="fib-price">$242.22 <span class="fib-dt">med $215.00</span></td>
+            <td class="at-upside"><span style="color:#00e676;font-weight:700;">&#9650; +74%</span></td>
+            <td><span style="color:#7ed957;font-weight:600;">Buy</span> <span class="fib-dt">18 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$62.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:24%" title="Mean $242"></span><span class="at-mk" style="left:10%" title="Price $139.13"></span></span><span class="at-endlbl">$800.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">2</td>
+            <td class="ticker">MU<span class="fib-sector">Semis</span></td>
+            <td class="fib-price">$927.49</td>
+            <td class="fib-price">$1.5k <span class="fib-dt">med $1.6k</span></td>
+            <td class="at-upside"><span style="color:#00e676;font-weight:700;">&#9650; +60%</span></td>
+            <td><span style="color:#00e676;font-weight:600;">Strong Buy</span> <span class="fib-dt">42 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$361.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:61%" title="Mean $1,486"></span><span class="at-mk" style="left:31%" title="Price $927.49"></span></span><span class="at-endlbl">$2.2k<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">3</td>
+            <td class="ticker">NVDA<span class="fib-sector">Semis</span></td>
+            <td class="fib-price">$205.04</td>
+            <td class="fib-price">$301.62 <span class="fib-dt">med $294.00</span></td>
+            <td class="at-upside"><span style="color:#00e676;font-weight:700;">&#9650; +47%</span></td>
+            <td><span style="color:#00e676;font-weight:600;">Strong Buy</span> <span class="fib-dt">58 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$180.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:38%" title="Mean $302"></span><span class="at-mk" style="left:8%" title="Price $205.04"></span></span><span class="at-endlbl">$500.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">4</td>
+            <td class="ticker">MSFT<span class="fib-sector">Software</span></td>
+            <td class="fib-price">$392.67</td>
+            <td class="fib-price">$559.86 <span class="fib-dt">med $550.00</span></td>
+            <td class="at-upside"><span style="color:#00e676;font-weight:700;">&#9650; +43%</span></td>
+            <td><span style="color:#00e676;font-weight:600;">Strong Buy</span> <span class="fib-dt">55 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$400.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:34%" title="Mean $560"></span><span class="at-mk-under" style="left:0%" title="Price $392.67"></span></span><span class="at-endlbl">$870.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">5</td>
+            <td class="ticker">PLTR<span class="fib-sector">Software</span></td>
+            <td class="fib-price">$129.99</td>
+            <td class="fib-price">$183.12 <span class="fib-dt">med $200.00</span></td>
+            <td class="at-upside"><span style="color:#00e676;font-weight:700;">&#9650; +41%</span></td>
+            <td><span style="color:#7ed957;font-weight:600;">Buy</span> <span class="fib-dt">27 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$70.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:61%" title="Mean $183"></span><span class="at-mk" style="left:32%" title="Price $129.99"></span></span><span class="at-endlbl">$255.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">6</td>
+            <td class="ticker">AVGO<span class="fib-sector">Semis</span></td>
+            <td class="fib-price">$387.36</td>
+            <td class="fib-price">$523.73</td>
+            <td class="at-upside"><span style="color:#00e676;font-weight:700;">&#9650; +35%</span></td>
+            <td><span style="color:#00e676;font-weight:600;">Strong Buy</span> <span class="fib-dt">45 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$215.88<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:71%" title="Mean $524"></span><span class="at-mk" style="left:40%" title="Price $387.36"></span></span><span class="at-endlbl">$650.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">7</td>
+            <td class="ticker">SATS<span class="fib-sector">Telecom</span></td>
+            <td class="fib-price">$103.92</td>
+            <td class="fib-price">$137.60 <span class="fib-dt">med $131.00</span></td>
+            <td class="at-upside"><span style="color:#00e676;font-weight:700;">&#9650; +32%</span></td>
+            <td><span style="color:#7ed957;font-weight:600;">Buy</span> <span class="fib-dt">5 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$120.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:43%" title="Mean $138"></span><span class="at-mk-under" style="left:0%" title="Price $103.92"></span></span><span class="at-endlbl">$161.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">8</td>
+            <td class="ticker">META<span class="fib-sector">Internet</span></td>
+            <td class="fib-price">$662.44</td>
+            <td class="fib-price">$828.34</td>
+            <td class="at-upside"><span style="color:#7ed957;font-weight:700;">&#9650; +25%</span></td>
+            <td><span style="color:#00e676;font-weight:600;">Strong Buy</span> <span class="fib-dt">58 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$664.46<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:47%" title="Mean $828"></span><span class="at-mk-under" style="left:0%" title="Price $662.44"></span></span><span class="at-endlbl">$1.0k<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">9</td>
+            <td class="ticker">GOOG<span class="fib-sector">Internet</span></td>
+            <td class="fib-price">$353.66</td>
+            <td class="fib-price">$428.54 <span class="fib-dt">med $433.00</span></td>
+            <td class="at-upside"><span style="color:#7ed957;font-weight:700;">&#9650; +21%</span></td>
+            <td><span style="color:#00e676;font-weight:600;">Strong Buy</span> <span class="fib-dt">13 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$340.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:66%" title="Mean $429"></span><span class="at-mk" style="left:10%" title="Price $353.66"></span></span><span class="at-endlbl">$475.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">10</td>
+            <td class="ticker">MRVL<span class="fib-sector">Semis</span></td>
+            <td class="fib-price">$218.60</td>
+            <td class="fib-price">$252.26 <span class="fib-dt">med $240.00</span></td>
+            <td class="at-upside"><span style="color:#7ed957;font-weight:700;">&#9650; +15%</span></td>
+            <td><span style="color:#00e676;font-weight:600;">Strong Buy</span> <span class="fib-dt">41 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$110.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:52%" title="Mean $252"></span><span class="at-mk" style="left:39%" title="Price $218.60"></span></span><span class="at-endlbl">$385.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">11</td>
+            <td class="ticker">TSM<span class="fib-sector">Semis</span></td>
+            <td class="fib-price">$426.14</td>
+            <td class="fib-price">$490.34 <span class="fib-dt">med $476.50</span></td>
+            <td class="at-upside"><span style="color:#7ed957;font-weight:700;">&#9650; +15%</span></td>
+            <td><span style="color:#00e676;font-weight:600;">Strong Buy</span> <span class="fib-dt">18 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$354.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:39%" title="Mean $490"></span><span class="at-mk" style="left:21%" title="Price $426.14"></span></span><span class="at-endlbl">$700.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">12</td>
+            <td class="ticker">ASML<span class="fib-sector">Semis</span></td>
+            <td class="fib-price">$1.7k</td>
+            <td class="fib-price">$1.9k</td>
+            <td class="at-upside"><span style="color:#e0c04a;font-weight:700;">&#9650; +8%</span></td>
+            <td><span style="color:#00e676;font-weight:600;">Strong Buy</span> <span class="fib-dt">15 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$881.24<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:57%" title="Mean $1,873"></span><span class="at-mk" style="left:49%" title="Price $1.7k"></span></span><span class="at-endlbl">$2.6k<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">13</td>
+            <td class="ticker">TSLA<span class="fib-sector">Auto/EV</span></td>
+            <td class="fib-price">$393.85</td>
+            <td class="fib-price">$424.56 <span class="fib-dt">med $455.00</span></td>
+            <td class="at-upside"><span style="color:#e0c04a;font-weight:700;">&#9650; +8%</span></td>
+            <td><span style="color:#7ed957;font-weight:600;">Buy</span> <span class="fib-dt">40 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$125.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:63%" title="Mean $425"></span><span class="at-mk" style="left:57%" title="Price $393.85"></span></span><span class="at-endlbl">$600.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">14</td>
+            <td class="ticker">ARM<span class="fib-sector">Semis</span></td>
+            <td class="fib-price">$298.59</td>
+            <td class="fib-price">$298.84 <span class="fib-dt">med $260.00</span></td>
+            <td class="at-upside"><span style="color:#e0c04a;font-weight:700;">&#9650; +0%</span></td>
+            <td><span style="color:#7ed957;font-weight:600;">Buy</span> <span class="fib-dt">37 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$125.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:46%" title="Mean $299"></span><span class="at-mk" style="left:46%" title="Price $298.59"></span></span><span class="at-endlbl">$500.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">15</td>
+            <td class="ticker">AMD<span class="fib-sector">Semis</span></td>
+            <td class="fib-price">$537.84</td>
+            <td class="fib-price">$516.12 <span class="fib-dt">med $507.50</span></td>
+            <td class="at-upside"><span style="color:#ff8a5c;font-weight:700;">&#9660; -4%</span></td>
+            <td><span style="color:#00e676;font-weight:600;">Strong Buy</span> <span class="fib-dt">48 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$320.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:52%" title="Mean $516"></span><span class="at-mk" style="left:57%" title="Price $537.84"></span></span><span class="at-endlbl">$700.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+<tr>
+            <td class="fib-rank">16</td>
+            <td class="ticker">ALAB<span class="fib-sector">Semis</span></td>
+            <td class="fib-price">$352.89</td>
+            <td class="fib-price">$272.47 <span class="fib-dt">med $265.00</span></td>
+            <td class="at-upside"><span style="color:#ff5252;font-weight:700;">&#9660; -23%</span></td>
+            <td><span style="color:#7ed957;font-weight:600;">Buy</span> <span class="fib-dt">22 an.</span></td>
+            <td class="at-range-cell"><span class="at-range"><span class="at-endlbl">$155.00<br><span class="at-endsub">low</span></span><span class="at-track"><span class="at-mean-tick" style="left:39%" title="Mean $272"></span><span class="at-mk" style="left:65%" title="Price $352.89"></span></span><span class="at-endlbl">$460.00<br><span class="at-endsub">high</span></span></span></td>
+        </tr>
+
+        </tbody>
     </table>
     <div class="legend">
         <span class="signal-pill buy-signal">date</span> = Buy signal &nbsp;
