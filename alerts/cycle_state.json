@@ -52,8 +52,7 @@
   "AVGO": {
     "zscore_neg": [],
     "fib_alerted": [
-      0.382,
-      0.5
+      0.382
     ],
     "fib_swing_high": 494.21780481836413
   },
@@ -62,9 +61,7 @@
     "analyst_alerted": [
       359.0
     ],
-    "fib_alerted": [
-      0.382
-    ],
+    "fib_alerted": [],
     "fib_swing_high": 404.22673078989135
   },
   "META": {
@@ -88,7 +85,7 @@
       0.5,
       0.618
     ],
-    "fib_swing_high": 551.0484665795923
+    "fib_swing_high": 551.0485312644471
   },
   "MU": {
     "zscore_neg": [],
@@ -98,9 +95,7 @@
   "NVDA": {
     "zscore_neg": [],
     "analyst_alerted": [],
-    "fib_alerted": [
-      0.382
-    ],
+    "fib_alerted": [],
     "fib_swing_high": 236.264633339045
   },
   "PLTR": {
