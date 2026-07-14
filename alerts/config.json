@@ -46,6 +46,13 @@
         "enabled": true,
         "categories": ["Stocks"]
     },
+    "dry_powder": {
+        "deploy_pct": 25,
+        "deploy_budget": null,
+        "max_name_pct": 20,
+        "max_sector_pct": 40,
+        "candidate_tiers": ["favoured"]
+    },
     "macro": {
         "enabled": true,
         "note": "18-yr real estate / Kuznets cycle ~year 15-17 — late-cycle, elevated crash risk into ~2026-28. Business cycle: late expansion. Favor keeping some dry powder to deploy into a real downturn."

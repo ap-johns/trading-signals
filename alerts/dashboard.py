@@ -4,6 +4,7 @@ Generate an HTML dashboard showing OTT signals for all tickers.
 
 import json
 import os
+import sys
 from datetime import datetime, timedelta
 
 import yfinance as yf
@@ -17,6 +18,9 @@ from macro import macro_context, macro_banner_html
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_DIR = os.path.dirname(SCRIPT_DIR)
 OUTPUT_PATH = os.environ.get("DASHBOARD_OUTPUT", os.path.join(REPO_DIR, "docs", "index.html"))
+# Private view (dashboard.py --private): includes Trading 212 holdings. Written to a
+# git-ignored path OUTSIDE docs/ so account data is never published to GitHub Pages.
+PRIVATE_OUTPUT = os.environ.get("PRIVATE_DASHBOARD_OUTPUT", os.path.join(REPO_DIR, "local-dashboard.html"))
 
 
 def load_config():
@@ -279,14 +283,17 @@ def _fib_build_items(all_data, tickers, sectors=None):
     return items
 
 
-def _fib_section_for(items, title):
-    """Render one ranked table + summary for a category's items (Stocks / Indices)."""
+def _fib_section_for(items, title, owned=None):
+    """Render one ranked table + summary for a category's items (Stocks / Indices).
+    `owned` (optional) is a set of display symbols currently held — badged in the row."""
     if not items:
         return ""
+    owned = owned or set()
     rows = ""
     for rank, it in enumerate(items, 1):
         name, fib, price, frac, daily, weekly = (
             it["name"], it["fib"], it["price"], it["frac"], it["daily"], it["weekly"])
+        owned_badge = ' <span class="own-badge" title="You hold this">HELD</span>' if name in owned else ""
         broken = frac >= 1.0
         lo = f'{fmt_price(fib["swing_low"])} <span class="fib-dt">({_fmt_date(fib["swing_low_date"])})</span>'
         hi = f'{fmt_price(fib["swing_high"])} <span class="fib-dt">({_fmt_date(fib["swing_high_date"])})</span>'
@@ -307,7 +314,7 @@ def _fib_section_for(items, title):
         rows += f'''<tr>
             <td class="fib-rank">{rank}</td>
             <td class="fib-scorecell">{sc_html}</td>
-            <td class="ticker">{name}{sector_html}</td>
+            <td class="ticker">{name}{owned_badge}{sector_html}</td>
             <td class="fib-range-cell">{lo} &rarr; {hi}</td>
             <td class="fib-gain">+{fib["gain"] * 100:.0f}%</td>
             <td class="fib-price">{fmt_price(price)}</td>
@@ -608,20 +615,198 @@ def analyst_targets_section_html(all_data, config):
     </table>'''
 
 
-def fib_section_html(all_data, config):
-    """Fib retracement area: one ranked table per asset class (Stocks, Indices...)."""
+def _gbp(v):
+    """Format an account-currency amount (GBP) as £1.2k / £123 / -£45."""
+    if v is None:
+        return "&mdash;"
+    sign = "-" if v < 0 else ""
+    a = abs(v)
+    if a >= 1000:
+        return f"{sign}£{a/1000:.1f}k"
+    return f"{sign}£{a:,.0f}"
+
+
+def _deploy_allocation(cands, budget, name_cap, sector_cap, sector_base):
+    """Water-fill `budget` (GBP) across candidates proportional to score, clamped so
+    no name exceeds `name_cap` and no sector exceeds `sector_cap` (both GBP, incl. the
+    existing holding value carried in each cand's `cur_gbp` and in `sector_base`).
+    Returns (alloc_by_name, undeployed_remainder)."""
+    alloc = {c["name"]: 0.0 for c in cands}
+
+    def room(c):
+        name_room = name_cap - (c["cur_gbp"] + alloc[c["name"]])
+        if c["sector"]:
+            used = sector_base.get(c["sector"], 0.0) + sum(
+                alloc[o["name"]] for o in cands if o["sector"] == c["sector"])
+            sec_room = sector_cap - used
+        else:
+            sec_room = float("inf")
+        return min(name_room, sec_room)
+
+    remaining = budget
+    for _ in range(200):
+        if remaining < 1:
+            break
+        elig = [c for c in cands if c["score"] and c["score"] > 0 and room(c) > 0.5]
+        if not elig:
+            break
+        tot = sum(c["score"] for c in elig)
+        given = 0.0
+        for c in elig:  # sequential so sector room updates as we go
+            r = room(c)
+            if r <= 0.5:
+                continue
+            want = remaining * (c["score"] / tot)
+            g = min(want, r)
+            alloc[c["name"]] += g
+            given += g
+        remaining -= given
+        if given < 0.5:
+            break
+    return alloc, remaining
+
+
+def portfolio_summary_html(holdings, items, gbpusd=None, config=None):
+    """Private-only 'Deploy dry powder' panel: account overview + a position-aware,
+    score-weighted, sector-capped buy plan for the free cash, with averaging-down math.
+    `items` is the combined ranked list; `gbpusd` converts USD holdings to GBP."""
+    config = config or {}
+    cfg = config.get("dry_powder", {})
+    cash = holdings.get("cash", {}) or {}
+    hold = holdings.get("holdings", {}) or {}
+    owned = holdings.get("owned", set())
+    free, total = cash.get("free"), cash.get("total")
+    invested, ppl = cash.get("invested"), cash.get("ppl")
+    rate = gbpusd or 1.0
+
+    def to_gbp(amount, ccy):
+        return (amount / rate) if (ccy == "USD" and rate) else amount
+
+    # --- account overview line ---
+    dry_pct = (free / total * 100) if free is not None and total else None
+    ppl_color = "#00e676" if (ppl or 0) >= 0 else "#ff5252"
+    head = (f'<div class="pf-sum-line"><b>{_gbp(free)}</b> free of {_gbp(total)}'
+            + (f' <span class="fib-dt">({dry_pct:.0f}% dry powder)</span>' if dry_pct is not None else '')
+            + f' &middot; {_gbp(invested)} invested &middot; open P/L '
+            f'<span style="color:{ppl_color};font-weight:600;">{_gbp(ppl)}</span></div>')
+
+    # --- current invested value (GBP) + sector exposure across ALL holdings ---
+    inv_now = sum(to_gbp(h["value"], h.get("ccy", "GBP")) for h in hold.values())
+    sectors = config.get("sectors", {})
+    sector_base = {}
+    for sym, h in hold.items():
+        sec = sectors.get(sym)
+        if sec:
+            sector_base[sec] = sector_base.get(sec, 0.0) + to_gbp(h["value"], h.get("ccy", "GBP"))
+
+    # --- deploy budget ---
+    if cfg.get("deploy_budget"):
+        budget = float(cfg["deploy_budget"])
+    else:
+        budget = (free or 0.0) * cfg.get("deploy_pct", 25) / 100.0
+    budget = min(budget, free or 0.0)
+
+    # --- candidates: favoured (or configured tiers), best-first ---
+    tiers = cfg.get("candidate_tiers", ["favoured"])
+    cands = []
+    for it in items:
+        if it["tier"] in tiers and it.get("score"):
+            cur_gbp = to_gbp(hold[it["name"]]["value"], hold[it["name"]].get("ccy", "GBP")) if it["name"] in hold else 0.0
+            cands.append({"name": it["name"], "score": it["score"],
+                          "sector": it.get("sector"), "cur_gbp": cur_gbp})
+
+    if not cands or budget < 1:
+        note = ("No <b>favoured</b> setups to deploy into right now &mdash; holding cash."
+                if not cands else "No dry powder configured to deploy.")
+        return ('<div class="pf-summary"><div class="fib-sum-head">Deploy dry powder '
+                '(private &mdash; not committed)</div>' + head +
+                f'<div class="pf-sum-line fib-dt">{note}</div></div>')
+
+    name_cap = cfg.get("max_name_pct", 20) / 100.0 * (inv_now + budget)
+    sector_cap = cfg.get("max_sector_pct", 40) / 100.0 * (inv_now + budget)
+    alloc, remaining = _deploy_allocation(cands, budget, name_cap, sector_cap, sector_base)
+    deployed = budget - remaining
+    inv_after = inv_now + deployed
+
+    max_name_pct = cfg.get("max_name_pct", 20)
+    rows = ""
+    for c in cands:
+        name = c["name"]
+        a = alloc[name]
+        held = name in hold
+        w_now = c["cur_gbp"] / inv_now * 100 if inv_now else 0.0
+        w_after = (c["cur_gbp"] + a) / inv_after * 100 if inv_after else 0.0
+        if not held:
+            tag, tag_cls = "Initiate", "fav"
+        elif w_now >= max_name_pct - 0.5:
+            tag, tag_cls = "Hold · at cap", "skip"
+        else:
+            tag, tag_cls = "Add", "mid"
+        buy_html = f'<b>{_gbp(a)}</b>' if a >= 1 else '<span class="fib-dt">&mdash;</span>'
+        # averaging-down math (held names getting an allocation)
+        basis_html = '<span class="fib-dt">&mdash;</span>'
+        if held and a >= 1:
+            h = hold[name]
+            avg, price, ccy = h.get("avg"), h.get("price"), h.get("ccy", "GBP")
+            if avg and price:
+                shares = (a * rate if ccy == "USD" else a) / price
+                new_avg = (h["qty"] * avg + shares * price) / (h["qty"] + shares)
+                sym = "$" if ccy == "USD" else "£"
+                below = price < avg
+                bcol = "#00e676" if below else "#e0c04a"
+                word = "below" if below else "above"
+                basis_html = (f'{sym}{avg:,.0f}&rarr;{sym}{new_avg:,.0f} '
+                              f'<span style="color:{bcol};" title="buying {word} your average cost">'
+                              f'({word} basis)</span>')
+        elif not held:
+            basis_html = '<span class="fib-dt">new position</span>'
+        rows += (f'<tr><td class="ticker">{name}</td>'
+                 f'<td><span class="fib-sum-tag {tag_cls}" style="min-width:78px">{tag}</span></td>'
+                 f'<td class="fib-lv">{w_now:.0f}%</td>'
+                 f'<td class="fib-scorecell" style="color:{score_color(c["score"])};font-weight:700;">{c["score"]:.1f}</td>'
+                 f'<td class="fib-price">{buy_html}</td>'
+                 f'<td class="fib-lv">{w_after:.0f}%</td>'
+                 f'<td class="fib-lv">{basis_html}</td></tr>\n')
+
+    budget_line = (f'<div class="pf-sum-line">Plan: deploy <b>{_gbp(deployed)}</b> of your '
+                   f'{_gbp(free)} free cash '
+                   f'<span class="fib-dt">(keeping {_gbp((free or 0) - deployed)} dry '
+                   f'&middot; caps: {max_name_pct:.0f}%/name, {cfg.get("max_sector_pct", 40):.0f}%/sector)</span></div>')
+    if remaining >= 1:
+        budget_line += (f'<div class="pf-sum-line fib-dt">&#9888; {_gbp(remaining)} left undeployed '
+                        f'&mdash; concentration caps reached; widen caps or add non-cluster names.</div>')
+    caveat = ('<div class="pf-sum-line fib-dt">Heuristic split by favourability score; scale in rather '
+              'than deploy at once. Macro note favours keeping some powder for a real downturn. '
+              'Not advice.</div>')
+    return (f'<div class="pf-summary"><div class="fib-sum-head">Deploy dry powder '
+            f'(private &mdash; not committed)</div>{head}{budget_line}'
+            f'<table class="pf-plan"><thead><tr><th>Name</th><th>Action</th><th>Now</th>'
+            f'<th>Score</th><th>Buy</th><th>After</th><th>Avg&rarr;New basis</th></tr></thead>'
+            f'<tbody>{rows}</tbody></table>{caveat}</div>')
+
+
+def fib_section_html(all_data, config, holdings=None):
+    """Fib retracement area: one ranked table per asset class (Stocks, Indices...).
+    When `holdings` is provided (private view only), owned names are badged and a
+    portfolio summary is shown; the public run passes None and is unchanged."""
     fib_cfg = config.get("fib_alerts", {})
     categories = fib_cfg.get("categories", ["Stocks"])
     sectors = config.get("sectors", {})
+    owned = holdings.get("owned", set()) if holdings else set()
+    all_items = []
     sections = ""
     for cat in categories:
         tickers = config["watchlist"].get(cat, {})
         items = _fib_build_items(all_data, tickers, sectors)
-        sections += _fib_section_for(items, cat)
+        all_items.extend(items)
+        sections += _fib_section_for(items, cat, owned=owned)
     if not sections:
         return ""
+    gbpusd = all_data.get("GBPUSD=X", {}).get("daily", {}).get("price")
+    pf_summary = portfolio_summary_html(holdings, all_items, gbpusd=gbpusd, config=config) if holdings else ""
     return f'''
     <h2 class="fib-title">DCA Buy Levels <span class="fib-sub">ranked by buy-and-hold favourability &mdash; fib retracement depth + trend, value (z), regime &amp; confluence &middot; <span class="fib-near">green</span> = price within 5% of the level &middot; <span style="color:#00e676;">&#9650;</span>/<span style="color:#ff5252;">&#9660;</span> = 50d SMA rising/falling</span></h2>
+    {pf_summary}
     {sections}'''
 
 
@@ -832,8 +1017,9 @@ def fmt_price(val):
     return f"${val:.2f}"
 
 
-def generate_html(all_data, config):
-    """Generate the dashboard HTML."""
+def generate_html(all_data, config, holdings=None):
+    """Generate the dashboard HTML. `holdings` (private view only) overlays owned
+    names + a portfolio summary onto the DCA section; None = public output."""
     now = datetime.now().strftime("%-d %b %y %H:%M")
     analyst_levels = load_analyst_levels()
 
@@ -1243,7 +1429,7 @@ def generate_html(all_data, config):
                     <td class="detail-col ott">{fmt_price(tf_data["ott"])}</td>
                 </tr>\n'''
 
-    fib_section = fib_section_html(all_data, config)
+    fib_section = fib_section_html(all_data, config, holdings=holdings)
     ia_section = ia_levels_section_html(all_data, config)
     analyst_section = analyst_targets_section_html(all_data, config)
     season_banner = seasonality_banner_html(seasonality_context(datetime.now().month))
@@ -1698,6 +1884,36 @@ def generate_html(all_data, config):
         border-right: 9px solid #00e676;
         transform: translate(2px, -50%);
     }}
+    .own-badge {{
+        margin-left: 7px;
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: rgba(212,168,102,0.18);
+        color: var(--accent);
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        vertical-align: middle;
+    }}
+    .pf-summary {{
+        margin-top: 10px;
+        padding: 14px 16px;
+        background: var(--surface);
+        border: 1px solid var(--accent);
+        border-left: 3px solid var(--accent);
+        border-radius: var(--radius-lg);
+        font-size: 13px;
+        line-height: 1.7;
+    }}
+    .pf-sum-line {{ margin: 3px 0; }}
+    .pf-plan {{ width: auto; margin: 10px 0 4px; border-collapse: collapse; font-size: 12.5px; background: transparent; }}
+    .pf-plan th {{
+        text-align: left; padding: 5px 14px 5px 0; color: var(--ink-faint);
+        font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+        border-bottom: 1px solid var(--line);
+    }}
+    .pf-plan td {{ padding: 5px 14px 5px 0; border-bottom: 1px solid var(--line-soft); vertical-align: middle; }}
+    .pf-plan tbody tr:last-child td {{ border-bottom: none; }}
     .fib-sector {{
         margin-left: 7px;
         padding: 1px 7px;
@@ -1890,12 +2106,25 @@ def main():
         )
         print("done")
 
-    html = generate_html(all_data, config)
+    # Private mode: overlay Trading 212 holdings and write to a git-ignored file.
+    # The public run (no --private) never touches the broker.
+    private = "--private" in sys.argv
+    holdings = None
+    if private:
+        import broker
+        holdings = broker.get_account()
+        if holdings is None:
+            print("  (--private: no Trading 212 data — check T212_KEY_ID/T212_API_SECRET in .env)")
+        else:
+            print(f"  (--private: {len(holdings['owned'])} holdings loaded)")
 
-    with open(OUTPUT_PATH, "w") as f:
+    html = generate_html(all_data, config, holdings=holdings)
+
+    output_path = PRIVATE_OUTPUT if private else OUTPUT_PATH
+    with open(output_path, "w") as f:
         f.write(html)
 
-    print(f"\nDashboard written to: {OUTPUT_PATH}")
+    print(f"\nDashboard written to: {output_path}")
 
 
 if __name__ == "__main__":
