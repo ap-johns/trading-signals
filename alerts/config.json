@@ -35,6 +35,7 @@
     },
     "dca_summary": {
         "enabled": true,
+        "daily": true,
         "weekday": 0
     },
     "ia_level_alerts": {

@@ -629,9 +629,9 @@ def format_signal(sig: dict) -> str:
 
 
 def format_dca_digest(rows) -> str:
-    """Weekly DCA digest: the 'favoured now' picks per asset class, with a sector
+    """DCA digest: the 'favoured now' picks per asset class, with a sector
     concentration note. `rows` is the ranked output of dca_rank.analyse()."""
-    lines = ["\U0001f4ca <b>Weekly DCA Picks — Favoured Now</b>",
+    lines = ["\U0001f4ca <b>Daily DCA Picks — Favoured Now</b>",
              datetime.now().strftime("%Y-%m-%d"),
              ""]
 
@@ -658,7 +658,7 @@ def format_dca_digest(rows) -> str:
 
     if not any_fav:
         cs = [r["name"] for r in rows if r["tier"] == "cheap_shallow"]
-        lines.append("No <b>favoured</b> setups this week.")
+        lines.append("No <b>favoured</b> setups today.")
         if cs:
             lines.append("Closest (cheap but shallow): " + ", ".join(cs))
     else:
@@ -679,11 +679,11 @@ def format_dca_digest(rows) -> str:
 
 
 def send_dca_digest(bot_token, chat_id):
-    """Compute the DCA ranking and send the weekly 'favoured now' digest."""
+    """Compute the DCA ranking and send the 'favoured now' digest."""
     from dca_rank import analyse  # lazy import (pulls dashboard/yfinance)
     rows = analyse()
     msg = format_dca_digest(rows)
-    print("Sending weekly DCA digest...")
+    print("Sending DCA digest...")
     send_telegram(bot_token, chat_id, msg)
 
 
@@ -727,10 +727,12 @@ def main():
         send_telegram(bot_token, chat_id, summary)
         print("Summary sent to Telegram.")
 
-    # Weekly DCA digest (favoured-now picks) — runs on the configured weekday
-    # (default Monday) in the same run as the daily alerts.
+    # DCA digest (favoured-now picks) — runs in the same run as the daily alerts.
+    # If "daily" is true it fires every run; otherwise only on the configured
+    # weekday (default Monday).
     dca_cfg = config.get("dca_summary", {})
-    if dca_cfg.get("enabled", True) and datetime.now().weekday() == dca_cfg.get("weekday", 0):
+    dca_due = dca_cfg.get("daily", False) or datetime.now().weekday() == dca_cfg.get("weekday", 0)
+    if dca_cfg.get("enabled", True) and dca_due:
         try:
             send_dca_digest(bot_token, chat_id)
         except Exception as e:
