@@ -629,10 +629,15 @@ def format_signal(sig: dict) -> str:
 
 
 def format_dca_digest(rows) -> str:
-    """DCA digest: the 'favoured now' picks per asset class, with a sector
-    concentration note. `rows` is the ranked output of dca_rank.analyse()."""
-    lines = ["\U0001f4ca <b>Daily DCA Picks — Favoured Now</b>",
+    """DCA digest: the buyable picks per asset class, colour-coded by tier
+    (\U0001f7e2 favoured, \U0001f7e1 cheap but shallow). `rows` is the ranked
+    output of dca_rank.analyse() (already ordered tier-then-score)."""
+    TIER_DOT = {"favoured": "\U0001f7e2", "cheap_shallow": "\U0001f7e1"}
+    show_tiers = tuple(TIER_DOT)
+
+    lines = ["\U0001f4ca <b>Daily DCA Picks</b>",
              datetime.now().strftime("%Y-%m-%d"),
+             "\U0001f7e2 favoured · \U0001f7e1 cheap but shallow",
              ""]
 
     cats = []
@@ -640,40 +645,25 @@ def format_dca_digest(rows) -> str:
         if r["category"] not in cats:
             cats.append(r["category"])
 
-    any_fav = False
+    any_shown = False
     for cat in cats:
-        cat_fav = [r for r in rows if r["tier"] == "favoured" and r["category"] == cat]
-        if not cat_fav:
+        picks = [r for r in rows if r["tier"] in show_tiers and r["category"] == cat]
+        if not picks:
             continue
-        any_fav = True
+        any_shown = True
         lines.append(f"<b>{cat}</b>")
-        for r in cat_fav:
+        for r in picks:
             sector = f" [{r['sector']}]" if r.get("sector") else ""
             w200 = f" · +{r['above_200w_pct']}% vs 200w" if r.get("above_200w_pct") is not None else ""
+            z = f" · {r['z']:+.1f}σ" if r.get("z") is not None else ""
             lines.append(
-                f"\U0001f7e2 {r['name']}{sector} — {r['level']} fib · "
-                f"{r['retrace_pct']}% retrace · {r['z']:+.1f}σ{w200}"
+                f"{TIER_DOT[r['tier']]} {r['name']}{sector} — {r['level']} fib · "
+                f"{r['retrace_pct']}% retrace{z}{w200}"
             )
         lines.append("")
 
-    if not any_fav:
-        cs = [r["name"] for r in rows if r["tier"] == "cheap_shallow"]
-        lines.append("No <b>favoured</b> setups today.")
-        if cs:
-            lines.append("Closest (cheap but shallow): " + ", ".join(cs))
-    else:
-        # Concentration warning across the most-actionable names
-        actionable = [r for r in rows if r["tier"] in ("favoured", "cheap_shallow") and r.get("sector")]
-        counts = {}
-        for r in actionable:
-            counts[r["sector"]] = counts.get(r["sector"], 0) + 1
-        if counts:
-            top, n = max(counts.items(), key=lambda kv: kv[1])
-            if n >= 2 and n >= len(actionable) / 2:
-                lines.append(
-                    f"⚠️ {n} of the {len(actionable)} most-actionable names are "
-                    f"{top} — pair with a non-{top} name to diversify"
-                )
+    if not any_shown:
+        lines.append("No favoured or cheap setups today.")
 
     return "\n".join(lines).strip()
 
