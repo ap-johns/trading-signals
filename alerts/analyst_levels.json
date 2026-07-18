@@ -28,5 +28,17 @@
     "source": "Jacob @ Invest Answers",
     "date": "2026-07-02",
     "notes": "Finding support on the rising 50-day MA (~$709 as of 2 Jul; drifts). Lower highs / higher lows — ranging, not crashing."
+  },
+  "AVGO": {
+    "buy_levels": [362.48],
+    "source": "Jacob @ Invest Answers",
+    "date": "2026-07-18",
+    "notes": "Semis got crushed on a normal pullback; the 200-day MA (~$362 as of 18 Jul, drifts) is a solid buy zone and AVGO is sitting right on it."
+  },
+  "BTCUSD": {
+    "buy_levels": [64000],
+    "source": "Jacob @ Invest Answers",
+    "date": "2026-07-18",
+    "notes": "The '64K magnet' key level he's watching for bottom confirmation (needs the 200-day to flatten). A watch/accumulation level, not a firm buy trigger."
   }
 }
