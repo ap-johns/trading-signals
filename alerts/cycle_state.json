@@ -3,7 +3,8 @@
     "window_alerted": false,
     "alerted_levels": [
       -10
-    ]
+    ],
+    "analyst_alerted": []
   },
   "ETHUSD": {
     "window_alerted": false
@@ -60,7 +61,8 @@
       0.382,
       0.5
     ],
-    "fib_swing_high": 494.21780481836413
+    "fib_swing_high": 494.21780481836413,
+    "analyst_alerted": []
   },
   "GOOG": {
     "zscore_neg": [],
@@ -77,7 +79,7 @@
     "fib_alerted": [
       0.382
     ],
-    "fib_swing_high": 793.6488761977264
+    "fib_swing_high": 793.6488143059948
   },
   "MRVL": {
     "zscore_neg": [],
@@ -94,7 +96,7 @@
       0.5,
       0.618
     ],
-    "fib_swing_high": 551.0484665795923
+    "fib_swing_high": 551.0485312644471
   },
   "MU": {
     "zscore_neg": [],
