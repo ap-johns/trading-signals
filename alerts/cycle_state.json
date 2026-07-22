@@ -21,7 +21,9 @@
     "zscore_neg": [],
     "fib_alerted": [],
     "fib_swing_high": 747.8281862002862,
-    "analyst_alerted": []
+    "analyst_alerted": [
+      708.51
+    ]
   },
   "MAGS": {
     "zscore_neg": [],
@@ -55,8 +57,7 @@
   "AVGO": {
     "zscore_neg": [],
     "fib_alerted": [
-      0.382,
-      0.5
+      0.382
     ],
     "fib_swing_high": 494.21780481836413,
     "analyst_alerted": []
@@ -74,7 +75,8 @@
   "META": {
     "zscore_neg": [],
     "fib_alerted": [
-      0.382
+      0.382,
+      0.5
     ],
     "fib_swing_high": 793.6488143059948
   },
@@ -83,7 +85,7 @@
     "fib_alerted": [
       0.382
     ],
-    "fib_swing_high": 329.8800048828125
+    "fib_swing_high": 329.79864574979393
   },
   "MSFT": {
     "zscore_neg": [],
@@ -102,9 +104,7 @@
   "NVDA": {
     "zscore_neg": [],
     "analyst_alerted": [],
-    "fib_alerted": [
-      0.382
-    ],
+    "fib_alerted": [],
     "fib_swing_high": 236.264633339045
   },
   "PLTR": {
