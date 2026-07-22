@@ -31,7 +31,7 @@
         "NVDA": "Semis", "AMD": "Semis", "AVGO": "Semis", "MRVL": "Semis",
         "MU": "Semis", "TSM": "Semis", "ASML": "Semis", "ARM": "Semis", "ALAB": "Semis",
         "GOOG": "Internet", "META": "Internet", "MSFT": "Software", "PLTR": "Software",
-        "TSLA": "Auto/EV", "SATS": "Telecom", "COPA": "Copper", "SPCX": "Space"
+        "TSLA": "Auto/EV", "ECHO": "Telecom", "COPA": "Copper", "SPCX": "Space"
     },
     "dca_summary": {
         "enabled": true,
@@ -110,7 +110,7 @@
             "MU": "MU",
             "NVDA": "NVDA",
             "PLTR": "PLTR",
-            "SATS": "SATS",
+            "ECHO": "ECHO",
             "SPCX": "SPCX",
             "TSLA": "TSLA",
             "TSM": "TSM"

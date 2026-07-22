@@ -111,7 +111,7 @@
     "zscore_neg": [],
     "analyst_alerted": []
   },
-  "SATS": {
+  "ECHO": {
     "zscore_neg": [
       2.0
     ],
