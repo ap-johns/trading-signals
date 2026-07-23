@@ -27,7 +27,9 @@
   },
   "MAGS": {
     "zscore_neg": [],
-    "fib_alerted": [],
+    "fib_alerted": [
+      0.382
+    ],
     "fib_swing_high": 71.16000366210938
   },
   "ALAB": {
@@ -57,18 +59,23 @@
   "AVGO": {
     "zscore_neg": [],
     "fib_alerted": [
-      0.382
+      0.382,
+      0.5
     ],
     "fib_swing_high": 494.21780481836413,
     "analyst_alerted": []
   },
   "GOOG": {
-    "zscore_neg": [],
+    "zscore_neg": [
+      2.0
+    ],
     "analyst_alerted": [
       359.0
     ],
     "fib_alerted": [
-      0.382
+      0.382,
+      0.5,
+      0.618
     ],
     "fib_swing_high": 404.22673078989135
   },
@@ -92,9 +99,10 @@
     "fib_alerted": [
       0.382,
       0.5,
-      0.618
+      0.618,
+      0.786
     ],
-    "fib_swing_high": 551.0485312644471
+    "fib_swing_high": 551.0484665795923
   },
   "MU": {
     "zscore_neg": [],
@@ -104,7 +112,9 @@
   "NVDA": {
     "zscore_neg": [],
     "analyst_alerted": [],
-    "fib_alerted": [],
+    "fib_alerted": [
+      0.382
+    ],
     "fib_swing_high": 236.264633339045
   },
   "PLTR": {
@@ -119,7 +129,9 @@
     "fib_swing_high": 147.2519989013672
   },
   "TSLA": {
-    "zscore_neg": [],
+    "zscore_neg": [
+      2.0
+    ],
     "fib_alerted": [
       0.382,
       0.5,
@@ -127,13 +139,17 @@
       0.786
     ],
     "fib_swing_high": 498.8299865722656,
-    "analyst_alerted": []
+    "analyst_alerted": [
+      368.0
+    ]
   },
   "TSM": {
     "zscore_neg": [
       2.0
     ],
-    "fib_alerted": [],
+    "fib_alerted": [
+      0.382
+    ],
     "fib_swing_high": 479.0
   },
   "GBPUSD": {
