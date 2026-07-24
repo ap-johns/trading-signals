@@ -4,7 +4,9 @@
     "alerted_levels": [
       -10
     ],
-    "analyst_alerted": []
+    "analyst_alerted": [
+      64000.0
+    ]
   },
   "ETHUSD": {
     "window_alerted": false
@@ -35,7 +37,8 @@
   "ALAB": {
     "zscore_neg": [],
     "fib_alerted": [
-      0.382
+      0.382,
+      0.5
     ],
     "fib_swing_high": 499.47601318359375
   },
@@ -47,7 +50,8 @@
   "ARM": {
     "zscore_neg": [],
     "fib_alerted": [
-      0.382
+      0.382,
+      0.5
     ],
     "fib_swing_high": 452.70001220703125
   },
@@ -90,7 +94,8 @@
   "MRVL": {
     "zscore_neg": [],
     "fib_alerted": [
-      0.382
+      0.382,
+      0.5
     ],
     "fib_swing_high": 329.79864574979393
   },
@@ -112,9 +117,7 @@
   "NVDA": {
     "zscore_neg": [],
     "analyst_alerted": [],
-    "fib_alerted": [
-      0.382
-    ],
+    "fib_alerted": [],
     "fib_swing_high": 236.264633339045
   },
   "PLTR": {
