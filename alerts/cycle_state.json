@@ -4,9 +4,7 @@
     "alerted_levels": [
       -10
     ],
-    "analyst_alerted": [
-      64000.0
-    ]
+    "analyst_alerted": []
   },
   "ETHUSD": {
     "window_alerted": false
@@ -30,7 +28,8 @@
   "MAGS": {
     "zscore_neg": [],
     "fib_alerted": [
-      0.382
+      0.382,
+      0.5
     ],
     "fib_swing_high": 71.16000366210938
   },
@@ -56,8 +55,12 @@
     "fib_swing_high": 452.70001220703125
   },
   "ASML": {
-    "zscore_neg": [],
-    "fib_alerted": [],
+    "zscore_neg": [
+      2.0
+    ],
+    "fib_alerted": [
+      0.382
+    ],
     "fib_swing_high": 1999.9599609375
   },
   "AVGO": {
@@ -78,8 +81,7 @@
     ],
     "fib_alerted": [
       0.382,
-      0.5,
-      0.618
+      0.5
     ],
     "fib_swing_high": 404.22673078989135
   },
@@ -87,7 +89,8 @@
     "zscore_neg": [],
     "fib_alerted": [
       0.382,
-      0.5
+      0.5,
+      0.618
     ],
     "fib_swing_high": 793.6488143059948
   },
@@ -104,20 +107,24 @@
     "fib_alerted": [
       0.382,
       0.5,
-      0.618,
-      0.786
+      0.618
     ],
     "fib_swing_high": 551.0484665795923
   },
   "MU": {
     "zscore_neg": [],
-    "fib_alerted": [],
+    "fib_alerted": [
+      0.382
+    ],
     "fib_swing_high": 1254.807069757193
   },
   "NVDA": {
     "zscore_neg": [],
     "analyst_alerted": [],
-    "fib_alerted": [],
+    "fib_alerted": [
+      0.382,
+      0.5
+    ],
     "fib_swing_high": 236.264633339045
   },
   "PLTR": {
@@ -148,10 +155,12 @@
   },
   "TSM": {
     "zscore_neg": [
-      2.0
+      2.0,
+      2.5
     ],
     "fib_alerted": [
-      0.382
+      0.382,
+      0.5
     ],
     "fib_swing_high": 479.0
   },
