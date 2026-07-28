@@ -4,7 +4,9 @@
     "alerted_levels": [
       -10
     ],
-    "analyst_alerted": []
+    "analyst_alerted": [
+      64000.0
+    ]
   },
   "ETHUSD": {
     "window_alerted": false
@@ -28,8 +30,7 @@
   "MAGS": {
     "zscore_neg": [],
     "fib_alerted": [
-      0.382,
-      0.5
+      0.382
     ],
     "fib_swing_high": 71.16000366210938
   },
@@ -59,7 +60,8 @@
       2.0
     ],
     "fib_alerted": [
-      0.382
+      0.382,
+      0.5
     ],
     "fib_swing_high": 1999.9599609375
   },
