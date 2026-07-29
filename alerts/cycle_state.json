@@ -4,9 +4,7 @@
     "alerted_levels": [
       -10
     ],
-    "analyst_alerted": [
-      64000.0
-    ]
+    "analyst_alerted": []
   },
   "ETHUSD": {
     "window_alerted": false
@@ -63,7 +61,7 @@
       0.382,
       0.5
     ],
-    "fib_swing_high": 1999.9599609375
+    "fib_swing_high": 1997.3610547170997
   },
   "AVGO": {
     "zscore_neg": [],
@@ -82,8 +80,7 @@
       359.0
     ],
     "fib_alerted": [
-      0.382,
-      0.5
+      0.382
     ],
     "fib_swing_high": 404.22673078989135
   },
