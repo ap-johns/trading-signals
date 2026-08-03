@@ -99,14 +99,19 @@ def check_signals(config: dict) -> list:
     fib_cfg = config.get("fib_alerts", {})
     fib_enabled = fib_cfg.get("enabled", True)
     fib_categories = fib_cfg.get("categories", ["Stocks"])
+    # Categories tracked on the dashboard but never alerted on (e.g. FX, which is
+    # held as a conversion reference rather than traded).
+    exclude_categories = config.get("alert_exclude_categories", [])
     signals = []
 
     # Persistent alert state (dedupes z-score level + crypto cycle alerts across runs)
     cycle_state = load_cycle_state()
 
-    # Flatten watchlist
+    # Flatten watchlist, skipping categories excluded from alerting
     all_tickers = {}
     for category, tickers in config["watchlist"].items():
+        if category in exclude_categories:
+            continue
         for yf_ticker, display_name in tickers.items():
             all_tickers[yf_ticker] = (display_name, category)
 
@@ -127,37 +132,38 @@ def check_signals(config: dict) -> list:
                 src = df["Open"]
                 ott_df = calculate_ott(src, period=ott_period, percent=ott_percent)
                 sma_200 = calculate_sma(df["Close"], period=ema_period)
-                sma_50 = calculate_sma(df["Close"], period=50)
 
                 price = df["Close"].iloc[-1]
                 sma200_val = sma_200.iloc[-1]
-                sma50_val = sma_50.iloc[-1]
                 sma200_relation = "above" if price > sma200_val else "below"
                 above_200 = price > sma200_val if pd.notna(sma200_val) else False
-                above_50 = price > sma50_val if pd.notna(sma50_val) else False
-                prev_above_50 = df["Close"].iloc[-2] > sma_50.iloc[-2] if pd.notna(sma_50.iloc[-2]) else False
                 date_str = df.index[-1].strftime("%Y-%m-%d %H:%M")
 
                 ott_signal = ott_df["signal"].iloc[-1]
-                crossed_above_50 = above_50 and not prev_above_50
                 is_index = category == "Indices"
 
                 if is_index:
-                    # ALWAYS-IN strategy for indices
-                    # Find last sell price (most recent OTT sell above 200 SMA)
+                    # ALWAYS-IN strategy for indices: buy back on an OTT buy or on a
+                    # 5% dip below the level we last sold at.
+                    #
+                    # Locate the most recent OTT sell above the 200 SMA, then check
+                    # whether an OTT buy has happened since it. If so we're already
+                    # back in and the dip reference is spent — without this check the
+                    # dip kept firing long after re-entry.
                     last_sell_price = None
+                    sell_idx = None
                     for j in range(len(ott_df) - 2, 0, -1):
                         if ott_df["signal"].iloc[j] == -1:
                             sell_p = df["Close"].iloc[j]
                             sell_sma = sma_200.iloc[j]
                             if pd.notna(sell_sma) and sell_p > sell_sma:
                                 last_sell_price = sell_p
+                                sell_idx = j
                                 break
+                    if sell_idx is not None and (ott_df["signal"].iloc[sell_idx + 1:] == 1).any():
+                        last_sell_price = None
 
-                    # BUY: OTT buy OR 5% dip from last sell
-                    dip_buy = last_sell_price and price < last_sell_price * 0.95
-                    if ott_signal == 1 or dip_buy:
-                        reason = "OTT buy signal" if ott_signal == 1 else f"5% dip from sell (${last_sell_price:.2f})"
+                    if ott_signal == 1:
                         signals.append({
                             "type": "BUY",
                             "ticker": display_name,
@@ -167,8 +173,38 @@ def check_signals(config: dict) -> list:
                             "sma_200": sma200_val,
                             "sma_relation": sma200_relation,
                             "date": date_str,
-                            "reason": reason,
+                            "reason": "OTT buy signal",
                         })
+                    elif last_sell_price:
+                        # Dip buy-back, now deduped (it previously re-fired every day
+                        # price sat below the threshold). Fires once per sell reference;
+                        # re-arms if price recovers above the threshold, and a new sell
+                        # sets a new reference and re-arms too.
+                        threshold = last_sell_price * 0.95
+                        istate = cycle_state.get(display_name, {})
+                        ref = istate.get("index_dip_ref")
+                        alerted = istate.get("index_dip_alerted", False)
+                        if ref is None or abs(ref - float(last_sell_price)) > 0.01:
+                            alerted = False
+                        if price > threshold:
+                            alerted = False
+                        elif not alerted:
+                            signals.append({
+                                "type": "BUY",
+                                "ticker": display_name,
+                                "category": category,
+                                "timeframe": tf,
+                                "price": price,
+                                "sma_200": sma200_val,
+                                "sma_relation": sma200_relation,
+                                "date": date_str,
+                                "reason": (f"5% dip from last sell "
+                                           f"(sold ${last_sell_price:.2f}, trigger ${threshold:.2f})"),
+                            })
+                            alerted = True
+                        istate["index_dip_ref"] = float(last_sell_price)
+                        istate["index_dip_alerted"] = alerted
+                        cycle_state[display_name] = istate
 
                     # SELL: any OTT sell signal
                     if ott_signal == -1:
@@ -185,10 +221,11 @@ def check_signals(config: dict) -> list:
                         })
 
                 else:
-                    # OTT + SMA strategy for stocks/crypto
-                    # BUY: OTT buy signal OR price crosses above 50 SMA
-                    if ott_signal == 1 or crossed_above_50:
-                        reason = "OTT buy signal" if ott_signal == 1 else "Price crossed above 50 SMA"
+                    # OTT + SMA strategy for stocks/crypto.
+                    # BUY: OTT buy signal only. The standalone "crossed above 50 SMA"
+                    # buy was removed — 50d distance/direction still feeds the DCA
+                    # favorability score, which is the better read on it.
+                    if ott_signal == 1:
                         signals.append({
                             "type": "BUY",
                             "ticker": display_name,
@@ -198,7 +235,7 @@ def check_signals(config: dict) -> list:
                             "sma_200": sma200_val,
                             "sma_relation": sma200_relation,
                             "date": date_str,
-                            "reason": reason,
+                            "reason": "OTT buy signal",
                         })
 
                     # SELL: OTT sell signal AND price above 200 SMA
@@ -215,25 +252,11 @@ def check_signals(config: dict) -> list:
                             "reason": "OTT sell signal (above 200 SMA)",
                         })
 
-                    # SMA DIP signals for stocks: price drops below 200d SMA by 5/10/15/20/25/30%
-                    if category == "Stocks" and tf == "daily" and pd.notna(sma200_val) and len(df) >= 2:
-                        prev_price = df["Close"].iloc[-2]
-                        prev_sma = sma_200.iloc[-2]
-                        for dip_pct in [5, 10, 15, 20, 25, 30]:
-                            threshold = sma200_val * (1 - dip_pct / 100)
-                            prev_threshold = prev_sma * (1 - dip_pct / 100) if pd.notna(prev_sma) else None
-                            if price <= threshold and (prev_threshold is None or prev_price > prev_threshold):
-                                signals.append({
-                                    "type": "BUY",
-                                    "ticker": display_name,
-                                    "category": category,
-                                    "timeframe": tf,
-                                    "price": price,
-                                    "sma_200": sma200_val,
-                                    "sma_relation": sma200_relation,
-                                    "date": date_str,
-                                    "reason": f"Price {dip_pct}% below 200d SMA (${threshold:.2f})",
-                                })
+                # NOTE: the "N% below 200d SMA" stock dip alerts (5/10/15/20/25/30%)
+                # were removed — 102 armed thresholds whose signal is already folded
+                # into the daily DCA favorability score via the fib retracement and
+                # z-score inputs. Distance from the 200d SMA is still shown on the
+                # dashboard and in the DCA digest.
 
                 # FIBONACCI retracement buy alerts (weekly-detected swing) for the
                 # configured fib categories (e.g. Stocks + Indices). Fire when the
@@ -628,16 +651,38 @@ def format_signal(sig: dict) -> str:
     return "\n".join(lines)
 
 
+# A retracement this deep is the golden pocket — worth surfacing even when the
+# z-score says the name isn't statistically cheap yet.
+GOLDEN_POCKET = 0.5
+
+
+def in_digest(row) -> bool:
+    """Whether a ranked row earns a slot in the daily digest.
+
+    `favoured` and `cheap_shallow` always qualify; both require z <= -0.75. That
+    filter alone hid intact-trend names sitting in the golden pocket whose z-score
+    hadn't gone cheap — and since the fib pings were switched off, those appeared
+    nowhere in Telegram. So `quality_not_cheap` also qualifies, but only once the
+    pullback reaches the golden pocket (otherwise it matches nearly every name in
+    an uptrend). `caution` and `broken` stay excluded by design.
+    """
+    if row["tier"] in ("favoured", "cheap_shallow"):
+        return True
+    return row["tier"] == "quality_not_cheap" and (row.get("level") or 0) >= GOLDEN_POCKET
+
+
 def format_dca_digest(rows) -> str:
     """DCA digest: the buyable picks per asset class, colour-coded by tier
-    (\U0001f7e2 favoured, \U0001f7e1 cheap but shallow). `rows` is the ranked
-    output of dca_rank.analyse() (already ordered tier-then-score)."""
-    TIER_DOT = {"favoured": "\U0001f7e2", "cheap_shallow": "\U0001f7e1"}
-    show_tiers = tuple(TIER_DOT)
+    (\U0001f7e2 favoured, \U0001f7e1 cheap but shallow, \U0001f535 golden pocket but
+    not cheap yet). `rows` is the ranked output of dca_rank.analyse() (already
+    ordered tier-then-score, so the dots come out in quality order)."""
+    TIER_DOT = {"favoured": "\U0001f7e2", "cheap_shallow": "\U0001f7e1",
+                "quality_not_cheap": "\U0001f535"}
 
     lines = ["\U0001f4ca <b>Daily DCA Picks</b>",
              datetime.now().strftime("%Y-%m-%d"),
-             "\U0001f7e2 favoured · \U0001f7e1 cheap but shallow",
+             "\U0001f7e2 favoured · \U0001f7e1 cheap but shallow · "
+             "\U0001f535 golden pocket, not cheap yet",
              ""]
 
     cats = []
@@ -647,7 +692,7 @@ def format_dca_digest(rows) -> str:
 
     any_shown = False
     for cat in cats:
-        picks = [r for r in rows if r["tier"] in show_tiers and r["category"] == cat]
+        picks = [r for r in rows if in_digest(r) and r["category"] == cat]
         if not picks:
             continue
         any_shown = True
@@ -663,7 +708,7 @@ def format_dca_digest(rows) -> str:
         lines.append("")
 
     if not any_shown:
-        lines.append("No favoured or cheap setups today.")
+        lines.append("No favoured, cheap or golden-pocket setups today.")
 
     return "\n".join(lines).strip()
 
@@ -707,15 +752,9 @@ def main():
             send_telegram(bot_token, chat_id, msg)
         print(f"\nSent {len(signals)} alert(s) to Telegram.")
     else:
+        # No Telegram heartbeat on quiet days — the daily DCA digest below already
+        # confirms the run happened.
         print("No signals today.")
-        # Send a summary so you know it ran
-        summary = (
-            f"\U0001f50d <b>OTT Scan Complete</b>\n"
-            f"No buy/sell signals detected\n"
-            f"{datetime.now().strftime('%Y-%m-%d %H:%M')}"
-        )
-        send_telegram(bot_token, chat_id, summary)
-        print("Summary sent to Telegram.")
 
     # DCA digest (favoured-now picks) — runs in the same run as the daily alerts.
     # If "daily" is true it fires every run; otherwise only on the configured
