@@ -24,7 +24,10 @@ BASE_URLS = {
 }
 
 # yfinance/watchlist display name for a T212 instrument whose base symbol differs.
-TICKER_ALIASES = {"GOOGL": "GOOG"}
+# SATS -> ECHO: EchoStar migrated its ticker to ECHO around mid-Jul 2026 (same
+# company, same shares outstanding); T212 still labels the position SATS, and
+# yfinance now returns no price data for SATS.
+TICKER_ALIASES = {"GOOGL": "GOOG", "SATS": "ECHO"}
 
 
 def _load_env():
