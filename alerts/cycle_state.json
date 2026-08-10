@@ -4,7 +4,9 @@
     "alerted_levels": [
       -10
     ],
-    "analyst_alerted": []
+    "analyst_alerted": [
+      64000.0
+    ]
   },
   "ETHUSD": {
     "window_alerted": false
