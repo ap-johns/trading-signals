@@ -32,7 +32,7 @@
     "sectors": {
         "NVDA": "Semis", "AMD": "Semis", "AVGO": "Semis", "MRVL": "Semis",
         "MU": "Semis", "TSM": "Semis", "ASML": "Semis", "ARM": "Semis", "ALAB": "Semis",
-        "GOOG": "Internet", "META": "Internet", "MSFT": "Software", "PLTR": "Software",
+        "GOOG": "Internet", "META": "Internet", "AMZN": "Internet", "MSFT": "Software", "PLTR": "Software",
         "TSLA": "Auto/EV", "ECHO": "Telecom", "COPA": "Copper", "SPCX": "Space"
     },
     "dca_summary": {
@@ -101,6 +101,7 @@
         "Stocks": {
             "ALAB": "ALAB",
             "AMD": "AMD",
+            "AMZN": "AMZN",
             "ARM": "ARM",
             "ASML": "ASML",
             "AVGO": "AVGO",
