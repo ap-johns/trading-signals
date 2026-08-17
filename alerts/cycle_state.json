@@ -4,9 +4,7 @@
     "alerted_levels": [
       -10
     ],
-    "analyst_alerted": [
-      64000.0
-    ]
+    "analyst_alerted": []
   },
   "ETHUSD": {
     "window_alerted": false
@@ -163,5 +161,8 @@
     "zscore_neg": [],
     "fib_alerted": [],
     "fib_swing_high": 57.75
+  },
+  "AMZN": {
+    "zscore_neg": []
   }
 }
