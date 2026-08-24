@@ -19,7 +19,9 @@
     "zscore_neg": [],
     "fib_alerted": [],
     "fib_swing_high": 747.8281862002862,
-    "analyst_alerted": [],
+    "analyst_alerted": [
+      708.51
+    ],
     "index_dip_ref": 675.489990234375,
     "index_dip_alerted": false
   },
@@ -64,7 +66,9 @@
       0.5
     ],
     "fib_swing_high": 494.21780481836413,
-    "analyst_alerted": []
+    "analyst_alerted": [
+      362.48
+    ]
   },
   "GOOG": {
     "zscore_neg": [
