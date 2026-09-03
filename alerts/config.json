@@ -31,7 +31,7 @@
     },
     "sectors": {
         "NVDA": "Semis", "AMD": "Semis", "AVGO": "Semis", "MRVL": "Semis",
-        "MU": "Semis", "TSM": "Semis", "ASML": "Semis", "ARM": "Semis", "ALAB": "Semis", "SKHY": "Semis",
+        "MU": "Semis", "TSM": "Semis", "ASML": "Semis", "ARM": "Semis", "ALAB": "Semis", "SKHY": "Semis", "HYNIX": "Semis",
         "GOOG": "Internet", "META": "Internet", "AMZN": "Internet", "MSFT": "Software", "PLTR": "Software",
         "TSLA": "Auto/EV", "ECHO": "Telecom", "COPA": "Copper", "SPCX": "Space"
     },
@@ -115,6 +115,7 @@
             "PLTR": "PLTR",
             "ECHO": "ECHO",
             "SKHY": "SKHY",
+            "000660.KS": "HYNIX",
             "SPCX": "SPCX",
             "TSLA": "TSLA",
             "TSM": "TSM"
