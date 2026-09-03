@@ -64,7 +64,9 @@
       0.5
     ],
     "fib_swing_high": 494.21780481836413,
-    "analyst_alerted": []
+    "analyst_alerted": [
+      362.48
+    ]
   },
   "GOOG": {
     "zscore_neg": [
@@ -128,9 +130,7 @@
     "fib_swing_high": 147.2519989013672
   },
   "TSLA": {
-    "zscore_neg": [
-      2.0
-    ],
+    "zscore_neg": [],
     "fib_alerted": [
       0.382,
       0.5,
@@ -138,9 +138,7 @@
       0.786
     ],
     "fib_swing_high": 498.8299865722656,
-    "analyst_alerted": [
-      368.0
-    ]
+    "analyst_alerted": []
   },
   "TSM": {
     "zscore_neg": [
@@ -161,6 +159,9 @@
     "fib_swing_high": 57.75
   },
   "AMZN": {
+    "zscore_neg": []
+  },
+  "HYNIX": {
     "zscore_neg": []
   }
 }
