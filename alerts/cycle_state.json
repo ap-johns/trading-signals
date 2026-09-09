@@ -120,13 +120,6 @@
     "zscore_neg": [],
     "analyst_alerted": []
   },
-  "ECHO": {
-    "zscore_neg": [
-      2.0
-    ],
-    "fib_alerted": [],
-    "fib_swing_high": 147.2519989013672
-  },
   "TSLA": {
     "zscore_neg": [],
     "fib_alerted": [
