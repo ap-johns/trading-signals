@@ -57,7 +57,9 @@ def fetch_daily_data(ticker: str, days: int = 365) -> pd.DataFrame:
     """Fetch daily OHLCV data."""
     t = yf.Ticker(ticker)
     df = t.history(period=f"{days}d", interval="1d")
-    return df
+    # Drop bars with no close (KRX returns today's in-progress session with
+    # NaN OHLC but a volume figure), otherwise every indicator ends in NaN.
+    return df.dropna(subset=["Close"])
 
 
 def fetch_weekly_data(ticker: str) -> pd.DataFrame:

@@ -820,7 +820,9 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
     # Daily
     try:
         t = yf.Ticker(yf_ticker)
-        df = t.history(period="365d", interval="1d")
+        # Drop bars with no close (e.g. KRX returns today's in-progress session
+        # with NaN OHLC but a volume figure), otherwise price/fib/z go NaN.
+        df = t.history(period="365d", interval="1d").dropna(subset=["Close"])
         if not df.empty and len(df) > ott_period + 10:
             src = df["Open"]
             ott_df = calculate_ott(src, period=ott_period, percent=ott_percent)
@@ -1196,7 +1198,7 @@ def generate_html(all_data, config, holdings=None):
             if category == "Indices":
                 try:
                     t = yf.Ticker(yf_ticker)
-                    df = t.history(period="365d", interval="1d")
+                    df = t.history(period="365d", interval="1d").dropna(subset=["Close"])
                     if not df.empty and len(df) > 200:
                         src = df["Open"]
                         ott_df = calculate_ott(src, period=config["ott"]["period"], percent=config["ott"]["percent"])
