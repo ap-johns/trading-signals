@@ -5,7 +5,8 @@
     "analyst_alerted": []
   },
   "ETHUSD": {
-    "window_alerted": false
+    "window_alerted": false,
+    "alerted_levels": []
   },
   "SOLUSD": {
     "window_alerted": false
@@ -64,9 +65,7 @@
       0.5
     ],
     "fib_swing_high": 494.21780481836413,
-    "analyst_alerted": [
-      362.48
-    ]
+    "analyst_alerted": []
   },
   "GOOG": {
     "zscore_neg": [
@@ -131,9 +130,7 @@
       0.786
     ],
     "fib_swing_high": 498.8299865722656,
-    "analyst_alerted": [
-      368.0
-    ]
+    "analyst_alerted": []
   },
   "TSM": {
     "zscore_neg": [
