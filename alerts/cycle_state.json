@@ -9,7 +9,8 @@
     "alerted_levels": []
   },
   "SOLUSD": {
-    "window_alerted": false
+    "window_alerted": false,
+    "alerted_levels": []
   },
   "SPX": {
     "zscore_neg": [],
