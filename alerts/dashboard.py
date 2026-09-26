@@ -850,6 +850,7 @@ LEAP_GLOSSARY = """
       <dl>
         <dt>LEAP</dt><dd>Long-term Equity AnticiPation security: an ordinary call option with more than a year to expiry. Buying a call gives you the right, not the obligation, to buy 100 shares at the <b>strike</b> price any time before <b>expiry</b>. The panel picks the nearest expiry at least 15 months out so time decay is slow.</dd>
         <dt>Deep in-the-money (ITM) &middot; stock replacement</dt><dd>A call whose strike is well below the current price. It already has real value (spot minus strike) and moves almost one-for-one with the stock, so it behaves like owning shares for a fraction of the cash. That fraction is the <b>Cost</b> column; the multiple next to it is the leverage.</dd>
+        <dt>Outlay</dt><dd>What one contract costs to buy: the mid price &times; 100, because every US equity option controls 100 shares and there is no smaller size. Shown in dollars and, at today's GBPUSD, pounds. This is the most you can lose. <span style="color:#00e676;">Green</span> under $5k, <span style="color:#f0d060;">amber</span> to $12k, <span style="color:#ff5252;">red</span> above. For a first trade, size for a total loss you would shrug at; the cheaper names here are cheaper only because their share price is lower, not because they are lower risk.</dd>
         <dt>Delta (&Delta;)</dt><dd>How much the option moves per $1 move in the stock. 0.78 means roughly 78 cents per dollar. Stock-replacement LEAPs usually target 0.70&ndash;0.85: high enough to track the stock, low enough that you still get leverage. The panel picks the strike whose delta is nearest the target.</dd>
         <dt>Intrinsic vs extrinsic (time) value</dt><dd>Price = intrinsic (spot &minus; strike, the part that is real today) + extrinsic (what you pay for time and uncertainty). Extrinsic is the true cost of the trade: it decays to zero by expiry whatever the stock does. <b>Extrinsic %</b> shows it as a percent of the share price so it is comparable across names. Lower is better.</dd>
         <dt>Breakeven (b/e)</dt><dd>Strike + premium paid. The stock must be above this at expiry for the trade to make money; the percent shows how far above today's price that is. It is the gap the stock has to close just to cover the time value.</dd>
@@ -874,6 +875,7 @@ def leap_section_html(all_data, config):
         return ""
     sectors = config.get("sectors", {})
     iv_hist = leapmod.load_iv_history()
+    gbpusd = all_data.get("GBPUSD=X", {}).get("daily", {}).get("price")
 
     items = []
     for cat in cfg.get("categories", []):
@@ -901,7 +903,7 @@ def leap_section_html(all_data, config):
     for it in items:
         sector_html = f'<span class="fib-sector">{it["sector"]}</span>' if it.get("sector") else ""
         if "error" in it:
-            rows += f'<tr><td></td><td class="ticker">{it["name"]}{sector_html}</td><td colspan="9" class="error">Error: {it["error"]}</td></tr>\n'
+            rows += f'<tr><td></td><td class="ticker">{it["name"]}{sector_html}</td><td colspan="10" class="error">Error: {it["error"]}</td></tr>\n'
             continue
         s = it["snap"]
         fl, fcol, ftip = LEAP_FLAGS.get(it["flag"], ("", "#888", ""))
@@ -937,8 +939,13 @@ def leap_section_html(all_data, config):
             if sp is not None:
                 price_html += f' <span style="color:{spcol};">{sp:.1f}%</span>'
             cost_html = f'{s["cost_pct"]:.0f}% <span class="fib-dt">of spot &middot; {s["leverage"]:.1f}&times;</span>'
+            outlay = mid * 100
+            ocol = "#00e676" if outlay <= 5000 else ("#f0d060" if outlay <= 12000 else "#ff5252")
+            outlay_html = f'<span style="color:{ocol};font-weight:700;">${outlay:,.0f}</span>'
+            if gbpusd:
+                outlay_html += f' <span class="fib-dt">&asymp; &pound;{outlay / gbpusd:,.0f}</span>'
         else:
-            price_html, cost_html = dash, dash
+            price_html, cost_html, outlay_html = dash, dash, dash
         ex = s.get("extrinsic_pct")
         if ex is not None:
             excol = "#00e676" if ex <= 8 else ("#f0d060" if ex <= 14 else "#ff5252")
@@ -955,7 +962,7 @@ def leap_section_html(all_data, config):
         rows += (f'<tr><td>{flag_html}</td><td class="ticker">{it["name"]}{sector_html}</td>'
                  f'<td>{tier_html}</td><td class="fib-price">{fmt_price(s["spot"])}</td>'
                  f'<td>{iv_html}</td><td>{rank_html}</td><td>{contract_html}</td>'
-                 f'<td>{price_html}</td><td>{cost_html}</td><td>{ex_html}</td><td>{oi_html}</td></tr>\n')
+                 f'<td>{price_html}</td><td>{outlay_html}</td><td>{cost_html}</td><td>{ex_html}</td><td>{oi_html}</td></tr>\n')
 
     strong = [it["name"] for it in items if it.get("flag") == "strong"]
     setups = [it["name"] for it in items if it.get("flag") == "setup"]
@@ -974,6 +981,7 @@ def leap_section_html(all_data, config):
              '<th title="ATM implied vol / 90d realised vol">IV / RV</th>'
              '<th title="today\'s IV vs this ticker\'s recorded history">IV rank</th>'
              '<th>Contract</th><th>Mid &middot; bid&ndash;ask &middot; spread</th>'
+             '<th title="one contract = 100 shares, so mid &times; 100">Outlay</th>'
              '<th>Cost</th><th title="time value as % of share price, and breakeven">Extrinsic</th><th>OI</th>'
              f'</tr></thead><tbody>\n{rows}</tbody></table>')
     return f"\n    {head}\n    {summary}\n    {table}\n    {LEAP_GLOSSARY}"
