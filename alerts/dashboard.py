@@ -11,6 +11,26 @@ import yfinance as yf
 import pandas as pd
 
 from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels, atr_levels, IA_LEVEL_RATIOS
+import leaps as leapmod
+import time
+
+
+def yf_history(t, attempts=3, **kwargs):
+    """t.history() with retries. yfinance intermittently returns an empty frame
+    or raises ('NoneType' object is not subscriptable) under rate limiting; a
+    single miss used to drop the ticker from every table on the page."""
+    last_err = None
+    for i in range(attempts):
+        try:
+            df = t.history(**kwargs)
+            if df is not None and not df.empty:
+                return df
+        except Exception as e:  # noqa: BLE001
+            last_err = e
+        time.sleep(2 + 3 * i)
+    if last_err:
+        raise last_err
+    return pd.DataFrame()
 from fib_score import favorability, tier, level_reached, fib_params, rank_key
 from seasonality import seasonality_context, seasonality_banner_html
 from macro import macro_context, macro_banner_html
@@ -810,6 +830,160 @@ def fib_section_html(all_data, config, holdings=None):
     {sections}'''
 
 
+
+LEAP_FLAGS = {
+    "setup": ("Setup", "#00e676", "stock on sale and premium not rich"),
+    "watch": ("Watch", "#f0d060", "one half in place, the other not"),
+    "thin":  ("Thin",  "#888",    "contract too illiquid to trust the numbers"),
+    "avoid": ("Avoid", "#ff5252", "trend broken or rolling over"),
+}
+LEAP_TIER_LABEL = {
+    "favoured": ("Favoured", "#00e676"), "cheap_shallow": ("Cheap, shallow", "#7dd87d"),
+    "quality_not_cheap": ("Not on sale", "#f0d060"), "caution": ("Caution", "#e8925d"),
+    "broken": ("Broken", "#ff5252"),
+}  # None (no fib swing detected) renders as 'No swing'
+
+LEAP_GLOSSARY = """
+    <details class="leap-gloss">
+      <summary>What these columns mean (LEAPs primer)</summary>
+      <dl>
+        <dt>LEAP</dt><dd>Long-term Equity AnticiPation security: an ordinary call option with more than a year to expiry. Buying a call gives you the right, not the obligation, to buy 100 shares at the <b>strike</b> price any time before <b>expiry</b>. The panel picks the nearest expiry at least 15 months out so time decay is slow.</dd>
+        <dt>Deep in-the-money (ITM) &middot; stock replacement</dt><dd>A call whose strike is well below the current price. It already has real value (spot minus strike) and moves almost one-for-one with the stock, so it behaves like owning shares for a fraction of the cash. That fraction is the <b>Cost</b> column; the multiple next to it is the leverage.</dd>
+        <dt>Delta (&Delta;)</dt><dd>How much the option moves per $1 move in the stock. 0.78 means roughly 78 cents per dollar. Stock-replacement LEAPs usually target 0.70&ndash;0.85: high enough to track the stock, low enough that you still get leverage. The panel picks the strike whose delta is nearest the target.</dd>
+        <dt>Intrinsic vs extrinsic (time) value</dt><dd>Price = intrinsic (spot &minus; strike, the part that is real today) + extrinsic (what you pay for time and uncertainty). Extrinsic is the true cost of the trade: it decays to zero by expiry whatever the stock does. <b>Extrinsic %</b> shows it as a percent of the share price so it is comparable across names. Lower is better.</dd>
+        <dt>Breakeven (b/e)</dt><dd>Strike + premium paid. The stock must be above this at expiry for the trade to make money; the percent shows how far above today's price that is. It is the gap the stock has to close just to cover the time value.</dd>
+        <dt>Implied volatility (IV)</dt><dd>The market's forecast of how much the stock will move, backed out of the option price. It <i>is</i> the price of the option in a form you can compare across time and tickers. High IV = expensive options. Shown for the at-the-money strike at the chosen expiry.</dd>
+        <dt>Realised volatility (RV) and the IV/RV ratio</dt><dd>RV is how much the stock has actually moved over the last 90 days, annualised. IV/RV above 1 means you are paying for more movement than the stock has been delivering. <span style="color:#00e676;">&le;1.0</span> cheap, <span style="color:#f0d060;">&le;1.3</span> fair, <span style="color:#ff5252;">above</span> rich.</dd>
+        <dt>IV rank</dt><dd>Where today's IV sits against this ticker's own recorded history: 0 = cheapest seen, 100 = most expensive. Buying LEAPs is best done when IV is low for that name. Yahoo does not supply IV history, so the dashboard records a daily snapshot and this column stays blank until 60 days have been collected.</dd>
+        <dt>Bid&ndash;ask spread</dt><dd>The gap between what buyers will pay and sellers will accept, shown as a percent of the mid price. You lose it on the way in and again on the way out. Long-dated options are wide; under 3% is good, over 8% is expensive to trade.</dd>
+        <dt>Open interest (OI)</dt><dd>Number of contracts outstanding at that strike. Low OI means few participants, stale prices and wide spreads. Under 250 the panel marks the row <b>Thin</b>.</dd>
+        <dt>Theta (time decay)</dt><dd>Not a column, but the reason for the design. Extrinsic value erodes every day and fastest in the last few months, which is why the panel only looks 15+ months out and ranks on extrinsic cost rather than dollar price. A cheap-looking short-dated call is usually the worst LEAP.</dd>
+        <dt>Flag</dt><dd><b>Setup</b> = underlying is in a cheap DCA tier <i>and</i> IV/RV is not rich <i>and</i> the contract is liquid. <b>Watch</b> = only one half is in place. <b>Avoid</b> = trend broken or rolling over; a dated bet on a stock that goes nowhere for a year expires worthless, which is the one outcome buy-and-hold never has. <b>Thin</b> = OI too low to trust the numbers.</dd>
+        <dt>Tier</dt><dd>The same DCA favourability tier as the buy-levels table above. Setups come from the same rules that already drive the daily digest; this panel only adds the premium-cost side.</dd>
+      </dl>
+    </details>"""
+
+
+def leap_section_html(all_data, config):
+    """LEAP panel: per-ticker deep-ITM long-dated call candidate with premium-cost
+    measures, ranked setups first. Informational only: never alerted, never
+    fed into the favourability score."""
+    cfg = config.get("leaps", {})
+    if not cfg.get("enabled", False):
+        return ""
+    sectors = config.get("sectors", {})
+    iv_hist = leapmod.load_iv_history()
+
+    items = []
+    for cat in cfg.get("categories", []):
+        tickers = config["watchlist"].get(cat, {})
+        tiers = {it["name"]: it["tier"] for it in _fib_build_items(all_data, tickers, sectors)}
+        for yf_ticker, name in tickers.items():
+            snap = all_data.get(yf_ticker, {}).get("leap")
+            if snap is None:
+                continue
+            if "error" in snap:
+                items.append({"name": name, "sector": sectors.get(name), "error": snap["error"]})
+                continue
+            tier = tiers.get(name)
+            rank, n_obs = leapmod.iv_rank(iv_hist, name, snap["atm_iv"])
+            items.append({
+                "name": name, "sector": sectors.get(name), "tier": tier, "snap": snap,
+                "flag": leapmod.leap_flag(tier, snap), "iv_rank": rank, "iv_n": n_obs,
+            })
+    if not items:
+        return ""
+    items.sort(key=leapmod.rank_key)
+
+    dash = '<span class="fib-dt">&mdash;</span>'
+    rows = ""
+    for it in items:
+        sector_html = f'<span class="fib-sector">{it["sector"]}</span>' if it.get("sector") else ""
+        if "error" in it:
+            rows += f'<tr><td></td><td class="ticker">{it["name"]}{sector_html}</td><td colspan="9" class="error">Error: {it["error"]}</td></tr>\n'
+            continue
+        s = it["snap"]
+        fl, fcol, ftip = LEAP_FLAGS.get(it["flag"], ("", "#888", ""))
+        flag_html = f'<span class="leap-flag" style="color:{fcol};border-color:{fcol};" title="{ftip}">{fl}</span>'
+        tl, tcol = LEAP_TIER_LABEL.get(it["tier"], ("No swing", "#888"))
+        tier_html = f'<span style="color:{tcol};">{tl}</span>'
+
+        ratio = s.get("iv_ratio")
+        band = leapmod.iv_ratio_band(ratio)
+        bcol = {"good": "#00e676", "ok": "#f0d060", "rich": "#ff5252"}.get(band, "#888")
+        rv = s.get("rv90")
+        iv_html = f'<span style="color:{bcol};font-weight:700;">{s["atm_iv"]*100:.0f}%</span>'
+        if ratio:
+            iv_html += f' <span class="fib-dt">/ {rv*100:.0f}% = {ratio:.2f}&times;</span>'
+        if it["iv_rank"] is not None:
+            r = it["iv_rank"]
+            rcol = "#00e676" if r <= 30 else ("#f0d060" if r <= 60 else "#ff5252")
+            rank_html = f'<span style="color:{rcol};font-weight:700;">{r}</span><span class="fib-dt">/100</span>'
+        else:
+            rank_html = f'<span class="fib-dt" title="needs {leapmod.MIN_IV_HISTORY} daily snapshots">collecting {it["iv_n"]}/{leapmod.MIN_IV_HISTORY}</span>'
+
+        proxy = f' <span class="fib-dt">via {s["symbol"]}</span>' if s["symbol"] != yf_name_for(it["name"], config) else ""
+        exp_dt = datetime.strptime(s["expiry"], "%Y-%m-%d").strftime("%b %y")
+        contract_html = (f'<span class="fib-price">{fmt_price(s["strike"])}C</span> '
+                         f'<span class="fib-dt">{exp_dt} &middot; {s["dte"]}d &middot; &Delta;{s["delta"]:.2f}</span>{proxy}')
+
+        mid = s.get("mid")
+        if mid:
+            sp = s.get("spread_pct")
+            spcol = "#00e676" if (sp is not None and sp <= 3) else ("#f0d060" if (sp is not None and sp <= 8) else "#ff5252")
+            price_html = (f'<span class="fib-price">{fmt_price(mid)}</span> '
+                          f'<span class="fib-dt">{fmt_price(s["bid"])}&ndash;{fmt_price(s["ask"])}</span>')
+            if sp is not None:
+                price_html += f' <span style="color:{spcol};">{sp:.1f}%</span>'
+            cost_html = f'{s["cost_pct"]:.0f}% <span class="fib-dt">of spot &middot; {s["leverage"]:.1f}&times;</span>'
+        else:
+            price_html, cost_html = dash, dash
+        ex = s.get("extrinsic_pct")
+        if ex is not None:
+            excol = "#00e676" if ex <= 8 else ("#f0d060" if ex <= 14 else "#ff5252")
+            ex_html = f'<span style="color:{excol};font-weight:700;">{ex:.1f}%</span>'
+            if s.get("breakeven"):
+                be_up = (s["breakeven"] / s["spot"] - 1) * 100
+                ex_html += f' <span class="fib-dt">b/e {fmt_price(s["breakeven"])} ({be_up:+.0f}%)</span>'
+        else:
+            ex_html = dash
+        oi = s.get("oi", 0)
+        oicol = "#00e676" if oi >= 1000 else ("#f0d060" if oi >= leapmod.MIN_OI else "#ff5252")
+        oi_html = f'<span style="color:{oicol};">{oi:,}</span>'
+
+        rows += (f'<tr><td>{flag_html}</td><td class="ticker">{it["name"]}{sector_html}</td>'
+                 f'<td>{tier_html}</td><td class="fib-price">{fmt_price(s["spot"])}</td>'
+                 f'<td>{iv_html}</td><td>{rank_html}</td><td>{contract_html}</td>'
+                 f'<td>{price_html}</td><td>{cost_html}</td><td>{ex_html}</td><td>{oi_html}</td></tr>\n')
+
+    setups = [it["name"] for it in items if it.get("flag") == "setup"]
+    summary = (f'<div class="fib-summary"><span class="fib-sum-line">'
+               f'<span class="fib-sum-tag fav">{len(setups)} setup{"s" if len(setups) != 1 else ""}</span> '
+               f'{", ".join(setups) or "none today"}</span></div>')
+    delta = cfg.get("target_delta", leapmod.TARGET_DELTA)
+    months = cfg.get("min_months", leapmod.MIN_MONTHS)
+    head = (f'<h2 class="fib-title">LEAP Candidates <span class="fib-sub">deep-ITM calls {months}+ months out, '
+            f'delta &asymp; {delta:.2f} &middot; ranked setups first, then cheapest premium &middot; '
+            f'informational, not alerted &middot; source: yfinance chains, prices can be stale</span></h2>')
+    table = ('<table class="fib-table"><thead><tr>'
+             '<th>Flag</th><th>Ticker</th><th>DCA tier</th><th>Spot</th>'
+             '<th title="ATM implied vol / 90d realised vol">IV / RV</th>'
+             '<th title="today\'s IV vs this ticker\'s recorded history">IV rank</th>'
+             '<th>Contract</th><th>Mid &middot; bid&ndash;ask &middot; spread</th>'
+             '<th>Cost</th><th title="time value as % of share price, and breakeven">Extrinsic</th><th>OI</th>'
+             f'</tr></thead><tbody>\n{rows}</tbody></table>')
+    return f"\n    {head}\n    {summary}\n    {table}\n    {LEAP_GLOSSARY}"
+
+
+def yf_name_for(display_name, config):
+    """Reverse-map a display name to its yfinance symbol (for the proxy label)."""
+    for tickers in config["watchlist"].values():
+        for yf_ticker, name in tickers.items():
+            if name == display_name:
+                return yf_ticker
+    return display_name
+
+
 def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
                     fib_enabled=True, fib_lookback=104, fib_min_gain=0.30,
                     fib_reversal=0.14, fib_levels=(0.382, 0.5, 0.618, 0.786),
@@ -822,7 +996,7 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
         t = yf.Ticker(yf_ticker)
         # Drop bars with no close (e.g. KRX returns today's in-progress session
         # with NaN OHLC but a volume figure), otherwise price/fib/z go NaN.
-        df = t.history(period="365d", interval="1d").dropna(subset=["Close"])
+        df = yf_history(t, period="365d", interval="1d").dropna(subset=["Close"])
         if not df.empty and len(df) > ott_period + 10:
             src = df["Open"]
             ott_df = calculate_ott(src, period=ott_period, percent=ott_percent)
@@ -875,6 +1049,7 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
             # Short-term direction: 5-session % change (for "approaching/leaving" a level)
             chg5 = float((df["Close"].iloc[-1] / df["Close"].iloc[-6] - 1) * 100) if len(df) >= 6 else 0.0
 
+            results["_close"] = df["Close"]   # kept for LEAP realised-vol calc; not rendered
             results["daily"] = {
                 "price": price_now,
                 "chg5": chg5,
@@ -898,7 +1073,7 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
     # 4h (from 1h candles)
     try:
         t = yf.Ticker(yf_ticker)
-        df_1h = t.history(period="60d", interval="1h")
+        df_1h = yf_history(t, period="60d", interval="1h")
         if not df_1h.empty:
             df_4h = df_1h.resample("4h").agg({
                 "Open": "first", "High": "max", "Low": "min",
@@ -937,7 +1112,7 @@ def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
     # Weekly (resampled from daily)
     try:
         t = yf.Ticker(yf_ticker)
-        df = t.history(period="max", interval="1wk")
+        df = yf_history(t, period="max", interval="1wk")
         if not df.empty:
             df_w = df.dropna()
 
@@ -1041,7 +1216,7 @@ def generate_html(all_data, config, holdings=None):
             if category == "Crypto":
                 try:
                     t = yf.Ticker(yf_ticker)
-                    df_w = t.history(period="5y", interval="1wk")
+                    df_w = yf_history(t, period="5y", interval="1wk")
                     if not df_w.empty and len(df_w) > 50:
                         ema_200w = calculate_ema(df_w["Close"], period=200)
                         price = df_w["Close"].iloc[-1]
@@ -1198,7 +1373,7 @@ def generate_html(all_data, config, holdings=None):
             if category == "Indices":
                 try:
                     t = yf.Ticker(yf_ticker)
-                    df = t.history(period="365d", interval="1d").dropna(subset=["Close"])
+                    df = yf_history(t, period="365d", interval="1d").dropna(subset=["Close"])
                     if not df.empty and len(df) > 200:
                         src = df["Open"]
                         ott_df = calculate_ott(src, period=config["ott"]["period"], percent=config["ott"]["percent"])
@@ -1218,7 +1393,7 @@ def generate_html(all_data, config, holdings=None):
                         # 200w SMA
                         pct_from_200w = None
                         try:
-                            df_w = t.history(period="max", interval="1wk").dropna()
+                            df_w = yf_history(t, period="max", interval="1wk").dropna()
                             if len(df_w) >= 200:
                                 sma_200w = calculate_sma(df_w["Close"], period=200)
                                 sma_200w_val = sma_200w.iloc[-1]
@@ -1434,6 +1609,7 @@ def generate_html(all_data, config, holdings=None):
     fib_section = fib_section_html(all_data, config, holdings=holdings)
     ia_section = ia_levels_section_html(all_data, config)
     analyst_section = analyst_targets_section_html(all_data, config)
+    leap_section = leap_section_html(all_data, config)
     season_banner = seasonality_banner_html(seasonality_context(datetime.now().month))
     macro_banner = macro_banner_html(macro_context(config))
 
@@ -1783,6 +1959,12 @@ def generate_html(all_data, config, holdings=None):
     .fib-scale {{ font-size: 0.8em; font-weight: 400; color: var(--ink-faint); margin-left: 6px; text-transform: none; letter-spacing: 0; }}
     .fib-range-cell {{ color: var(--ink-soft); white-space: nowrap; }}
     .fib-dt {{ color: var(--ink-faint); }}
+    .leap-flag {{ display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border: 1px solid; border-radius: 10px; letter-spacing: 0.04em; }}
+    .leap-gloss {{ margin-top: 10px; font-size: 13px; color: var(--ink-soft); background: var(--surface); border-radius: var(--radius); padding: 8px 14px; }}
+    .leap-gloss summary {{ cursor: pointer; color: var(--accent); font-weight: 600; }}
+    .leap-gloss dl {{ margin: 8px 0 4px; }}
+    .leap-gloss dt {{ color: var(--ink); font-weight: 600; margin-top: 10px; }}
+    .leap-gloss dd {{ margin: 2px 0 0 0; line-height: 1.5; }}
     .fib-gain {{ color: #00e676; font-weight: 600; }}
     .fib-price {{ color: var(--ink); font-weight: 600; white-space: nowrap; }}
     .fib-lv {{ color: var(--ink-soft); white-space: nowrap; }}
@@ -2022,6 +2204,7 @@ def generate_html(all_data, config, holdings=None):
     {fib_section}
     {ia_section}
     {analyst_section}
+    {leap_section}
     <div class="legend">
         <span class="signal-pill buy-signal">date</span> = Buy signal &nbsp;
         <span class="signal-pill sell-signal">date</span> = Sell signal &nbsp; | &nbsp;
@@ -2094,6 +2277,10 @@ def main():
         for yf_ticker, display_name in tickers.items():
             all_tickers[yf_ticker] = (display_name, category)
 
+    leap_cfg = config.get("leaps", {})
+    leap_categories = leap_cfg.get("categories", []) if leap_cfg.get("enabled", False) else []
+    iv_hist = leapmod.load_iv_history() if leap_categories else {}
+
     print(f"Fetching data for {len(all_tickers)} tickers...")
     all_data = {}
     for yf_ticker, (display_name, category) in all_tickers.items():
@@ -2106,7 +2293,24 @@ def main():
             fib_reversal=fp["reversal"], fib_levels=fp["levels"],
             analyst_enabled=category in analyst_categories,
         )
+        if category in leap_categories:
+            d = all_data[yf_ticker]
+            price = d.get("daily", {}).get("price")
+            if price:
+                try:
+                    snap = leapmod.fetch_leap_snapshot(
+                        yf_ticker, price, close_series=d.get("_close"),
+                        target_delta=leap_cfg.get("target_delta", leapmod.TARGET_DELTA),
+                        min_months=leap_cfg.get("min_months", leapmod.MIN_MONTHS),
+                    )
+                    d["leap"] = snap
+                    if snap:
+                        leapmod.record_iv(iv_hist, display_name, snap["atm_iv"])
+                except Exception as e:  # noqa: BLE001
+                    d["leap"] = {"error": str(e)}
         print("done")
+    if leap_categories:
+        leapmod.save_iv_history(iv_hist)
 
     # Private mode: overlay Trading 212 holdings and write to a git-ignored file.
     # The public run (no --private) never touches the broker.

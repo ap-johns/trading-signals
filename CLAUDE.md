@@ -46,6 +46,7 @@ Python modules in `alerts/`, no external web framework:
 - **backtest.py** — Historical strategy simulation vs buy-and-hold. Carries its **own** copies of strategy rules (including the index 5% dip buy-back) — intentionally independent of what is alerted on.
 - **broker.py** — Read-only Trading 212 access. Degrades to `None` if credentials are absent.
 - **macro.py**, **seasonality.py** — Informational context banners only. Deliberately **not** fed into the favorability score.
+- **leaps.py** — LEAP (15+ month deep-ITM call) candidate panel on the dashboard. Reuses the DCA tier for the underlying and adds premium cost: ATM implied vol vs 90d realised vol, IV rank (from `iv_history.json`, needs 60 daily snapshots), delta-targeted strike with bid/ask, extrinsic %, breakeven and open interest. Index tickers use ETF proxies (`OPTION_PROXY`). Informational only: never alerted, never scored.
 
 ## Strategy Types
 
@@ -111,6 +112,7 @@ When adding a level-based trigger, persist fired levels in `cycle_state.json` wi
 - `alerts/config.json` — All parameters: OTT period/percent, EMA period, timeframes, `alert_exclude_categories`, z-score/fib/DCA/IA alert settings, sectors, dry-powder sizing rules, macro note, crypto cycle windows with per-ticker overrides, watchlist
 - `alerts/cycle_state.json` — Persistent dedupe state per ticker (`zscore_neg`, `index_dip_alerted`, `index_dip_ref`, `alerted_levels`, `analyst_alerted`, `window_alerted`, `sell_alerted`, plus now-dormant `fib_alerted` / `fib_swing_high`). Committed by CI. Stale entries for de-configured levels are harmless — loops only iterate configured levels. Nothing outside `signal_checker.py` reads this file.
 - `alerts/analyst_levels.json` — Analyst buy levels (Jacob @ Invest Answers), refreshed via `/js:invest-answers-jacob`
+- `alerts/iv_history.json` — Daily ATM LEAP implied-vol snapshot per ticker, written by `dashboard.py` and committed by CI. Backs the IV rank column; only `leaps.py` reads it.
 - `docs/index.html` — Generated public dashboard (committed by CI, served by GitHub Pages)
 - `local-dashboard.html` — Private holdings view, **gitignored, never commit**
 - `.github/workflows/update.yml` — CI: runs signal_checker then dashboard, commits results back
