@@ -50,7 +50,7 @@
         "enabled": true,
         "digest": true,
         "categories": ["Stocks", "Indices"],
-        "target_delta": 0.78,
+        "target_delta": 0.85,
         "min_months": 15
     },
     "analyst_targets": {
