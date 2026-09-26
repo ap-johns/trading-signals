@@ -283,3 +283,96 @@ def rank_key(item):
     snap = item.get("snap") or {}
     ratio = snap.get("iv_ratio")
     return (order.get(item.get("flag"), 4), ratio if ratio is not None else 9.0)
+
+
+# ---------------------------------------------------------------- 2x daily-reset ETP suitability
+
+ETP_LEVERAGE = 2
+ETP_WINDOW = 378            # ~18 months of trading days
+ETP_DRAG = 0.11             # fees + financing per unit of borrowed exposure, per year
+ETP_MIN_WINDOWS = 500       # ~2 years of rolling windows before the stats are trusted
+ETP_SINCE = "2010-01-01"    # common sample start so verdicts are comparable across names
+
+# London-listed 2x daily long ETPs per watchlist name, verified via yfinance on
+# 2026-09-26: (USD line, GBP line, issuer). Leverage Shares list both currency
+# lines under mirrored tickers. None = no 2x product found in London; the note
+# says what does exist. Check ISA/SIPP eligibility of the exact line with the
+# provider before relying on it.
+ETP_TICKERS = {
+    "NVDA": ("NVD2", "2NVD", "Leverage Shares"),
+    "MSFT": ("MSF2", "2MSF", "Leverage Shares"),
+    "AMZN": ("AMZ2", "2AMZ", "Leverage Shares"),
+    "GOOG": ("GOO2", "2GOO", "Leverage Shares"),
+    "AMD":  ("AMD2", "2AMD", "Leverage Shares"),
+    "TSLA": ("TSL2", "2TSL", "Leverage Shares"),
+    "META": ("FB2",  "2FB",  "Leverage Shares"),
+    "MU":   ("MU2",  "2MU",  "Leverage Shares"),
+    "SPX":  ("XS2D", None,   "Xtrackers UCITS ETF"),
+}
+ETP_NOTES = {
+    "QQQ":  "no 2x in London; 3x only (QQQ3 / LQQ3, WisdomTree)",
+    "TSM":  "no 2x in London; 3x only (TSM3, Leverage Shares)",
+    "AVGO": "no 2x in London; 3x only (3AVG, Leverage Shares)",
+}
+
+
+def etp_simulate(close, leverage=ETP_LEVERAGE, drag=ETP_DRAG):
+    """Synthetic daily-reset leveraged product from the underlying's own daily
+    returns. Financing/fees scale with the borrowed fraction (leverage - 1)."""
+    close = pd.Series(close).dropna()
+    r = close.pct_change().dropna()
+    daily_drag = drag * (leverage - 1) / 2 / 252
+    return (1 + leverage * r - daily_drag).cumprod()
+
+
+def etp_stats(close, leverage=ETP_LEVERAGE, window=ETP_WINDOW, since=ETP_SINCE):
+    """Rolling `window`-bar hold statistics for a synthetic leveraged product vs
+    holding the stock, over a common sample starting at `since` (or listing).
+    `n` is the number of windows; treat < ETP_MIN_WINDOWS as thin."""
+    close = pd.Series(close).dropna()
+    idx = close.index.tz_localize(None) if getattr(close.index, "tz", None) is not None else close.index
+    close = close[idx >= pd.Timestamp(since)]
+    start_year = int(close.index[0].year) if len(close) else None
+    r1y = np.log(close).diff().dropna().iloc[-252:]
+    vol1y = float(r1y.std() * math.sqrt(252)) if len(r1y) >= 120 else None
+    if len(close) < window + 20:
+        return {"n": 0, "vol1y": vol1y, "since": start_year}
+    etp = etp_simulate(close, leverage)
+    re = etp.pct_change(window).dropna()
+    ru = close.pct_change(window).dropna()
+    j = pd.concat([re.rename("e"), ru.rename("u")], axis=1).dropna()
+    if j.empty:
+        return {"n": 0, "vol1y": vol1y, "since": start_year}
+    return {
+        "n": int(len(j)),
+        "since": start_year,
+        "vol1y": vol1y,
+        "beat_pct": float((j.e > j.u).mean() * 100),
+        "halved_pct": float((j.e < -0.5).mean() * 100),
+        "lose_while_up_pct": float(((j.e < 0) & (j.u > 0)).mean() * 100),
+        "etp_median": float(j.e.median() * 100),
+        "stock_median": float(j.u.median() * 100),
+        "worst": float(j.e.min() * 100),
+        # Expected annual volatility drag of an L× daily-reset product ≈ σ²·(L²−L)/2
+        "vol_drag": (vol1y ** 2 * (leverage ** 2 - leverage) / 2 * 100) if vol1y else None,
+    }
+
+
+def etp_verdict(st):
+    """'suitable' / 'marginal' / 'avoid' / 'thin' for holding a 2x daily-reset
+    ETP ~18 months. With thin history, fall back to realised vol alone: the
+    daily reset feeds on volatility, so a very volatile name is an avoid
+    regardless of how its short history happened to play out."""
+    if not st:
+        return None
+    vol = st.get("vol1y")
+    if st.get("n", 0) < ETP_MIN_WINDOWS:
+        if vol is not None and vol >= 0.65:
+            return "avoid"
+        return "thin"
+    beat, halved = st["beat_pct"], st["halved_pct"]
+    if (beat >= 65 and halved <= 10) or (beat >= 60 and halved <= 5):
+        return "suitable"
+    if beat <= 50 or halved >= 20:
+        return "avoid"
+    return "marginal"
