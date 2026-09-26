@@ -51,7 +51,9 @@
         "digest": true,
         "categories": ["Stocks", "Indices"],
         "target_delta": 0.78,
-        "min_months": 15
+        "min_months": 15,
+        "uk_cgt_rate": 0.24,
+        "example_ticker": "NVDA"
     },
     "analyst_targets": {
         "enabled": true,

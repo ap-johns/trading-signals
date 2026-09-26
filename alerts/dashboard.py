@@ -862,8 +862,53 @@ LEAP_GLOSSARY = """
         <dt>Theta (time decay)</dt><dd>Not a column, but the reason for the design. Extrinsic value erodes every day and fastest in the last few months, which is why the panel only looks 15+ months out and ranks on extrinsic cost rather than dollar price. A cheap-looking short-dated call is usually the worst LEAP.</dd>
         <dt>Flag</dt><dd><b>Strong setup</b> = underlying is <b>Favoured</b> (cheap, retraced to at least the golden pocket, trend intact) <i>and</i> IV/RV is not rich <i>and</i> the contract is liquid. This is the grade to wait for on a first trade: a deeper entry lowers the breakeven and buys more recovery per unit of time value. <b>Setup</b> = the same but the stock is only <b>Cheap, shallow</b>: cheap against its 200d average with a small pullback, which is fine for DCA but a thin margin for an instrument with a deadline. <b>Watch</b> = only one half is in place. <b>Avoid</b> = trend broken or rolling over; a dated bet on a stock that goes nowhere for a year expires worthless, which is the one outcome buy-and-hold never has. <b>Thin</b> = OI too low to trust the numbers.</dd>
         <dt>Tier</dt><dd>The same DCA favourability tier as the buy-levels table above. Setups come from the same rules that already drive the daily digest; this panel only adds the premium-cost side.</dd>
+        <dt>Is it worth it versus just holding the shares? (UK CGT)</dt><dd>UK capital gains tax treats an option gain the same as a share gain, so the rate is not the deciding factor. Two things are: shares can live in an ISA and pay no CGT, while options cannot; and a LEAP must be rolled every year or so, crystallising a gain each time, whereas shares held forever defer tax indefinitely. The LEAP has to earn that gap back through leverage, which it only does when the stock moves a good deal within the contract's life.__LEAP_TAX_TABLE__</dd>
       </dl>
     </details>"""
+
+
+def leap_tax_table_html(item, cgt_rate):
+    """Worked example, hold-to-expiry: shares in an ISA vs the panel's LEAP for the
+    same name, before and after UK CGT. Returns on cash put down; the annual
+    exempt amount is ignored. Computed live from the row so it tracks the premium."""
+    s = item["snap"]
+    spot, strike, mid = s["spot"], s["strike"], s.get("mid")
+    if not mid:
+        return ""
+    def cell(v, plain=False):
+        col = "var(--ink)" if plain else ("#00e676" if v > 0 else ("#ff5252" if v < 0 else "var(--ink-soft)"))
+        return f'<td style="color:{col};text-align:right;">{v*100:+.0f}%</td>'
+    rows = ""
+    for x in (-0.20, 0.0, 0.15, 0.30, 0.50):
+        val = max(spot * (1 + x) - strike, 0.0)
+        gross = val / mid - 1
+        net = gross * (1 - cgt_rate) if gross > 0 else gross
+        label = "Flat" if x == 0 else (f"Up {x*100:.0f}%" if x > 0 else f"Down {-x*100:.0f}%")
+        rows += f"<tr><td>{label}</td>{cell(x, True)}{cell(gross)}{cell(net)}</tr>\n"
+    # Where the LEAP overtakes tax-free shares, before and after tax.
+    def crossover(after_tax):
+        x = 0.0
+        while x < 2.0:
+            val = max(spot * (1 + x) - strike, 0.0)
+            g = val / mid - 1
+            if after_tax and g > 0:
+                g *= (1 - cgt_rate)
+            if g >= x:
+                return x
+            x += 0.005
+        return None
+    xo_g, xo_n = crossover(False), crossover(True)
+    xo = (f" Before tax the LEAP overtakes the shares once the stock is up about {xo_g*100:.0f}% by expiry; after tax about {xo_n*100:.0f}%."
+          if xo_g is not None and xo_n is not None else "")
+    ext = s.get("extrinsic") or 0.0
+    return f"""<p style="margin:6px 0 4px;">Worked example from today's <b>{item["name"]}</b> row: stock at {fmt_price(spot)}, the {fmt_price(strike)} call at {fmt_price(mid)} a share
+    ({fmt_price(mid*100)} a contract), of which {fmt_price(ext)} is time value. Held to expiry, returns on the cash put down, annual exempt amount ignored.
+    Shares are assumed to sit in an ISA, where there is no CGT; options cannot be held in an ISA, so the LEAP pays CGT at {cgt_rate*100:.0f}% on any gain.</p>
+    <table class="leap-tax"><thead><tr><th>Stock at expiry</th><th style="text-align:right;">Shares in ISA</th><th style="text-align:right;">LEAP before CGT</th><th style="text-align:right;">LEAP after {cgt_rate*100:.0f}% CGT</th></tr></thead>
+    <tbody>{rows}</tbody></table>
+    <p style="margin:6px 0 0;">The loss rows match in both LEAP columns because a loss is not taxed, only carried against other taxable gains.{xo}
+    The tax shifts that line by a few points; the time value is what produces the loss on a flat stock and the lag on a modest rise, and that cost is there either way.
+    The rate is a config value and may be out of date; not tax advice.</p>"""
 
 
 def leap_section_html(all_data, config):
@@ -984,7 +1029,12 @@ def leap_section_html(all_data, config):
              '<th title="one contract = 100 shares, so mid &times; 100">Outlay</th>'
              '<th>Cost</th><th title="time value as % of share price, and breakeven">Extrinsic</th><th>OI</th>'
              f'</tr></thead><tbody>\n{rows}</tbody></table>')
-    return f"\n    {head}\n    {summary}\n    {table}\n    {LEAP_GLOSSARY}"
+    example = next((it for it in items if it.get("name") == cfg.get("example_ticker", "NVDA") and it.get("snap")), None)
+    if example is None:
+        example = next((it for it in items if it.get("snap") and it["snap"].get("mid")), None)
+    tax_html = leap_tax_table_html(example, cfg.get("uk_cgt_rate", 0.24)) if example else ""
+    glossary = LEAP_GLOSSARY.replace("__LEAP_TAX_TABLE__", tax_html)
+    return f"\n    {head}\n    {summary}\n    {table}\n    {glossary}"
 
 
 def yf_name_for(display_name, config):
@@ -1977,6 +2027,9 @@ def generate_html(all_data, config, holdings=None):
     .leap-gloss dl {{ margin: 8px 0 4px; }}
     .leap-gloss dt {{ color: var(--ink); font-weight: 600; margin-top: 10px; }}
     .leap-gloss dd {{ margin: 2px 0 0 0; line-height: 1.5; }}
+    .leap-tax {{ border-collapse: collapse; margin: 6px 0; font-size: 12.5px; }}
+    .leap-tax th, .leap-tax td {{ padding: 4px 12px 4px 0; border-bottom: 1px solid var(--line-soft); }}
+    .leap-tax th {{ color: var(--ink-soft); font-weight: 600; text-align: left; }}
     .fib-gain {{ color: #00e676; font-weight: 600; }}
     .fib-price {{ color: var(--ink); font-weight: 600; white-space: nowrap; }}
     .fib-lv {{ color: var(--ink-soft); white-space: nowrap; }}

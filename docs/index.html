@@ -350,6 +350,9 @@
     .leap-gloss dl { margin: 8px 0 4px; }
     .leap-gloss dt { color: var(--ink); font-weight: 600; margin-top: 10px; }
     .leap-gloss dd { margin: 2px 0 0 0; line-height: 1.5; }
+    .leap-tax { border-collapse: collapse; margin: 6px 0; font-size: 12.5px; }
+    .leap-tax th, .leap-tax td { padding: 4px 12px 4px 0; border-bottom: 1px solid var(--line-soft); }
+    .leap-tax th { color: var(--ink-soft); font-weight: 600; text-align: left; }
     .fib-gain { color: #00e676; font-weight: 600; }
     .fib-price { color: var(--ink); font-weight: 600; white-space: nowrap; }
     .fib-lv { color: var(--ink-soft); white-space: nowrap; }
@@ -559,7 +562,7 @@
 </head>
 <body>
     <h1>OTT Signal Dashboard</h1>
-    <div class="updated">Last updated: 2026-09-26 13:33:56.125998</div>
+    <div class="updated">Last updated: 2026-09-26 13:41:09.864238</div>
     <div class="params">OTT Period: 10 | OTT Percent: 3.0 | Source: Open | MA Type: VAR | EMA: 200</div>
     <div class="controls">
         <div class="tf-toggle">
@@ -588,11 +591,11 @@
                         </tr>
 <tr data-tf="daily">
                             <td class="ticker"><span class="trend-icon bullish">&#9650;</span> ETHUSD</td>
-                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('ETHUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$4.3k</span></span><span id="ETHUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">17 Apr 23<br><span class="sig-price">$1.9k</span></span> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$1.3k</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$3.4k</span></span></span> <span class="strat-label">+3% above 200w EMA <span style="color:#f0d060;">(+2.0σ vs 200d SMA)</span> | Next window: 1 Dec 26 (65d)</span></td>
+                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('ETHUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$4.3k</span></span><span id="ETHUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">17 Apr 23<br><span class="sig-price">$1.9k</span></span> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$1.3k</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$3.4k</span></span></span> <span class="strat-label">+2% above 200w EMA <span style="color:#f0d060;">(+2.0σ vs 200d SMA)</span> | Next window: 1 Dec 26 (65d)</span></td>
                         </tr>
 <tr data-tf="daily">
                             <td class="ticker"><span class="trend-icon bullish">&#9650;</span> SOLUSD</td>
-                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('SOLUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$206.47</span></span><span id="SOLUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$13.43</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$148.05</span></span></span> <span class="strat-label">+1% above 200w EMA <span style="color:#ffffff;">(+2.5σ vs 200d SMA)</span> | Next window: 1 Dec 26 (65d)</span></td>
+                            <td class="signals"><span class="signal-pill clickable sell-signal" onclick="document.getElementById('SOLUSD_cycle').classList.toggle('show')">1 Sep 25<br><span class="sig-price">$206.47</span></span><span id="SOLUSD_cycle" class="older-signals"> <span class="signal-pill buy-signal">5 Dec 22<br><span class="sig-price">$13.43</span></span> <span class="signal-pill sell-signal">4 Oct 21<br><span class="sig-price">$148.05</span></span></span> <span class="strat-label">+1% above 200w EMA <span style="color:#ffffff;">(+2.4σ vs 200d SMA)</span> | Next window: 1 Dec 26 (65d)</span></td>
                         </tr>
 <tr class="category-row"><td colspan="6">Indices <span class="strat-label">Always-In: sell on any OTT sell, buy back on OTT buy or 5% dip from sell</span></td></tr>
 <tr class="" data-tf="daily">
@@ -1649,6 +1652,19 @@
         <dt>Theta (time decay)</dt><dd>Not a column, but the reason for the design. Extrinsic value erodes every day and fastest in the last few months, which is why the panel only looks 15+ months out and ranks on extrinsic cost rather than dollar price. A cheap-looking short-dated call is usually the worst LEAP.</dd>
         <dt>Flag</dt><dd><b>Strong setup</b> = underlying is <b>Favoured</b> (cheap, retraced to at least the golden pocket, trend intact) <i>and</i> IV/RV is not rich <i>and</i> the contract is liquid. This is the grade to wait for on a first trade: a deeper entry lowers the breakeven and buys more recovery per unit of time value. <b>Setup</b> = the same but the stock is only <b>Cheap, shallow</b>: cheap against its 200d average with a small pullback, which is fine for DCA but a thin margin for an instrument with a deadline. <b>Watch</b> = only one half is in place. <b>Avoid</b> = trend broken or rolling over; a dated bet on a stock that goes nowhere for a year expires worthless, which is the one outcome buy-and-hold never has. <b>Thin</b> = OI too low to trust the numbers.</dd>
         <dt>Tier</dt><dd>The same DCA favourability tier as the buy-levels table above. Setups come from the same rules that already drive the daily digest; this panel only adds the premium-cost side.</dd>
+        <dt>Is it worth it versus just holding the shares? (UK CGT)</dt><dd>UK capital gains tax treats an option gain the same as a share gain, so the rate is not the deciding factor. Two things are: shares can live in an ISA and pay no CGT, while options cannot; and a LEAP must be rolled every year or so, crystallising a gain each time, whereas shares held forever defer tax indefinitely. The LEAP has to earn that gap back through leverage, which it only does when the stock moves a good deal within the contract's life.<p style="margin:6px 0 4px;">Worked example from today's <b>NVDA</b> row: stock at $225.07, the $180.00 call at $70.62 a share
+    ($7.1k a contract), of which $25.55 is time value. Held to expiry, returns on the cash put down, annual exempt amount ignored.
+    Shares are assumed to sit in an ISA, where there is no CGT; options cannot be held in an ISA, so the LEAP pays CGT at 24% on any gain.</p>
+    <table class="leap-tax"><thead><tr><th>Stock at expiry</th><th style="text-align:right;">Shares in ISA</th><th style="text-align:right;">LEAP before CGT</th><th style="text-align:right;">LEAP after 24% CGT</th></tr></thead>
+    <tbody><tr><td>Down 20%</td><td style="color:var(--ink);text-align:right;">-20%</td><td style="color:#ff5252;text-align:right;">-100%</td><td style="color:#ff5252;text-align:right;">-100%</td></tr>
+<tr><td>Flat</td><td style="color:var(--ink);text-align:right;">+0%</td><td style="color:#ff5252;text-align:right;">-36%</td><td style="color:#ff5252;text-align:right;">-36%</td></tr>
+<tr><td>Up 15%</td><td style="color:var(--ink);text-align:right;">+15%</td><td style="color:#00e676;text-align:right;">+12%</td><td style="color:#00e676;text-align:right;">+9%</td></tr>
+<tr><td>Up 30%</td><td style="color:var(--ink);text-align:right;">+30%</td><td style="color:#00e676;text-align:right;">+59%</td><td style="color:#00e676;text-align:right;">+45%</td></tr>
+<tr><td>Up 50%</td><td style="color:var(--ink);text-align:right;">+50%</td><td style="color:#00e676;text-align:right;">+123%</td><td style="color:#00e676;text-align:right;">+94%</td></tr>
+</tbody></table>
+    <p style="margin:6px 0 0;">The loss rows match in both LEAP columns because a loss is not taxed, only carried against other taxable gains. Before tax the LEAP overtakes the shares once the stock is up about 17% by expiry; after tax about 20%.
+    The tax shifts that line by a few points; the time value is what produces the loss on a flat stock and the lag on a modest rise, and that cost is there either way.
+    The rate is a config value and may be out of date; not tax advice.</p></dd>
       </dl>
     </details>
     <div class="legend">
