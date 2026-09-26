@@ -84,7 +84,7 @@ def analyse():
 
             score = favorability(frac, z, s50_dist, s50_dir, sup_dist, w200, wk_bull, d200)
             rows.append({
-                "name": name, "category": cat, "sector": sectors.get(name),
+                "name": name, "yf_ticker": yf_ticker, "category": cat, "sector": sectors.get(name),
                 "price": round(float(price), 2), "retrace_pct": round(frac * 100),
                 "level": level_reached(frac), "z": round(z, 1) if z is not None else None,
                 "sma50_dist_pct": round(s50_dist) if s50_dist is not None else None,

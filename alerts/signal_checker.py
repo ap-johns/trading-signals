@@ -673,7 +673,55 @@ def in_digest(row) -> bool:
     return row["tier"] == "quality_not_cheap" and (row.get("level") or 0) >= GOLDEN_POCKET
 
 
-def format_dca_digest(rows) -> str:
+def leap_strong_setups(rows, config):
+    """Strong LEAP setups among the favoured picks: favoured DCA tier AND premium
+    not rich AND liquid contract (leaps.leap_flag == 'strong'). Only favoured
+    names hit the options chain, so this is a handful of extra requests at most.
+    Returns [(row, snapshot)] in digest order."""
+    cfg = config.get("leaps", {})
+    if not cfg.get("enabled", False) or not cfg.get("digest", True):
+        return []
+    import leaps  # lazy: only needed on digest runs
+    cats = cfg.get("categories", [])
+    out = []
+    for r in rows:
+        if r.get("tier") != "favoured" or r.get("category") not in cats or not r.get("yf_ticker"):
+            continue
+        try:
+            close = fetch_daily_data(r["yf_ticker"], 200)["Close"]
+            snap = leaps.fetch_leap_snapshot(
+                r["yf_ticker"], float(r["price"]), close_series=close,
+                target_delta=cfg.get("target_delta", leaps.TARGET_DELTA),
+                min_months=cfg.get("min_months", leaps.MIN_MONTHS),
+            )
+            if snap and leaps.leap_flag("favoured", snap) == "strong":
+                out.append((r, snap))
+        except Exception as e:  # noqa: BLE001 — a chain hiccup must not sink the digest
+            print(f"LEAP check skipped for {r['name']}: {e}")
+    return out
+
+
+def format_leap_lines(setups) -> list:
+    """Digest lines for strong LEAP setups. One line per name: the contract,
+    what one contract costs, and the premium-cost reads."""
+    if not setups:
+        return []
+    lines = ["\U0001f3af <b>LEAP strong setups</b> (favoured + fair premium + liquid)"]
+    for r, s in setups:
+        exp = datetime.strptime(s["expiry"], "%Y-%m-%d").strftime("%b %y")
+        proxy = f" via {s['symbol']}" if s["symbol"] != r["yf_ticker"] else ""
+        ivrv = f"IV {s['atm_iv']*100:.0f}%/RV {s['rv90']*100:.0f}% = {s['iv_ratio']:.2f}×" if s.get("iv_ratio") else f"IV {s['atm_iv']*100:.0f}%"
+        be = (s["breakeven"] / s["spot"] - 1) * 100
+        lines.append(
+            f"• {r['name']}{proxy} — ${s['strike']:g}C {exp} · Δ{s['delta']:.2f} · "
+            f"mid ${s['mid']:,.2f} (${s['mid']*100:,.0f}/contract) · {ivrv} · "
+            f"extrinsic {s['extrinsic_pct']:.1f}% · b/e {be:+.0f}% · OI {s['oi']:,}"
+        )
+    lines.append("")
+    return lines
+
+
+def format_dca_digest(rows, leap_setups=None) -> str:
     """DCA digest: the buyable picks per asset class, colour-coded by tier
     (\U0001f7e2 favoured, \U0001f7e1 cheap but shallow, \U0001f535 golden pocket but
     not cheap yet). `rows` is the ranked output of dca_rank.analyse() (already
@@ -711,15 +759,20 @@ def format_dca_digest(rows) -> str:
 
     if not any_shown:
         lines.append("No favoured, cheap or golden-pocket setups today.")
+        lines.append("")
+
+    lines.extend(format_leap_lines(leap_setups))
 
     return "\n".join(lines).strip()
 
 
-def send_dca_digest(bot_token, chat_id):
-    """Compute the DCA ranking and send the 'favoured now' digest."""
+def send_dca_digest(bot_token, chat_id, config=None):
+    """Compute the DCA ranking and send the 'favoured now' digest, with a LEAP
+    section appended whenever a favoured name is also a strong LEAP setup."""
     from dca_rank import analyse  # lazy import (pulls dashboard/yfinance)
     rows = analyse()
-    msg = format_dca_digest(rows)
+    leap_setups = leap_strong_setups(rows, config or {})
+    msg = format_dca_digest(rows, leap_setups)
     print("Sending DCA digest...")
     send_telegram(bot_token, chat_id, msg)
 
@@ -765,7 +818,7 @@ def main():
     dca_due = dca_cfg.get("daily", False) or datetime.now().weekday() == dca_cfg.get("weekday", 0)
     if dca_cfg.get("enabled", True) and dca_due:
         try:
-            send_dca_digest(bot_token, chat_id)
+            send_dca_digest(bot_token, chat_id, config)
         except Exception as e:
             print(f"DCA digest error: {e}")
 

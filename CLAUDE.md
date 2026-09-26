@@ -46,7 +46,7 @@ Python modules in `alerts/`, no external web framework:
 - **backtest.py** — Historical strategy simulation vs buy-and-hold. Carries its **own** copies of strategy rules (including the index 5% dip buy-back) — intentionally independent of what is alerted on.
 - **broker.py** — Read-only Trading 212 access. Degrades to `None` if credentials are absent.
 - **macro.py**, **seasonality.py** — Informational context banners only. Deliberately **not** fed into the favorability score.
-- **leaps.py** — LEAP (15+ month deep-ITM call) candidate panel on the dashboard. Reuses the DCA tier for the underlying and adds premium cost: ATM implied vol vs 90d realised vol, IV rank (from `iv_history.json`, needs 60 daily snapshots), delta-targeted strike with bid/ask, extrinsic %, breakeven and open interest. Index tickers use ETF proxies (`OPTION_PROXY`). Informational only: never alerted, never scored.
+- **leaps.py** — LEAP (15+ month deep-ITM call) candidate panel on the dashboard. Reuses the DCA tier for the underlying and adds premium cost: ATM implied vol vs 90d realised vol, IV rank (from `iv_history.json`, needs 60 daily snapshots), delta-targeted strike with bid/ask, extrinsic %, breakeven and open interest. Index tickers use ETF proxies (`OPTION_PROXY`). Never scored. The only Telegram exposure is a **LEAP strong setups** section appended to the daily digest when a favoured name also has a fair premium and a liquid contract (`leaps.digest` in config); Setup/Watch/Thin/Avoid are dashboard-only.
 
 ## Strategy Types
 

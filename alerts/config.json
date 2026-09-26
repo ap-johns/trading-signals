@@ -46,8 +46,9 @@
         "categories": ["Stocks"]
     },
     "leaps": {
-        "_comment": "Dashboard-only LEAP panel (alerts/leaps.py). Never alerted, never scored. Index tickers use ETF proxies (OPTION_PROXY in leaps.py).",
+        "_comment": "LEAP panel (alerts/leaps.py). Never scored. digest=true appends strong setups (favoured tier + fair premium + liquid) to the daily DCA digest; nothing else is alerted. Index tickers use ETF proxies (OPTION_PROXY in leaps.py).",
         "enabled": true,
+        "digest": true,
         "categories": ["Stocks", "Indices"],
         "target_delta": 0.78,
         "min_months": 15
