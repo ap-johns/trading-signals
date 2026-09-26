@@ -868,7 +868,7 @@ LEAP_GLOSSARY = """
         <dt>Theta (time decay)</dt><dd>Not a column, but the reason for the design. Extrinsic value erodes every day and fastest in the last few months, which is why the panel only looks 15+ months out and ranks on extrinsic cost rather than dollar price. A cheap-looking short-dated call is usually the worst LEAP.</dd>
         <dt>Flag</dt><dd><b>Strong setup</b> = underlying is <b>Favoured</b> (cheap, retraced to at least the golden pocket, trend intact) <i>and</i> IV/RV is not rich <i>and</i> the contract is liquid. This is the grade to wait for on a first trade: a deeper entry lowers the breakeven and buys more recovery per unit of time value. <b>Setup</b> = the same but the stock is only <b>Cheap, shallow</b>: cheap against its 200d average with a small pullback, which is fine for DCA but a thin margin for an instrument with a deadline. <b>Watch</b> = only one half is in place. <b>Avoid</b> = trend broken or rolling over; a dated bet on a stock that goes nowhere for a year expires worthless, which is the one outcome buy-and-hold never has. <b>Thin</b> = OI too low to trust the numbers.</dd>
         <dt>Tier</dt><dd>The same DCA favourability tier as the buy-levels table above. Setups come from the same rules that already drive the daily digest; this panel only adds the premium-cost side.</dd>
-        <dt>2x ETP (ISA)</dt><dd>Leveraged exchange-traded products (GraniteShares, Leverage Shares, WisdomTree) are listed in London and most are ISA and SIPP eligible, which a LEAP never is. The catch is the <b>daily reset</b>: they deliver 2&times; each <i>day's</i> return, not 2&times; the 18-month return, so the result depends on the path. A steady rise compounds in your favour; a choppy sideways market grinds the value down even if the stock ends higher; a crash shrinks the base so far that it cannot recover. On top sits roughly 5&ndash;6% a year of fees and financing at 2&times;. The two summary lines above the table come from a simulation: a 2&times; daily-reset product built from the stock's own daily returns since 2010 (or listing) and measured over every rolling 18-month hold. Hover a name for its numbers: <b>beat</b> = share of holds where it beat simply owning the shares; <b>halved</b> = share of holds ending down more than 50%; <b>med</b> = median 18-month return of the product versus the shares; <b>drag</b> = the expected yearly loss to volatility alone, &sigma;&sup2; at 2&times;. <span style="color:#00e676;">Suitable</span> = beat &ge; 65% and halved &le; 10%, or beat &ge; 60% and halved &le; 5%, which in practice means broad indices and steady mega-caps. The ticker in brackets names the London-listed 2&times; product where one exists: Leverage Shares list a USD line and a GBP line under mirrored tickers (NVD2 / 2NVD), the S&amp;P 500 has an Xtrackers UCITS ETF (XS2D), and several names have only a 3&times; line or none at all. <span style="color:#ff5252;">Avoid</span> = beat &le; 50% or halved &ge; 20%; the daily reset feeds on exactly the volatility that makes these names exciting. Names with under two years of history show vol only, and are marked avoid above 65% vol regardless. 3&times; products are not shown: on the same test they add little median return and two to three times the halving risk. These are notes backed by collateral, not shares; London lines trade thinly; the simulation assumes constant drag and ignores spreads. Not advice.</dd>
+        <dt>2x ETP (ISA)</dt><dd>Leveraged exchange-traded products (GraniteShares, Leverage Shares, WisdomTree) are listed in London and most are ISA and SIPP eligible, which a LEAP never is. The catch is the <b>daily reset</b>: they deliver 2&times; each <i>day's</i> return, not 2&times; the 18-month return, so the result depends on the path. A steady rise compounds in your favour; a choppy sideways market grinds the value down even if the stock ends higher; a crash shrinks the base so far that it cannot recover. On top sits roughly 5&ndash;6% a year of fees and financing at 2&times;. The two summary lines above the table come from a simulation: a 2&times; daily-reset product built from the stock's own daily returns since 2010 (or listing) and measured over every rolling 18-month hold. Hover a name for its numbers: <b>beat</b> = share of holds where it beat simply owning the shares; <b>halved</b> = share of holds ending down more than 50%; <b>med</b> = median 18-month return of the product versus the shares; <b>drag</b> = the expected yearly loss to volatility alone, &sigma;&sup2; at 2&times;. <span style="color:#00e676;">Suitable</span> = beat &ge; 65% and halved &le; 10%, or beat &ge; 60% and halved &le; 5%, which in practice means broad indices and steady mega-caps. The collapsed &ldquo;2x ETP London tickers&rdquo; line under the summary names the product where one exists: Leverage Shares list a USD line and a GBP line under mirrored tickers (NVD2 / 2NVD), the S&amp;P 500 has an Xtrackers UCITS ETF (XS2D), and several names have only a 3&times; line or none at all. <span style="color:#ff5252;">Avoid</span> = beat &le; 50% or halved &ge; 20%; the daily reset feeds on exactly the volatility that makes these names exciting. Names with under two years of history show vol only, and are marked avoid above 65% vol regardless. 3&times; products are not shown: on the same test they add little median return and two to three times the halving risk. These are notes backed by collateral, not shares; London lines trade thinly; the simulation assumes constant drag and ignores spreads. Not advice.</dd>
         <dt>Is it worth it versus just holding the shares? (UK CGT)</dt><dd>UK capital gains tax treats an option gain the same as a share gain, so the rate is not the deciding factor. Two things are: shares can live in an ISA and pay no CGT, while options cannot; and a LEAP must be rolled every year or so, crystallising a gain each time, whereas shares held forever defer tax indefinitely. The LEAP has to earn that gap back through leverage, which it only does when the stock moves a good deal within the contract's life.__LEAP_TAX_TABLE__</dd>
       </dl>
     </details>"""
@@ -1049,15 +1049,28 @@ def leap_section_html(all_data, config):
             tick = "3x only"; tip += " " + leapmod.ETP_NOTES[it["name"]]
         else:
             tick = "no 2x"; tip += " No 2x product found in London."
-        return f'<span title="{tip.strip()}">{it["name"]} <span class="fib-dt">({tick})</span></span>'
+        return f'<span title="{tip.strip()}">{it["name"]}</span>', tick
 
     etp_ok = [etp_entry(it) for it in items if it.get("etp_verdict") == "suitable"]
     etp_no = [etp_entry(it) for it in items if it.get("etp_verdict") == "avoid"]
+    # Tickers live in a collapsed line so the summary stays readable; the
+    # hover tooltip on each name carries the same information.
+    ticker_bits = []
+    for it in items:
+        if it.get("etp_verdict") in ("suitable", "marginal"):
+            _, tick = etp_entry(it)
+            if tick not in ("no 2x",):
+                ticker_bits.append(f'{it["name"]} <span class="fib-dt">{tick}</span>')
+    tickers_html = (f'<details class="etp-tickers"><summary>2x ETP London tickers</summary>'
+                    f'<div>{" &middot; ".join(ticker_bits)}'
+                    f'<span class="fib-dt"> &middot; Leverage Shares list a USD line and a GBP line; XS2D is an Xtrackers UCITS ETF; "3x only" = no 2x line in London. Check ISA eligibility of the exact line with your provider.</span></div></details>'
+                    if ticker_bits else "")
     summary = summary[:-len("</div>")] + (
-        f'<div class="fib-sum-line"><span class="fib-sum-tag fav">2x ETP suitable</span> {", ".join(etp_ok) or "none"} '
+        f'<div class="fib-sum-line"><span class="fib-sum-tag fav">2x ETP suitable</span> {", ".join(n for n, _ in etp_ok) or "none"} '
         f'<span class="fib-dt">&mdash; tax-free leverage inside an ISA; hover a name for the 18-month test</span></div>'
-        f'<div class="fib-sum-line"><span class="fib-sum-tag skip">2x ETP avoid</span> {", ".join(etp_no) or "none"} '
-        f'<span class="fib-dt">&mdash; daily reset feeds on volatility; halved in many 18-month holds</span></div></div>')
+        f'<div class="fib-sum-line"><span class="fib-sum-tag skip">2x ETP avoid</span> {", ".join(n for n, _ in etp_no) or "none"} '
+        f'<span class="fib-dt">&mdash; daily reset feeds on volatility; halved in many 18-month holds</span></div>'
+        f'{tickers_html}</div>')
     delta = cfg.get("target_delta", leapmod.TARGET_DELTA)
     months = cfg.get("min_months", leapmod.MIN_MONTHS)
     head = (f'<h2 class="fib-title">LEAP Candidates <span class="fib-sub">deep-ITM calls {months}+ months out, '
@@ -2070,6 +2083,9 @@ def generate_html(all_data, config, holdings=None):
     .leap-gloss dt {{ color: var(--ink); font-weight: 600; margin-top: 10px; }}
     .leap-gloss dd {{ margin: 2px 0 0 0; line-height: 1.5; }}
     .leap-scroll {{ overflow-x: auto; margin-top: 8px; }}
+    .etp-tickers {{ margin-top: 6px; font-size: 12px; }}
+    .etp-tickers summary {{ cursor: pointer; color: var(--ink-faint); }}
+    .etp-tickers div {{ margin-top: 4px; color: var(--ink-soft); line-height: 1.6; }}
     .leap-table {{ font-size: 12px; margin-top: 0; }}
     .leap-table th {{ padding: 8px 7px; }}
     .leap-table td {{ white-space: nowrap; padding: 7px 7px; }}
