@@ -97,13 +97,12 @@ Cut in Aug 2026 for alert fatigue. Their signal is already folded into the DCA f
 
 ## The digest tier filter
 
-`in_digest()` in `signal_checker.py` decides which ranked rows reach Telegram. It exists because `favoured` and `cheap_shallow` both require `z <= -0.75`, so an intact-trend name sitting in the golden pocket whose z-score hadn't gone cheap appeared **nowhere** in Telegram once the fib pings were switched off.
+`in_digest()` in `signal_checker.py` decides which ranked rows reach Telegram. Since 2026-09-26 it admits **`favoured` only** (z <= -0.75, retrace to at least the golden pocket, weekly trend intact). If nothing is favoured the digest says so explicitly. The other tiers remain on the dashboard's DCA table:
 
-- `favoured`, `cheap_shallow` — always shown (🟢 / 🟡)
-- `quality_not_cheap` — shown **only** at fib level >= `GOLDEN_POCKET` (0.5) (🔵). The level gate matters: without it this tier matches nearly every name in an uptrend. A 0.382 retrace is deliberately excluded as too shallow.
+- `cheap_shallow`, `quality_not_cheap` — dashboard only. They used to reach the digest (the latter gated at fib level >= `GOLDEN_POCKET`); John dropped them from Telegram as noise against a buy-now list. Don't reinstate without asking.
 - `caution`, `broken` — never shown. Trend rolling over, below the 200d, or retraced past the swing low. Excluded by design; do not "fix" this.
 
-Widening this filter is the correct way to surface more setups — it costs no extra notifications, since the digest sends daily regardless. Re-enabling per-level pings is not.
+The digest also appends a **LEAP strong setups** section when a favoured name has a fair option premium and a liquid contract (see `leaps.py`).
 
 When adding a level-based trigger, persist fired levels in `cycle_state.json` with an explicit re-arm condition. A bare previous-bar cross check is not enough: price oscillating around a threshold re-fires indefinitely.
 

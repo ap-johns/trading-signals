@@ -661,16 +661,13 @@ GOLDEN_POCKET = 0.5
 def in_digest(row) -> bool:
     """Whether a ranked row earns a slot in the daily digest.
 
-    `favoured` and `cheap_shallow` always qualify; both require z <= -0.75. That
-    filter alone hid intact-trend names sitting in the golden pocket whose z-score
-    hadn't gone cheap — and since the fib pings were switched off, those appeared
-    nowhere in Telegram. So `quality_not_cheap` also qualifies, but only once the
-    pullback reaches the golden pocket (otherwise it matches nearly every name in
-    an uptrend). `caution` and `broken` stay excluded by design.
+    Favoured only (cheap z-score + golden-pocket retrace + intact trend), by
+    John's request on 2026-09-26: the digest is the buy-now list, and the
+    cheap_shallow / golden-pocket-not-cheap tiers were noise against that. Those
+    tiers are still visible on the dashboard's DCA table. If nothing is
+    favoured the digest says so rather than padding with lesser tiers.
     """
-    if row["tier"] in ("favoured", "cheap_shallow"):
-        return True
-    return row["tier"] == "quality_not_cheap" and (row.get("level") or 0) >= GOLDEN_POCKET
+    return row["tier"] == "favoured"
 
 
 def leap_strong_setups(rows, config):
@@ -722,17 +719,14 @@ def format_leap_lines(setups) -> list:
 
 
 def format_dca_digest(rows, leap_setups=None) -> str:
-    """DCA digest: the buyable picks per asset class, colour-coded by tier
-    (\U0001f7e2 favoured, \U0001f7e1 cheap but shallow, \U0001f535 golden pocket but
-    not cheap yet). `rows` is the ranked output of dca_rank.analyse() (already
-    ordered tier-then-score, so the dots come out in quality order)."""
+    """DCA digest: the favoured picks per asset class (see in_digest). `rows` is
+    the ranked output of dca_rank.analyse(), already ordered tier-then-score."""
     TIER_DOT = {"favoured": "\U0001f7e2", "cheap_shallow": "\U0001f7e1",
                 "quality_not_cheap": "\U0001f535"}
 
     lines = ["\U0001f4ca <b>Daily DCA Picks</b>",
              datetime.now().strftime("%Y-%m-%d"),
-             "\U0001f7e2 favoured · \U0001f7e1 cheap but shallow · "
-             "\U0001f535 golden pocket, not cheap yet",
+             "\U0001f7e2 favoured: cheap (z ≤ -0.75) · golden-pocket retrace · trend intact",
              ""]
 
     cats = []
@@ -758,7 +752,7 @@ def format_dca_digest(rows, leap_setups=None) -> str:
         lines.append("")
 
     if not any_shown:
-        lines.append("No favoured, cheap or golden-pocket setups today.")
+        lines.append("No favoured setups today — nothing on the buy-now list.")
         lines.append("")
 
     lines.extend(format_leap_lines(leap_setups))
