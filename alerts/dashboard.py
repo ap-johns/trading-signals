@@ -833,8 +833,8 @@ def fib_section_html(all_data, config, holdings=None):
 
 LEAP_FLAGS = {
     "strong": ("Strong setup", "#00e676", "favoured DCA tier, premium not rich, liquid: first-trade grade"),
-    "setup":  ("Setup", "#7dd87d", "cheap but shallow pullback, premium not rich, liquid"),
-    "watch": ("Watch", "#f0d060", "one half in place, the other not"),
+    "setup":  ("Setup", "#f0d060", "cheap but shallow pullback, premium not rich, liquid"),
+    "watch": ("Watch", "#e8925d", "one half in place, the other not"),
     "thin":  ("Thin",  "#888",    "contract too illiquid to trust the numbers"),
     "avoid": ("Avoid", "#ff5252", "trend broken or rolling over"),
 }
