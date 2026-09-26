@@ -868,7 +868,7 @@ LEAP_GLOSSARY = """
         <dt>Theta (time decay)</dt><dd>Not a column, but the reason for the design. Extrinsic value erodes every day and fastest in the last few months, which is why the panel only looks 15+ months out and ranks on extrinsic cost rather than dollar price. A cheap-looking short-dated call is usually the worst LEAP.</dd>
         <dt>Flag</dt><dd><b>Strong setup</b> = underlying is <b>Favoured</b> (cheap, retraced to at least the golden pocket, trend intact) <i>and</i> IV/RV is not rich <i>and</i> the contract is liquid. This is the grade to wait for on a first trade: a deeper entry lowers the breakeven and buys more recovery per unit of time value. <b>Setup</b> = the same but the stock is only <b>Cheap, shallow</b>: cheap against its 200d average with a small pullback, which is fine for DCA but a thin margin for an instrument with a deadline. <b>Watch</b> = only one half is in place. <b>Avoid</b> = trend broken or rolling over; a dated bet on a stock that goes nowhere for a year expires worthless, which is the one outcome buy-and-hold never has. <b>Thin</b> = OI too low to trust the numbers.</dd>
         <dt>Tier</dt><dd>The same DCA favourability tier as the buy-levels table above. Setups come from the same rules that already drive the daily digest; this panel only adds the premium-cost side.</dd>
-        <dt>2x ETP (ISA)</dt><dd>Leveraged exchange-traded products (GraniteShares, Leverage Shares, WisdomTree) are listed in London and most are ISA and SIPP eligible, which a LEAP never is. The catch is the <b>daily reset</b>: they deliver 2&times; each <i>day's</i> return, not 2&times; the 18-month return, so the result depends on the path. A steady rise compounds in your favour; a choppy sideways market grinds the value down even if the stock ends higher; a crash shrinks the base so far that it cannot recover. On top sits roughly 5&ndash;6% a year of fees and financing at 2&times;. The column simulates a 2&times; daily-reset product from the stock's own daily returns since 2010 (or listing, shown where later) and measures every rolling 18-month hold: <b>beat</b> = share of holds where it beat simply owning the shares; <b>halved</b> = share of holds ending down more than 50%; <b>med</b> = median 18-month return of the product versus the shares; <b>drag</b> = the expected yearly loss to volatility alone, &sigma;&sup2; at 2&times;. <span style="color:#00e676;">Suitable</span> = beat &ge; 65% and halved &le; 10%, or beat &ge; 60% and halved &le; 5%, which in practice means broad indices and steady mega-caps. The second line of the cell names the London-listed 2&times; product where one exists: Leverage Shares list a USD line and a GBP line under mirrored tickers (NVD2 / 2NVD), the S&amp;P 500 has an Xtrackers UCITS ETF (XS2D), and several names have only a 3&times; line or none at all. <span style="color:#ff5252;">Avoid</span> = beat &le; 50% or halved &ge; 20%; the daily reset feeds on exactly the volatility that makes these names exciting. Names with under two years of history show vol only, and are marked avoid above 65% vol regardless. 3&times; products are not shown: on the same test they add little median return and two to three times the halving risk. These are notes backed by collateral, not shares; London lines trade thinly; the simulation assumes constant drag and ignores spreads. Not advice.</dd>
+        <dt>2x ETP (ISA)</dt><dd>Leveraged exchange-traded products (GraniteShares, Leverage Shares, WisdomTree) are listed in London and most are ISA and SIPP eligible, which a LEAP never is. The catch is the <b>daily reset</b>: they deliver 2&times; each <i>day's</i> return, not 2&times; the 18-month return, so the result depends on the path. A steady rise compounds in your favour; a choppy sideways market grinds the value down even if the stock ends higher; a crash shrinks the base so far that it cannot recover. On top sits roughly 5&ndash;6% a year of fees and financing at 2&times;. The column simulates a 2&times; daily-reset product from the stock's own daily returns since 2010 (or listing, shown where later) and measures every rolling 18-month hold: <b>beat</b> = share of holds where it beat simply owning the shares; <b>halved</b> = share of holds ending down more than 50%; <b>med</b> = median 18-month return of the product versus the shares; <b>drag</b> = the expected yearly loss to volatility alone, &sigma;&sup2; at 2&times;. <span style="color:#00e676;">Suitable</span> = beat &ge; 65% and halved &le; 10%, or beat &ge; 60% and halved &le; 5%, which in practice means broad indices and steady mega-caps. Click the pill to open the statistics. The ticker beside it names the London-listed 2&times; product where one exists: Leverage Shares list a USD line and a GBP line under mirrored tickers (NVD2 / 2NVD), the S&amp;P 500 has an Xtrackers UCITS ETF (XS2D), and several names have only a 3&times; line or none at all. <span style="color:#ff5252;">Avoid</span> = beat &le; 50% or halved &ge; 20%; the daily reset feeds on exactly the volatility that makes these names exciting. Names with under two years of history show vol only, and are marked avoid above 65% vol regardless. 3&times; products are not shown: on the same test they add little median return and two to three times the halving risk. These are notes backed by collateral, not shares; London lines trade thinly; the simulation assumes constant drag and ignores spreads. Not advice.</dd>
         <dt>Is it worth it versus just holding the shares? (UK CGT)</dt><dd>UK capital gains tax treats an option gain the same as a share gain, so the rate is not the deciding factor. Two things are: shares can live in an ISA and pay no CGT, while options cannot; and a LEAP must be rolled every year or so, crystallising a gain each time, whereas shares held forever defer tax indefinitely. The LEAP has to earn that gap back through leverage, which it only does when the stock moves a good deal within the contract's life.__LEAP_TAX_TABLE__</dd>
       </dl>
     </details>"""
@@ -954,11 +954,15 @@ def leap_section_html(all_data, config):
     items.sort(key=leapmod.rank_key)
 
     dash = '<span class="fib-dt">&mdash;</span>'
+    from collections import Counter
+    expiries = Counter(it["snap"]["expiry"] for it in items if it.get("snap"))
+    common_expiry = expiries.most_common(1)[0][0] if expiries else None
+    common_label = datetime.strptime(common_expiry, "%Y-%m-%d").strftime("%b %y") if common_expiry else ""
     rows = ""
     for it in items:
         sector_html = f'<span class="fib-sector">{it["sector"]}</span>' if it.get("sector") else ""
         if "error" in it:
-            rows += f'<tr><td></td><td class="ticker">{it["name"]}{sector_html}</td><td colspan="11" class="error">Error: {it["error"]}</td></tr>\n'
+            rows += f'<tr><td></td><td class="ticker">{it["name"]}{sector_html}</td><td colspan="10" class="error">Error: {it["error"]}</td></tr>\n'
             continue
         s = it["snap"]
         fl, fcol, ftip = LEAP_FLAGS.get(it["flag"], ("", "#888", ""))
@@ -972,33 +976,32 @@ def leap_section_html(all_data, config):
         rv = s.get("rv90")
         iv_html = f'<span style="color:{bcol};font-weight:700;">{s["atm_iv"]*100:.0f}%</span>'
         if ratio:
-            iv_html += f' <span class="fib-dt">/ {rv*100:.0f}% = {ratio:.2f}&times;</span>'
+            iv_html += f' <span class="fib-dt">/ {rv*100:.0f}% &middot; {ratio:.2f}&times;</span>'
         if it["iv_rank"] is not None:
             r = it["iv_rank"]
             rcol = "#00e676" if r <= 30 else ("#f0d060" if r <= 60 else "#ff5252")
-            rank_html = f'<span style="color:{rcol};font-weight:700;">{r}</span><span class="fib-dt">/100</span>'
-        else:
-            rank_html = f'<span class="fib-dt" title="needs {leapmod.MIN_IV_HISTORY} daily snapshots">collecting {it["iv_n"]}/{leapmod.MIN_IV_HISTORY}</span>'
+            iv_html += f' <span style="color:{rcol};" title="IV rank: today\'s IV vs this ticker\'s recorded history, 0 = cheapest seen">rk {r}</span>'
+        # (no rank shown until MIN_IV_HISTORY snapshots exist; the header tooltip explains)
 
         proxy = f' <span class="fib-dt">via {s["symbol"]}</span>' if s["symbol"] != yf_name_for(it["name"], config) else ""
         exp_dt = datetime.strptime(s["expiry"], "%Y-%m-%d").strftime("%b %y")
+        exp_html = f'{exp_dt} &middot; ' if s["expiry"] != common_expiry else ""
         contract_html = (f'<span class="fib-price">{fmt_price(s["strike"])}C</span> '
-                         f'<span class="fib-dt">{exp_dt} &middot; {s["dte"]}d &middot; &Delta;{s["delta"]:.2f}</span>{proxy}')
+                         f'<span class="fib-dt">{exp_html}&Delta;{s["delta"]:.2f}</span>{proxy}')
 
         mid = s.get("mid")
         if mid:
             sp = s.get("spread_pct")
             spcol = "#00e676" if (sp is not None and sp <= 3) else ("#f0d060" if (sp is not None and sp <= 8) else "#ff5252")
-            price_html = (f'<span class="fib-price">{fmt_price(mid)}</span> '
-                          f'<span class="fib-dt">{fmt_price(s["bid"])}&ndash;{fmt_price(s["ask"])}</span>')
+            price_html = (f'<span class="fib-price" title="bid {fmt_price(s["bid"])} / ask {fmt_price(s["ask"])}">{fmt_price(mid)}</span>')
             if sp is not None:
-                price_html += f' <span style="color:{spcol};">{sp:.1f}%</span>'
-            cost_html = f'{s["cost_pct"]:.0f}% <span class="fib-dt">of spot &middot; {s["leverage"]:.1f}&times;</span>'
+                price_html += f' <span style="color:{spcol};" title="bid-ask spread as % of mid">{sp:.1f}%</span>'
+            cost_html = f'{s["cost_pct"]:.0f}% <span class="fib-dt">&middot; {s["leverage"]:.1f}&times;</span>'
             outlay = mid * 100
             ocol = "#00e676" if outlay <= 5000 else ("#f0d060" if outlay <= 12000 else "#ff5252")
             outlay_html = f'<span style="color:{ocol};font-weight:700;">${outlay:,.0f}</span>'
             if gbpusd:
-                outlay_html += f' <span class="fib-dt">&asymp; &pound;{outlay / gbpusd:,.0f}</span>'
+                outlay_html += f' <span class="fib-dt">&pound;{outlay / gbpusd:,.0f}</span>'
         else:
             price_html, cost_html, outlay_html = dash, dash, dash
         ex = s.get("extrinsic_pct")
@@ -1007,7 +1010,7 @@ def leap_section_html(all_data, config):
             ex_html = f'<span style="color:{excol};font-weight:700;">{ex:.1f}%</span>'
             if s.get("breakeven"):
                 be_up = (s["breakeven"] / s["spot"] - 1) * 100
-                ex_html += f' <span class="fib-dt">b/e {fmt_price(s["breakeven"])} ({be_up:+.0f}%)</span>'
+                ex_html += f' <span class="fib-dt" title="breakeven {fmt_price(s["breakeven"])}">b/e {be_up:+.0f}%</span>'
         else:
             ex_html = dash
         oi = s.get("oi", 0)
@@ -1015,30 +1018,38 @@ def leap_section_html(all_data, config):
         oi_html = f'<span style="color:{oicol};">{oi:,}</span>'
 
         et, ev = it.get("etp"), it.get("etp_verdict")
-        if et and ev:
-            vl, vcol, vtip = ETP_VERDICTS[ev]
-            etp_html = f'<span class="leap-flag" style="color:{vcol};border-color:{vcol};" title="{vtip}">{vl}</span>'
-            if et.get("n", 0) >= leapmod.ETP_MIN_WINDOWS:
-                since = f' since {et["since"]}' if et.get("since") and et["since"] > int(leapmod.ETP_SINCE[:4]) else ""
-                etp_html += (f' <span class="fib-dt">beat {et["beat_pct"]:.0f}% &middot; halved {et["halved_pct"]:.0f}%'
-                             f' &middot; med {et["etp_median"]:+.0f}% vs {et["stock_median"]:+.0f}%{since}</span>')
-            if et.get("vol1y") is not None:
-                etp_html += f' <span class="fib-dt">&middot; vol {et["vol1y"]*100:.0f}%, drag ~{et["vol_drag"]:.0f}%/yr</span>'
-        else:
-            etp_html = dash
         tk = leapmod.ETP_TICKERS.get(it["name"])
         if tk:
             usd, gbp, issuer = tk
-            lines_ = " &middot; ".join(f'<b>{t}</b> ({c})' for t, c in ((usd, "USD"), (gbp, "GBP")) if t)
-            etp_html += f'<br><span class="fib-dt">{lines_} &middot; {issuer}</span>'
+            tick_html = (f'<b title="{usd} = USD line' + (f', {gbp} = GBP line' if gbp else "") + f' ({issuer})">'
+                         + " / ".join(t for t in (usd, gbp) if t) + '</b>')
+            tick_note = issuer
         elif it["name"] in leapmod.ETP_NOTES:
-            etp_html += f'<br><span class="fib-dt">{leapmod.ETP_NOTES[it["name"]]}</span>'
+            tick_html = '<span class="fib-dt">3x only</span>'
+            tick_note = leapmod.ETP_NOTES[it["name"]]
         else:
-            etp_html += '<br><span class="fib-dt">no 2x product found in London</span>'
+            tick_html = '<span class="fib-dt">none</span>'
+            tick_note = "no 2x product found in London"
+        if et and ev:
+            vl, vcol, vtip = ETP_VERDICTS[ev]
+            pill = f'<span class="leap-flag" style="color:{vcol};border-color:{vcol};" title="{vtip}">{vl}</span>'
+            detail = ""
+            if et.get("n", 0) >= leapmod.ETP_MIN_WINDOWS:
+                since = f' (since {et["since"]})' if et.get("since") and et["since"] > int(leapmod.ETP_SINCE[:4]) else ""
+                detail += (f'<div>18-month holds{since}: beat shares <b>{et["beat_pct"]:.0f}%</b> &middot; '
+                           f'halved <b>{et["halved_pct"]:.0f}%</b> &middot; lost while stock rose {et["lose_while_up_pct"]:.0f}%</div>'
+                           f'<div>median 2x <b>{et["etp_median"]:+.0f}%</b> vs shares {et["stock_median"]:+.0f}% &middot; worst {et["worst"]:.0f}%</div>')
+            if et.get("vol1y") is not None:
+                detail += f'<div>1y vol {et["vol1y"]*100:.0f}% &rarr; vol drag ~{et["vol_drag"]:.0f}%/yr</div>'
+            detail += f'<div>{tick_note}</div>'
+            etp_html = (f'<details class="etp-dd"><summary>{pill} {tick_html}</summary>'
+                        f'<div class="etp-dd-body">{detail}</div></details>')
+        else:
+            etp_html = f'{dash} {tick_html}'
 
-        rows += (f'<tr><td>{flag_html}</td><td class="ticker">{it["name"]}{sector_html}</td>'
+        rows += (f'<tr><td>{flag_html}</td><td class="ticker">{it["name"]}</td>'
                  f'<td>{tier_html}</td><td class="fib-price">{fmt_price(s["spot"])}</td>'
-                 f'<td>{iv_html}</td><td>{rank_html}</td><td>{contract_html}</td>'
+                 f'<td>{iv_html}</td><td>{contract_html}</td>'
                  f'<td>{price_html}</td><td>{outlay_html}</td><td>{cost_html}</td><td>{ex_html}</td><td>{oi_html}</td>'
                  f'<td>{etp_html}</td></tr>\n')
 
@@ -1061,13 +1072,12 @@ def leap_section_html(all_data, config):
     head = (f'<h2 class="fib-title">LEAP Candidates <span class="fib-sub">deep-ITM calls {months}+ months out, '
             f'delta &asymp; {delta:.2f} &middot; ranked strong setups first, then cheapest premium &middot; '
             f'informational, not alerted &middot; source: yfinance chains, prices can be stale</span></h2>')
-    table = ('<table class="fib-table"><thead><tr>'
+    table = ('<table class="fib-table leap-table"><thead><tr>'
              '<th>Flag</th><th>Ticker</th><th>DCA tier</th><th>Spot</th>'
-             '<th title="ATM implied vol / 90d realised vol">IV / RV</th>'
-             '<th title="today\'s IV vs this ticker\'s recorded history">IV rank</th>'
-             '<th>Contract</th><th>Mid &middot; bid&ndash;ask &middot; spread</th>'
+             '<th title="ATM implied vol / 90d realised vol and the ratio. IV rank appears here once 60 daily snapshots exist.">IV / RV</th>'
+             f'<th title="strike and delta; expiry {common_label} unless shown">Contract &middot; {common_label}</th><th title="mid price per share; hover for bid/ask; % = spread">Mid &middot; spread</th>'
              '<th title="one contract = 100 shares, so mid &times; 100">Outlay</th>'
-             '<th>Cost</th><th title="time value as % of share price, and breakeven">Extrinsic</th><th>OI</th>'
+             '<th title="premium as % of share price, and leverage">Cost</th><th title="time value as % of share price, and breakeven vs spot">Extrinsic</th><th>OI</th>'
              '<th title="simulated 2x daily-reset ETP held 18 months, every rolling window since 2010 (or listing)">2x ETP (ISA)</th>'
              f'</tr></thead><tbody>\n{rows}</tbody></table>')
     example = next((it for it in items if it.get("name") == cfg.get("example_ticker", "NVDA") and it.get("snap")), None)
@@ -1075,7 +1085,7 @@ def leap_section_html(all_data, config):
         example = next((it for it in items if it.get("snap") and it["snap"].get("mid")), None)
     tax_html = leap_tax_table_html(example, cfg.get("uk_cgt_rate", 0.24)) if example else ""
     glossary = LEAP_GLOSSARY.replace("__LEAP_TAX_TABLE__", tax_html)
-    return f"\n    {head}\n    {summary}\n    {table}\n    {glossary}"
+    return f"\n    {head}\n    {summary}\n    <div class=\"leap-scroll\">{table}</div>\n    {glossary}"
 
 
 def yf_name_for(display_name, config):
@@ -2068,6 +2078,19 @@ def generate_html(all_data, config, holdings=None):
     .leap-gloss dl {{ margin: 8px 0 4px; }}
     .leap-gloss dt {{ color: var(--ink); font-weight: 600; margin-top: 10px; }}
     .leap-gloss dd {{ margin: 2px 0 0 0; line-height: 1.5; }}
+    .etp-dd summary {{ list-style: none; cursor: pointer; white-space: nowrap; }}
+    .etp-dd summary::-webkit-details-marker {{ display: none; }}
+    .etp-dd summary::after {{ content: " ▾"; color: var(--ink-faint); font-size: 11px; }}
+    .etp-dd[open] summary::after {{ content: " ▴"; }}
+    .etp-dd {{ position: relative; }}
+    .etp-dd-body {{ position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; white-space: nowrap; text-align: left;
+                    font-size: 12px; color: var(--ink-soft); line-height: 1.55; background: var(--surface-raised);
+                    border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.35); }}
+    .leap-scroll {{ overflow-x: auto; margin-top: 8px; }}
+    .leap-table {{ font-size: 12px; margin-top: 0; }}
+    .leap-table th {{ padding: 8px 7px; }}
+    .leap-table td {{ white-space: nowrap; padding: 7px 7px; }}
+    .leap-table td:last-child {{ text-align: right; }}
     .leap-tax {{ border-collapse: collapse; margin: 6px 0; font-size: 12.5px; }}
     .leap-tax th, .leap-tax td {{ padding: 4px 12px 4px 0; border-bottom: 1px solid var(--line-soft); }}
     .leap-tax th {{ color: var(--ink-soft); font-weight: 600; text-align: left; }}
