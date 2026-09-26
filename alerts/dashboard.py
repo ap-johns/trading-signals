@@ -832,7 +832,8 @@ def fib_section_html(all_data, config, holdings=None):
 
 
 LEAP_FLAGS = {
-    "setup": ("Setup", "#00e676", "stock on sale and premium not rich"),
+    "strong": ("Strong setup", "#00e676", "favoured DCA tier, premium not rich, liquid: first-trade grade"),
+    "setup":  ("Setup", "#7dd87d", "cheap but shallow pullback, premium not rich, liquid"),
     "watch": ("Watch", "#f0d060", "one half in place, the other not"),
     "thin":  ("Thin",  "#888",    "contract too illiquid to trust the numbers"),
     "avoid": ("Avoid", "#ff5252", "trend broken or rolling over"),
@@ -858,7 +859,7 @@ LEAP_GLOSSARY = """
         <dt>Bid&ndash;ask spread</dt><dd>The gap between what buyers will pay and sellers will accept, shown as a percent of the mid price. You lose it on the way in and again on the way out. Long-dated options are wide; under 3% is good, over 8% is expensive to trade.</dd>
         <dt>Open interest (OI)</dt><dd>Number of contracts outstanding at that strike. Low OI means few participants, stale prices and wide spreads. Under 250 the panel marks the row <b>Thin</b>.</dd>
         <dt>Theta (time decay)</dt><dd>Not a column, but the reason for the design. Extrinsic value erodes every day and fastest in the last few months, which is why the panel only looks 15+ months out and ranks on extrinsic cost rather than dollar price. A cheap-looking short-dated call is usually the worst LEAP.</dd>
-        <dt>Flag</dt><dd><b>Setup</b> = underlying is in a cheap DCA tier <i>and</i> IV/RV is not rich <i>and</i> the contract is liquid. <b>Watch</b> = only one half is in place. <b>Avoid</b> = trend broken or rolling over; a dated bet on a stock that goes nowhere for a year expires worthless, which is the one outcome buy-and-hold never has. <b>Thin</b> = OI too low to trust the numbers.</dd>
+        <dt>Flag</dt><dd><b>Strong setup</b> = underlying is <b>Favoured</b> (cheap, retraced to at least the golden pocket, trend intact) <i>and</i> IV/RV is not rich <i>and</i> the contract is liquid. This is the grade to wait for on a first trade: a deeper entry lowers the breakeven and buys more recovery per unit of time value. <b>Setup</b> = the same but the stock is only <b>Cheap, shallow</b>: cheap against its 200d average with a small pullback, which is fine for DCA but a thin margin for an instrument with a deadline. <b>Watch</b> = only one half is in place. <b>Avoid</b> = trend broken or rolling over; a dated bet on a stock that goes nowhere for a year expires worthless, which is the one outcome buy-and-hold never has. <b>Thin</b> = OI too low to trust the numbers.</dd>
         <dt>Tier</dt><dd>The same DCA favourability tier as the buy-levels table above. Setups come from the same rules that already drive the daily digest; this panel only adds the premium-cost side.</dd>
       </dl>
     </details>"""
@@ -956,14 +957,17 @@ def leap_section_html(all_data, config):
                  f'<td>{iv_html}</td><td>{rank_html}</td><td>{contract_html}</td>'
                  f'<td>{price_html}</td><td>{cost_html}</td><td>{ex_html}</td><td>{oi_html}</td></tr>\n')
 
+    strong = [it["name"] for it in items if it.get("flag") == "strong"]
     setups = [it["name"] for it in items if it.get("flag") == "setup"]
-    summary = (f'<div class="fib-summary"><span class="fib-sum-line">'
-               f'<span class="fib-sum-tag fav">{len(setups)} setup{"s" if len(setups) != 1 else ""}</span> '
-               f'{", ".join(setups) or "none today"}</span></div>')
+    summary = (f'<div class="fib-summary">'
+               f'<div class="fib-sum-line"><span class="fib-sum-tag fav">Strong setup</span> {", ".join(strong) or "none today"} '
+               f'<span class="fib-dt">&mdash; favoured tier + fair premium; the grade to wait for</span></div>'
+               f'<div class="fib-sum-line"><span class="fib-sum-tag mid">Setup</span> {", ".join(setups) or "none today"} '
+               f'<span class="fib-dt">&mdash; cheap but shallow pullback; DCA-grade, not LEAP-grade</span></div></div>')
     delta = cfg.get("target_delta", leapmod.TARGET_DELTA)
     months = cfg.get("min_months", leapmod.MIN_MONTHS)
     head = (f'<h2 class="fib-title">LEAP Candidates <span class="fib-sub">deep-ITM calls {months}+ months out, '
-            f'delta &asymp; {delta:.2f} &middot; ranked setups first, then cheapest premium &middot; '
+            f'delta &asymp; {delta:.2f} &middot; ranked strong setups first, then cheapest premium &middot; '
             f'informational, not alerted &middot; source: yfinance chains, prices can be stale</span></h2>')
     table = ('<table class="fib-table"><thead><tr>'
              '<th>Flag</th><th>Ticker</th><th>DCA tier</th><th>Spot</th>'

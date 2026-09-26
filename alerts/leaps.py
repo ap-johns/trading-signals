@@ -249,8 +249,13 @@ def iv_ratio_band(ratio):
 def leap_flag(tier, snap):
     """Single-word verdict combining the underlying's tier with premium cost.
 
-    'setup'   — underlying cheap (favoured/cheap_shallow) AND premium not rich
-                AND contract liquid enough to trade.
+    'strong'  — underlying in the favoured tier (cheap + golden-pocket retrace
+                + trend intact) AND premium not rich AND contract liquid.
+                The first-trade grade: a deeper entry lowers breakeven and
+                buys more recovery per unit of time value.
+    'setup'   — as above but the stock is only cheap_shallow: cheap versus
+                its 200d but a small pullback. Fine for DCA, thin margin for
+                a dated instrument.
     'watch'   — underlying cheap but premium is rich, or trend intact & premium
                 cheap but stock not on sale yet.
     'avoid'   — trend broken / rolling over: a dated instrument on a name
@@ -264,16 +269,17 @@ def leap_flag(tier, snap):
     if snap.get("oi", 0) < MIN_OI or snap.get("mid") is None:
         return "thin"
     band = iv_ratio_band(snap.get("iv_ratio"))
-    cheap_stock = tier in ("favoured", "cheap_shallow")
     cheap_prem = band in ("good", "ok")
-    if cheap_stock and cheap_prem:
+    if tier == "favoured" and cheap_prem:
+        return "strong"
+    if tier == "cheap_shallow" and cheap_prem:
         return "setup"
     return "watch"
 
 
 def rank_key(item):
-    """Sort: setups first, then watch, thin, avoid; within a group cheaper premium first."""
-    order = {"setup": 0, "watch": 1, "thin": 2, "avoid": 3, None: 4}
+    """Sort: strong, setup, watch, thin, avoid; within a group cheaper premium first."""
+    order = {"strong": 0, "setup": 1, "watch": 2, "thin": 3, "avoid": 4, None: 5}
     snap = item.get("snap") or {}
     ratio = snap.get("iv_ratio")
     return (order.get(item.get("flag"), 4), ratio if ratio is not None else 9.0)
