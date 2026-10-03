@@ -29,6 +29,11 @@
             "Indices": {"min_gain": 0.20, "reversal": 0.10}
         }
     },
+    "buy_as": {
+        "_comment": "Reminder of which London line to actually buy when the watchlist tracks a different symbol for signal history. Shown as a tag on the DCA table and in the digest.",
+        "COPA": "COPB (GBP line)",
+        "COPX": "COPG (GBP line, LSE)"
+    },
     "sectors": {
         "NVDA": "Semis", "AMD": "Semis", "AVGO": "Semis", "MRVL": "Semis",
         "MU": "Semis", "TSM": "Semis", "ASML": "Semis", "ARM": "Semis", "ALAB": "Semis", "SKHY": "Semis", "HYNIX": "Semis",

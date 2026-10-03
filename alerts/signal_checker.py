@@ -745,9 +745,10 @@ def format_dca_digest(rows, leap_setups=None) -> str:
             sector = f" [{r['sector']}]" if r.get("sector") else ""
             w200 = f" · +{r['above_200w_pct']}% vs 200w" if r.get("above_200w_pct") is not None else ""
             z = f" · {r['z']:+.1f}σ" if r.get("z") is not None else ""
+            buy_as = f" · buy {r['buy_as']}" if r.get("buy_as") else ""
             lines.append(
                 f"{TIER_DOT[r['tier']]} {r['name']}{sector} — {r['level']} fib · "
-                f"{r['retrace_pct']}% retrace{z}{w200}"
+                f"{r['retrace_pct']}% retrace{z}{w200}{buy_as}"
             )
         lines.append("")
 

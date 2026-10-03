@@ -264,9 +264,10 @@ def fib_summary_html(items):
     return '<div class="fib-summary"><div class="fib-sum-head">DCA read (auto)</div>' + "".join(lines) + '</div>'
 
 
-def _fib_build_items(all_data, tickers, sectors=None):
+def _fib_build_items(all_data, tickers, sectors=None, buy_as=None):
     """Compute + score a fib item for each ticker in a category, ranked best-first."""
     sectors = sectors or {}
+    buy_as = {k: v for k, v in (buy_as or {}).items() if not k.startswith("_")}
     items = []
     for yf_ticker, display_name in tickers.items():
         data = all_data.get(yf_ticker, {})
@@ -296,6 +297,7 @@ def _fib_build_items(all_data, tickers, sectors=None):
             "name": display_name, "fib": fib, "price": price, "frac": frac,
             "daily": daily, "weekly": weekly, "z": z, "sma50": sma50, "support": support,
             "sma200d": sma200d, "sector": sectors.get(display_name),
+            "buy_as": buy_as.get(display_name),
             "score": score, "tier": tier(frac, z, w200, wk_bull, d200),
         })
     # Rank by tier quality first, then score within tier (see rank_key).
@@ -330,6 +332,8 @@ def _fib_section_for(items, title, owned=None):
         sc_html = (f'<span style="color:{score_color(sc)};font-weight:700;">{sc:.1f}</span>'
                    if sc is not None else '<span class="fib-dt">skip</span>')
         sector_html = f'<span class="fib-sector">{it["sector"]}</span>' if it.get("sector") else ""
+        if it.get("buy_as"):
+            sector_html += f' <span class="buy-as" title="The watchlist tracks a different line for signal history; buy this one">buy {it["buy_as"]}</span>'
         d200 = level_cell(it["sma200d"], price) + slope_arrow(daily.get("sma_200d_dir")) if it.get("sma200d") else '<span class="fib-dt">&mdash;</span>'
         rows += f'''<tr>
             <td class="fib-rank">{rank}</td>
@@ -817,7 +821,7 @@ def fib_section_html(all_data, config, holdings=None):
     sections = ""
     for cat in categories:
         tickers = config["watchlist"].get(cat, {})
-        items = _fib_build_items(all_data, tickers, sectors)
+        items = _fib_build_items(all_data, tickers, sectors, config.get("buy_as"))
         all_items.extend(items)
         sections += _fib_section_for(items, cat, owned=owned)
     if not sections:
@@ -2079,6 +2083,7 @@ def generate_html(all_data, config, holdings=None):
     .fib-scale {{ font-size: 0.8em; font-weight: 400; color: var(--ink-faint); margin-left: 6px; text-transform: none; letter-spacing: 0; }}
     .fib-range-cell {{ color: var(--ink-soft); white-space: nowrap; }}
     .fib-dt {{ color: var(--ink-faint); }}
+    .buy-as {{ display: inline-block; font-size: 10px; font-weight: 700; color: #7aa2f7; border: 1px solid #7aa2f7; border-radius: 8px; padding: 0 6px; margin-left: 4px; vertical-align: middle; }}
     .leap-flag {{ display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px; border: 1px solid; border-radius: 10px; letter-spacing: 0.04em; }}
     .leap-gloss {{ margin-top: 10px; font-size: 13px; color: var(--ink-soft); background: var(--surface); border-radius: var(--radius); padding: 8px 14px; }}
     .leap-gloss summary {{ cursor: pointer; color: var(--accent); font-weight: 600; }}
