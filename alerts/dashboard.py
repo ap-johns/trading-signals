@@ -1136,8 +1136,12 @@ def treasury_section_html(config):
                  if m["stale"] else f' <span class="fib-dt" title="holdings as of {m["updated"]}">{m["updated"][5:] if m["updated"] else ""}</span>')
         hold = f'{m["holdings"]:,.0f}' if m["holdings"] >= 1000 else f'{m["holdings"]:,.2f}'
         claims = ""
-        if m["debt"] or m["other"]:
-            claims = f' <span class="fib-dt" title="debt ${m["debt"]/1e9:.1f}bn + other claims ${m["other"]/1e9:.1f}bn &minus; cash ${m["cash"]/1e9:.1f}bn">+${(m["debt"]+m["other"]-m["cash"])/1e9:.1f}bn claims</span>'
+        net = m["debt"] + m["other"] - m["cash"]
+        tip = f'debt ${m["debt"]/1e9:.1f}bn + other claims ${m["other"]/1e9:.1f}bn &minus; cash ${m["cash"]/1e9:.1f}bn'
+        if net >= 0.05e9:
+            claims = f' <span class="fib-dt" title="{tip}">+${net/1e9:.1f}bn claims</span>'
+        elif net <= -0.05e9:
+            claims = f' <span class="fib-dt" title="{tip}">net cash ${-net/1e9:.1f}bn</span>'
         bands = (f'<span class="fib-dt">cheap &le;{m["cheap_below"]:.1f} &middot; </span><span style="color:#e8925d;">derisk {m["derisk_above"]:.1f}</span>'
                  f'<span class="fib-dt"> &middot; </span><span style="color:#ff5252;">sell {m["sell_above"]:.1f}</span>')
         rows += (f'<tr><td>{pill}</td><td class="ticker">{tk}<span class="fib-sector">{m["asset_label"]}</span></td>'
