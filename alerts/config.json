@@ -29,6 +29,24 @@
             "Indices": {"min_gain": 0.20, "reversal": 0.10}
         }
     },
+    "treasury_companies": {
+        "_comment": "mNAV tracking for crypto treasury stocks (alerts/treasury.py). holdings / other_claims_usd / updated are refreshed by hand from filings; price, shares, debt and cash come from yfinance (debt_usd / cash_usd / shares override if set). Bands use the EV mNAV. alt = where to derisk into.",
+        "enabled": true,
+        "MSTR": {
+            "name": "Strategy", "asset": "BTC-USD", "asset_label": "BTC",
+            "holdings": 847666, "updated": "2026-10-03",
+            "other_claims_usd": 8500000000,
+            "_other_claims_note": "approximate notional of STRK/STRF/STRD/STRC preferreds, which rank ahead of equity and are not in yfinance totalDebt; check strategy.com",
+            "cheap_below": 1.0, "derisk_above": 2.0, "sell_above": 2.5,
+            "alt": "IB1T (BTC ETP, ISA)"
+        },
+        "PURR": {
+            "name": "Hyperliquid Strategies", "asset": "HYPE32196-USD", "asset_label": "HYPE",
+            "holdings": 17600000, "updated": "2026-10-03",
+            "cheap_below": 1.0, "derisk_above": 2.0, "sell_above": 2.5,
+            "alt": "native HYPE (Tangem)"
+        }
+    },
     "buy_as": {
         "_comment": "Reminder of which London line to actually buy when the watchlist tracks a different symbol for signal history. Shown as a tag on the DCA table and in the digest.",
         "COPA": "COPB (GBP line)",

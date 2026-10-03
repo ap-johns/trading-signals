@@ -567,7 +567,7 @@
 </head>
 <body>
     <h1>OTT Signal Dashboard</h1>
-    <div class="updated">Last updated: 2026-10-03 11:54:48.585250</div>
+    <div class="updated">Last updated: 2026-10-03 12:48:23.123306</div>
     <div class="params">OTT Period: 10 | OTT Percent: 3.0 | Source: Open | MA Type: VAR | EMA: 200</div>
     <div class="controls">
         <div class="tf-toggle">
@@ -1811,6 +1811,20 @@
     The rate is a config value and may be out of date; not tax advice.</p></dd>
       </dl>
     </details>
+    
+    <h2 class="fib-title">Treasury Premiums <span class="fib-sub">crypto treasury stocks: price paid per dollar of coin held &middot; derisk into the coin or an ETP when rich, sell when silly &middot; holdings entered by hand from filings</span></h2>
+    <div class="fib-summary"><div class="fib-sum-line"><span class="fib-sum-tag warn">Premium rich</span> none <span class="fib-dt">&mdash; EV mNAV at or above the derisk band</span></div></div>
+    <div class="leap-scroll"><table class="fib-table leap-table"><thead><tr><th>Status</th><th>Ticker</th><th>Price</th><th>Mkt cap</th><th>Holdings</th><th>Coin NAV</th><th title="market cap / coin value">mNAV basic</th><th title="(market cap + debt + other claims - cash) / coin value">mNAV EV</th><th>Bands</th><th>Alternative</th></tr></thead><tbody>
+<tr><td><span class="leap-flag" style="color:#a8a59c;border-color:#a8a59c;" title="premium within the normal band">Fair</span></td><td class="ticker">MSTR<span class="fib-sector">BTC</span></td><td class="fib-price">$160.01</td><td>$63.8bn <span class="fib-dt" title="debt $6.8bn + other claims $8.5bn &minus; cash $2.4bn">+$12.8bn claims</span></td><td>847,666 BTC <span class="fib-dt" title="holdings as of 2026-10-03">10-03</span></td><td>$71.8bn <span class="fib-dt">$180.00/sh</span></td><td><span style="color:#00e676;font-weight:400;">0.89&times;</span></td><td><span style="color:var(--ink);font-weight:700;">1.07&times;</span></td><td><span class="fib-dt">cheap &le;1.0 &middot; </span><span style="color:#e8925d;">derisk 2.0</span><span class="fib-dt"> &middot; </span><span style="color:#ff5252;">sell 2.5</span></td><td class="fib-dt">IB1T (BTC ETP, ISA)</td></tr>
+<tr><td><span class="leap-flag" style="color:#a8a59c;border-color:#a8a59c;" title="premium within the normal band">Fair</span></td><td class="ticker">PURR<span class="fib-sector">HYPE</span></td><td class="fib-price">$11.89</td><td>$2.4bn</td><td>17,600,000 HYPE <span class="fib-dt" title="holdings as of 2026-10-03">10-03</span></td><td>$1.6bn <span class="fib-dt">$7.83/sh</span></td><td><span style="color:var(--ink);font-weight:400;">1.52&times;</span></td><td><span style="color:var(--ink);font-weight:700;">1.43&times;</span></td><td><span class="fib-dt">cheap &le;1.0 &middot; </span><span style="color:#e8925d;">derisk 2.0</span><span class="fib-dt"> &middot; </span><span style="color:#ff5252;">sell 2.5</span></td><td class="fib-dt">native HYPE (Tangem)</td></tr>
+</tbody></table></div>
+    
+    <details class="leap-gloss"><summary>What mNAV means and how the bands are used</summary><dl>
+      <dt>mNAV</dt><dd>Market value divided by net asset value: what you pay per dollar of coin the company holds. <b>Basic</b> is market cap over coin value. <b>EV</b> adds debt and other claims that rank ahead of shareholders (for Strategy, its convertible notes and preferred stock) and subtracts cash. EV is the honest multiple and the one the bands use.</dd>
+      <dt>Why it matters</dt><dd>The premium is the lever in a treasury stock. It expands in bull runs as the company issues shares above NAV to buy more coin per share, and collapses in bears: Strategy went from about 4&times; to 1&times; across the last cycle, and the Solana treasuries fell to 0.6&times;. Holding the stock means holding the coin plus a bet on the premium.</dd>
+      <dt>Bands</dt><dd><span style="color:#00e676;">Cheap</span> at or below 1&times; means the shares are worth less than the coin: the accumulation zone. <span style="color:#e8925d;">Derisk</span> is where to start moving into the coin itself or an ETP (the Alternative column), keeping the exposure but dropping the premium risk. <span style="color:#ff5252;">Sell</span> is mania territory. A Telegram alert fires when the EV multiple first crosses each band, and re-arms once it has fallen 10% back below.</dd>
+      <dt>Inputs and staleness</dt><dd>Price, share count, debt and cash come from Yahoo. Coin holdings and the preferred-stock figure are entered by hand from the companies' filings (Strategy files most Mondays; Hyperliquid Strategies reports quarterly) and the date next to the holdings shows when. Over 45 days old is flagged stale and the multiple should be treated as approximate. Share counts on Yahoo can lag an issuance by weeks, which understates mNAV for an active issuer.</dd>
+    </dl></details>
     <div class="legend">
         <span class="signal-pill buy-signal">date</span> = Buy signal &nbsp;
         <span class="signal-pill sell-signal">date</span> = Sell signal &nbsp; | &nbsp;

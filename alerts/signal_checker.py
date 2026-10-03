@@ -670,6 +670,54 @@ def in_digest(row) -> bool:
     return row["tier"] == "favoured"
 
 
+def check_treasury_premiums(config, state):
+    """mNAV band alerts for crypto treasury stocks. Fires once when the EV
+    multiple crosses a band (cheap / derisk / sell), re-arms once it has moved
+    10% back the other way. State lives in cycle_state under the ticker as
+    'mnav_alerted'. Returns (alerts, summaries): alerts are Telegram messages,
+    summaries are 'MSTR 0.95x (fair)' strings for the digest."""
+    cfg = config.get("treasury_companies", {})
+    if not cfg.get("enabled", False):
+        return [], []
+    import treasury
+    alerts, summaries = [], []
+    for tk, e in cfg.items():
+        if not isinstance(e, dict) or tk.startswith("_"):
+            continue
+        try:
+            m = treasury.compute_mnav(tk, e)
+        except Exception as ex:  # noqa: BLE001
+            print(f"mNAV check skipped for {tk}: {ex}")
+            continue
+        if not m or m.get("mnav_ev") is None:
+            continue
+        x = m["mnav_ev"]; st = treasury.status(m)
+        summaries.append(f"{tk} {x:.2f}× ({st})")
+        ts = state.setdefault(tk, {})
+        fired = set(ts.get("mnav_alerted", []))
+        # re-arm: cheap re-arms once 10% above the cheap line; derisk/sell once 10% below their line
+        if "cheap" in fired and x > m["cheap_below"] * 1.1:
+            fired.discard("cheap")
+        for band, line in (("derisk", m["derisk_above"]), ("sell", m["sell_above"])):
+            if band in fired and x < line * 0.9:
+                fired.discard(band)
+        def msg(title, body):
+            return (f"\U0001f3e6 <b>{title}: {tk}</b> ({m['name']})\n{body}\n"
+                    f"Price ${m['price']:,.2f} · {m['holdings']:,.0f} {m['asset_label']} · NAV ${m['nav_per_share']:,.2f}/sh\n"
+                    f"mNAV basic {m['mnav_basic']:.2f}× · EV {x:.2f}× · bands cheap ≤{m['cheap_below']:.1f} / derisk {m['derisk_above']:.1f} / sell {m['sell_above']:.1f}")
+        if x >= m["sell_above"] and "sell" not in fired:
+            alerts.append(msg("Treasury premium SELL", f"EV mNAV {x:.2f}× is at mania levels. Sell or switch into {m['alt'] or 'the coin'}."))
+            fired.add("sell")
+        elif x >= m["derisk_above"] and "derisk" not in fired:
+            alerts.append(msg("Treasury premium DERISK", f"EV mNAV {x:.2f}× is rich. Move some into {m['alt'] or 'the coin'}; keep the exposure, drop the premium risk."))
+            fired.add("derisk")
+        elif x <= m["cheap_below"] and "cheap" not in fired:
+            alerts.append(msg("Treasury at or below NAV", f"EV mNAV {x:.2f}×: the shares are worth less than the coin they hold. Accumulation zone."))
+            fired.add("cheap")
+        ts["mnav_alerted"] = sorted(fired)
+    return alerts, summaries
+
+
 def leap_strong_setups(rows, config):
     """Strong LEAP setups among the favoured picks: favoured DCA tier AND premium
     not rich AND liquid contract (leaps.leap_flag == 'strong'). Only favoured
@@ -718,7 +766,7 @@ def format_leap_lines(setups) -> list:
     return lines
 
 
-def format_dca_digest(rows, leap_setups=None) -> str:
+def format_dca_digest(rows, leap_setups=None, treasury_lines=None) -> str:
     """DCA digest: the favoured picks per asset class (see in_digest). `rows` is
     the ranked output of dca_rank.analyse(), already ordered tier-then-score."""
     TIER_DOT = {"favoured": "\U0001f7e2", "cheap_shallow": "\U0001f7e1",
@@ -757,17 +805,19 @@ def format_dca_digest(rows, leap_setups=None) -> str:
         lines.append("")
 
     lines.extend(format_leap_lines(leap_setups))
+    if treasury_lines:
+        lines.append("\U0001f3e6 Treasury premiums (EV mNAV): " + " · ".join(treasury_lines))
 
     return "\n".join(lines).strip()
 
 
-def send_dca_digest(bot_token, chat_id, config=None):
+def send_dca_digest(bot_token, chat_id, config=None, treasury_lines=None):
     """Compute the DCA ranking and send the 'favoured now' digest, with a LEAP
     section appended whenever a favoured name is also a strong LEAP setup."""
     from dca_rank import analyse  # lazy import (pulls dashboard/yfinance)
     rows = analyse()
     leap_setups = leap_strong_setups(rows, config or {})
-    msg = format_dca_digest(rows, leap_setups)
+    msg = format_dca_digest(rows, leap_setups, treasury_lines)
     print("Sending DCA digest...")
     send_telegram(bot_token, chat_id, msg)
 
@@ -794,6 +844,18 @@ def main():
 
     signals = check_signals(config)
 
+    # Crypto treasury mNAV bands (derisk / sell / cheap) — deduped in cycle_state.
+    treasury_lines = []
+    try:
+        state = load_cycle_state()
+        t_alerts, treasury_lines = check_treasury_premiums(config, state)
+        for msg in t_alerts:
+            print("  mNAV alert"); send_telegram(bot_token, chat_id, msg)
+        if t_alerts:
+            save_cycle_state(state)
+    except Exception as e:  # noqa: BLE001
+        print(f"Treasury premium check error: {e}")
+
     if signals:
         print(f"Found {len(signals)} signal(s):\n")
         for sig in signals:
@@ -813,7 +875,7 @@ def main():
     dca_due = dca_cfg.get("daily", False) or datetime.now().weekday() == dca_cfg.get("weekday", 0)
     if dca_cfg.get("enabled", True) and dca_due:
         try:
-            send_dca_digest(bot_token, chat_id, config)
+            send_dca_digest(bot_token, chat_id, config, treasury_lines)
         except Exception as e:
             print(f"DCA digest error: {e}")
 

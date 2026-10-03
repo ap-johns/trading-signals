@@ -12,6 +12,7 @@ import pandas as pd
 
 from indicators import calculate_ott, calculate_sma, calculate_ema, calculate_fib_levels, atr_levels, IA_LEVEL_RATIOS
 import leaps as leapmod
+import treasury as treasmod
 import time
 
 
@@ -1108,6 +1109,63 @@ def yf_name_for(display_name, config):
     return display_name
 
 
+def treasury_section_html(config):
+    """Crypto treasury companies: mNAV against the buy / derisk / sell bands."""
+    cfg = config.get("treasury_companies", {})
+    if not cfg.get("enabled", False):
+        return ""
+    entries = {k: v for k, v in cfg.items() if isinstance(v, dict) and not k.startswith("_")}
+    rows = ""; items = []
+    for tk, e in entries.items():
+        try:
+            m = treasmod.compute_mnav(tk, e)
+        except Exception as ex:  # noqa: BLE001
+            rows += f'<tr><td class="ticker">{tk}</td><td colspan="9" class="error">Error: {ex}</td></tr>\n'
+            continue
+        if not m:
+            rows += f'<tr><td class="ticker">{tk}</td><td colspan="9" class="error">no price data</td></tr>\n'
+            continue
+        st = treasmod.status(m); items.append((m, st))
+        lbl, col, tip = treasmod.STATUS_LABEL.get(st, ("&mdash;", "#888", ""))
+        pill = f'<span class="leap-flag" style="color:{col};border-color:{col};" title="{tip}">{lbl}</span>'
+        def mult(x, strong=False):
+            if x is None: return '<span class="fib-dt">&mdash;</span>'
+            c = "#00e676" if x <= m["cheap_below"] else ("#ff5252" if x >= m["sell_above"] else ("#e8925d" if x >= m["derisk_above"] else "var(--ink)"))
+            return f'<span style="color:{c};font-weight:{700 if strong else 400};">{x:.2f}&times;</span>'
+        stale = (f' <span style="color:#e8925d;" title="holdings last updated {m["updated"]}; refresh from filings">stale {m["age_days"]}d</span>'
+                 if m["stale"] else f' <span class="fib-dt" title="holdings as of {m["updated"]}">{m["updated"][5:] if m["updated"] else ""}</span>')
+        hold = f'{m["holdings"]:,.0f}' if m["holdings"] >= 1000 else f'{m["holdings"]:,.2f}'
+        claims = ""
+        if m["debt"] or m["other"]:
+            claims = f' <span class="fib-dt" title="debt ${m["debt"]/1e9:.1f}bn + other claims ${m["other"]/1e9:.1f}bn &minus; cash ${m["cash"]/1e9:.1f}bn">+${(m["debt"]+m["other"]-m["cash"])/1e9:.1f}bn claims</span>'
+        bands = (f'<span class="fib-dt">cheap &le;{m["cheap_below"]:.1f} &middot; </span><span style="color:#e8925d;">derisk {m["derisk_above"]:.1f}</span>'
+                 f'<span class="fib-dt"> &middot; </span><span style="color:#ff5252;">sell {m["sell_above"]:.1f}</span>')
+        rows += (f'<tr><td>{pill}</td><td class="ticker">{tk}<span class="fib-sector">{m["asset_label"]}</span></td>'
+                 f'<td class="fib-price">${m["price"]:,.2f}</td><td>${m["mcap"]/1e9:,.1f}bn{claims}</td>'
+                 f'<td>{hold} {m["asset_label"]}{stale}</td><td>${m["nav"]/1e9:,.1f}bn <span class="fib-dt">${m["nav_per_share"]:,.2f}/sh</span></td>'
+                 f'<td>{mult(m["mnav_basic"])}</td><td>{mult(m["mnav_ev"], True)}</td><td>{bands}</td>'
+                 f'<td class="fib-dt">{m["alt"] or ""}</td></tr>\n')
+    if not rows:
+        return ""
+    flagged = [f'{m["ticker"]} {m["mnav_ev"]:.2f}&times;' for m, st in items if st in ("derisk", "sell")]
+    summary = (f'<div class="fib-summary"><div class="fib-sum-line"><span class="fib-sum-tag warn">Premium rich</span> '
+               f'{", ".join(flagged) or "none"} <span class="fib-dt">&mdash; EV mNAV at or above the derisk band</span></div></div>')
+    gloss = """
+    <details class="leap-gloss"><summary>What mNAV means and how the bands are used</summary><dl>
+      <dt>mNAV</dt><dd>Market value divided by net asset value: what you pay per dollar of coin the company holds. <b>Basic</b> is market cap over coin value. <b>EV</b> adds debt and other claims that rank ahead of shareholders (for Strategy, its convertible notes and preferred stock) and subtracts cash. EV is the honest multiple and the one the bands use.</dd>
+      <dt>Why it matters</dt><dd>The premium is the lever in a treasury stock. It expands in bull runs as the company issues shares above NAV to buy more coin per share, and collapses in bears: Strategy went from about 4&times; to 1&times; across the last cycle, and the Solana treasuries fell to 0.6&times;. Holding the stock means holding the coin plus a bet on the premium.</dd>
+      <dt>Bands</dt><dd><span style="color:#00e676;">Cheap</span> at or below 1&times; means the shares are worth less than the coin: the accumulation zone. <span style="color:#e8925d;">Derisk</span> is where to start moving into the coin itself or an ETP (the Alternative column), keeping the exposure but dropping the premium risk. <span style="color:#ff5252;">Sell</span> is mania territory. A Telegram alert fires when the EV multiple first crosses each band, and re-arms once it has fallen 10% back below.</dd>
+      <dt>Inputs and staleness</dt><dd>Price, share count, debt and cash come from Yahoo. Coin holdings and the preferred-stock figure are entered by hand from the companies' filings (Strategy files most Mondays; Hyperliquid Strategies reports quarterly) and the date next to the holdings shows when. Over 45 days old is flagged stale and the multiple should be treated as approximate. Share counts on Yahoo can lag an issuance by weeks, which understates mNAV for an active issuer.</dd>
+    </dl></details>"""
+    head = ('<h2 class="fib-title">Treasury Premiums <span class="fib-sub">crypto treasury stocks: price paid per dollar of coin held &middot; '
+            'derisk into the coin or an ETP when rich, sell when silly &middot; holdings entered by hand from filings</span></h2>')
+    table = ('<table class="fib-table leap-table"><thead><tr><th>Status</th><th>Ticker</th><th>Price</th><th>Mkt cap</th>'
+             '<th>Holdings</th><th>Coin NAV</th><th title="market cap / coin value">mNAV basic</th>'
+             '<th title="(market cap + debt + other claims - cash) / coin value">mNAV EV</th><th>Bands</th><th>Alternative</th>'
+             f'</tr></thead><tbody>\n{rows}</tbody></table>')
+    return f"\n    {head}\n    {summary}\n    <div class=\"leap-scroll\">{table}</div>\n    {gloss}"
+
+
 def get_ticker_data(yf_ticker, ott_period, ott_percent, ema_period,
                     fib_enabled=True, fib_lookback=104, fib_min_gain=0.30,
                     fib_reversal=0.14, fib_levels=(0.382, 0.5, 0.618, 0.786),
@@ -1734,6 +1792,7 @@ def generate_html(all_data, config, holdings=None):
     ia_section = ia_levels_section_html(all_data, config)
     analyst_section = analyst_targets_section_html(all_data, config)
     leap_section = leap_section_html(all_data, config)
+    treasury_section = treasury_section_html(config)
     season_banner = seasonality_banner_html(seasonality_context(datetime.now().month))
     macro_banner = macro_banner_html(macro_context(config))
 
@@ -2337,6 +2396,7 @@ def generate_html(all_data, config, holdings=None):
     {ia_section}
     {analyst_section}
     {leap_section}
+    {treasury_section}
     <div class="legend">
         <span class="signal-pill buy-signal">date</span> = Buy signal &nbsp;
         <span class="signal-pill sell-signal">date</span> = Sell signal &nbsp; | &nbsp;

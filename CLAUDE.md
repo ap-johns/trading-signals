@@ -46,6 +46,7 @@ Python modules in `alerts/`, no external web framework:
 - **backtest.py** — Historical strategy simulation vs buy-and-hold. Carries its **own** copies of strategy rules (including the index 5% dip buy-back) — intentionally independent of what is alerted on.
 - **broker.py** — Read-only Trading 212 access. Degrades to `None` if credentials are absent.
 - **macro.py**, **seasonality.py** — Informational context banners only. Deliberately **not** fed into the favorability score.
+- **treasury.py** — mNAV (market value / coin NAV, basic and EV) for crypto treasury stocks listed in `config.treasury_companies`. Price, shares, debt, cash from yfinance; coin holdings and MSTR's preferred-stock notional are entered by hand with an `updated` date (dashboard flags >45 days stale). Dashboard panel plus daily Telegram alerts when the EV multiple crosses the cheap / derisk / sell bands, deduped in `cycle_state.json` (`mnav_alerted`, re-arms 10% back across the line). The digest carries a one-line premium summary.
 - **leaps.py** — LEAP (15+ month deep-ITM call) candidate panel on the dashboard. Reuses the DCA tier for the underlying and adds premium cost: ATM implied vol vs 90d realised vol, IV rank (from `iv_history.json`, needs 60 daily snapshots), delta-targeted strike with bid/ask, extrinsic %, breakeven and open interest. Index tickers use ETF proxies (`OPTION_PROXY`). Never scored. The only Telegram exposure is a **LEAP strong setups** section appended to the daily digest when a favoured name also has a fair premium and a liquid contract (`leaps.digest` in config); Setup/Watch/Thin/Avoid are dashboard-only.
 
 ## Strategy Types
@@ -72,6 +73,7 @@ Active buy triggers (~85 armed thresholds total):
 | Crypto cycle buy window | crypto | — | state |
 | Below 200w EMA | crypto | −10/−20/−30% | state; resets above EMA |
 | Analyst buy level | `analyst_levels.json` | per ticker | state + re-arm |
+| Treasury mNAV bands | `treasury_companies` (MSTR, PURR) | cheap ≤1.0 / derisk 2.0 / sell 2.5 (EV) | state; re-arms 10% back across the line |
 | Weekly fib retracement | stocks + indices | .382/.5/.618/.786 | **disabled** (`fib_alerts.enabled: false`) |
 | IA accumulation bands | stocks | L5/L4/L3 | **disabled** (`ia_level_alerts.enabled: false`) |
 
