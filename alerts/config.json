@@ -45,6 +45,31 @@
             "holdings": 17600000, "updated": "2026-10-03",
             "cheap_below": 1.0, "derisk_above": 2.0, "sell_above": 2.5,
             "alt": "native HYPE (Tangem)"
+        },
+        "FWDI": {
+            "name": "Forward Industries", "asset": "SOL-USD", "asset_label": "SOL",
+            "holdings": 7550000, "updated": "2026-10-03",
+            "cheap_below": 1.0, "derisk_above": 2.0, "sell_above": 2.5,
+            "alt": "native SOL (hardware wallet)"
+        },
+        "DFDV": {
+            "name": "DeFi Development", "asset": "SOL-USD", "asset_label": "SOL",
+            "holdings": 2400000, "updated": "2026-10-03",
+            "_holdings_note": "trackers show 2.22m-2.49m; refresh from the company's SOL-per-share dashboard",
+            "cheap_below": 1.0, "derisk_above": 2.0, "sell_above": 2.5,
+            "alt": "native SOL (hardware wallet)"
+        },
+        "BMNR": {
+            "name": "BitMine Immersion", "asset": "ETH-USD", "asset_label": "ETH",
+            "holdings": 6001302, "updated": "2026-10-03",
+            "cheap_below": 1.0, "derisk_above": 2.0, "sell_above": 2.5,
+            "alt": "spot ETH ETP (ISA)"
+        },
+        "SBET": {
+            "name": "SharpLink", "asset": "ETH-USD", "asset_label": "ETH",
+            "holdings": 868699, "updated": "2026-10-03",
+            "cheap_below": 1.0, "derisk_above": 2.0, "sell_above": 2.5,
+            "alt": "spot ETH ETP (ISA)"
         }
     },
     "buy_as": {
@@ -57,7 +82,7 @@
         "MU": "Semis", "TSM": "Semis", "ASML": "Semis", "ARM": "Semis", "ALAB": "Semis", "SKHY": "Semis", "HYNIX": "Semis",
         "GOOG": "Internet", "META": "Internet", "AMZN": "Internet", "MSFT": "Software", "PLTR": "Software",
         "TSLA": "Auto/EV", "COPA": "Copper", "COPX": "Copper", "SPCX": "Space",
-        "MSTR": "Crypto treasury", "PURR": "Crypto treasury"
+        "MSTR": "Crypto treasury", "PURR": "Crypto treasury", "FWDI": "Crypto treasury", "DFDV": "Crypto treasury", "BMNR": "Crypto treasury", "SBET": "Crypto treasury"
     },
     "dca_summary": {
         "enabled": true,
@@ -141,6 +166,10 @@
             "AVGO": "AVGO",
             "COPA.L": "COPA",
             "COPX": "COPX",
+            "DFDV": "DFDV",
+            "FWDI": "FWDI",
+            "BMNR": "BMNR",
+            "SBET": "SBET",
             "GOOG": "GOOG",
             "META": "META",
             "MRVL": "MRVL",
