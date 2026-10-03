@@ -1040,7 +1040,12 @@ def leap_section_html(all_data, config):
             tip = (f"2x daily-reset, 18-month holds{since}: beat shares {et['beat_pct']:.0f}%, halved {et['halved_pct']:.0f}%, "
                    f"median {et['etp_median']:+.0f}% vs shares {et['stock_median']:+.0f}%, worst {et['worst']:.0f}%. ")
         if et.get("vol1y") is not None:
-            tip += f"1y vol {et['vol1y']*100:.0f}%, vol drag ~{et['vol_drag']:.0f}%/yr."
+            tip += f"1y vol {et['vol1y']*100:.0f}%"
+            if et.get("vol_drag") is not None:
+                tip += f", vol drag ~{et['vol_drag']:.0f}%/yr"
+            tip += "."
+        if not et.get("n"):
+            tip += " Under two years of history: verdict from volatility alone."
         return tip.strip()
 
     def strong_entry(it):

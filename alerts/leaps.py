@@ -335,14 +335,16 @@ def etp_stats(close, leverage=ETP_LEVERAGE, window=ETP_WINDOW, since=ETP_SINCE):
     start_year = int(close.index[0].year) if len(close) else None
     r1y = np.log(close).diff().dropna().iloc[-252:]
     vol1y = float(r1y.std() * math.sqrt(252)) if len(r1y) >= 120 else None
+    # Expected annual volatility drag of an L× daily-reset product ≈ σ²·(L²−L)/2
+    vol_drag = (vol1y ** 2 * (leverage ** 2 - leverage) / 2 * 100) if vol1y else None
     if len(close) < window + 20:
-        return {"n": 0, "vol1y": vol1y, "since": start_year}
+        return {"n": 0, "vol1y": vol1y, "vol_drag": vol_drag, "since": start_year}
     etp = etp_simulate(close, leverage)
     re = etp.pct_change(window).dropna()
     ru = close.pct_change(window).dropna()
     j = pd.concat([re.rename("e"), ru.rename("u")], axis=1).dropna()
     if j.empty:
-        return {"n": 0, "vol1y": vol1y, "since": start_year}
+        return {"n": 0, "vol1y": vol1y, "vol_drag": vol_drag, "since": start_year}
     return {
         "n": int(len(j)),
         "since": start_year,
@@ -353,8 +355,7 @@ def etp_stats(close, leverage=ETP_LEVERAGE, window=ETP_WINDOW, since=ETP_SINCE):
         "etp_median": float(j.e.median() * 100),
         "stock_median": float(j.u.median() * 100),
         "worst": float(j.e.min() * 100),
-        # Expected annual volatility drag of an L× daily-reset product ≈ σ²·(L²−L)/2
-        "vol_drag": (vol1y ** 2 * (leverage ** 2 - leverage) / 2 * 100) if vol1y else None,
+        "vol_drag": vol_drag,
     }
 
 
