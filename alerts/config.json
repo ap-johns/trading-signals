@@ -50,7 +50,7 @@
             "name": "Forward Industries", "asset": "SOL-USD", "asset_label": "SOL",
             "holdings": 7550000, "updated": "2026-10-03",
             "cheap_below": 1.0, "derisk_above": 2.0, "sell_above": 2.5,
-            "alt": "native SOL (hardware wallet)"
+            "alt": "spot SOL ETP (ISA) or native SOL"
         },
         "BMNR": {
             "name": "BitMine Immersion", "asset": "ETH-USD", "asset_label": "ETH",
