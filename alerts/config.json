@@ -33,7 +33,7 @@
         "NVDA": "Semis", "AMD": "Semis", "AVGO": "Semis", "MRVL": "Semis",
         "MU": "Semis", "TSM": "Semis", "ASML": "Semis", "ARM": "Semis", "ALAB": "Semis", "SKHY": "Semis", "HYNIX": "Semis",
         "GOOG": "Internet", "META": "Internet", "AMZN": "Internet", "MSFT": "Software", "PLTR": "Software",
-        "TSLA": "Auto/EV", "COPA": "Copper", "SPCX": "Space",
+        "TSLA": "Auto/EV", "COPA": "Copper", "COPX": "Copper", "SPCX": "Space",
         "MSTR": "Crypto treasury", "PURR": "Crypto treasury"
     },
     "dca_summary": {
@@ -117,6 +117,7 @@
             "ASML": "ASML",
             "AVGO": "AVGO",
             "COPA": "COPA",
+            "COPX": "COPX",
             "GOOG": "GOOG",
             "META": "META",
             "MRVL": "MRVL",
