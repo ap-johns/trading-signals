@@ -175,6 +175,8 @@
   },
   "PURR": {
     "zscore_neg": [],
-    "mnav_alerted": []
+    "mnav_alerted": [
+      "derisk"
+    ]
   }
 }
