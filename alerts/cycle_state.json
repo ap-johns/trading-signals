@@ -178,5 +178,8 @@
     "mnav_alerted": [
       "derisk"
     ]
+  },
+  "UMAC": {
+    "zscore_neg": []
   }
 }
