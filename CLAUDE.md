@@ -46,6 +46,7 @@ Python modules in `alerts/`, no external web framework:
 - **backtest.py** — Historical strategy simulation vs buy-and-hold. Carries its **own** copies of strategy rules (including the index 5% dip buy-back) — intentionally independent of what is alerted on.
 - **broker.py** — Read-only Trading 212 access. Degrades to `None` if credentials are absent.
 - **macro.py**, **seasonality.py** — Informational context banners only. Deliberately **not** fed into the favorability score.
+- **leap_positions.py** — Held LEAPs. Positions live in git-ignored `alerts/leap_positions.json` (the repo is public) and, for CI, in the `LEAP_POSITIONS_JSON` repo secret with the same content; update both when a position changes (paste the file into the secret via GitHub Settings → Secrets → Actions, or `gh secret set LEAP_POSITIONS_JSON < alerts/leap_positions.json`). Daily status goes into the digest; a Telegram alert fires once when an exit rule first trips (roll at 6 months, delta >= 0.90, stock +40%, daily OTT sell after entry above the 200d, caution tier under 9 months), deduped in `cycle_state.json` under `_leap_positions`. Rendered on the `--private` dashboard only, never the public page.
 - **treasury.py** — mNAV (market value / coin NAV, basic and EV) for crypto treasury stocks listed in `config.treasury_companies`. Price, shares, debt, cash from yfinance; coin holdings and MSTR's preferred-stock notional are entered by hand with an `updated` date (dashboard flags >45 days stale). Dashboard panel plus daily Telegram alerts when the EV multiple crosses the cheap / derisk / sell bands, deduped in `cycle_state.json` (`mnav_alerted`, re-arms 10% back across the line). The digest carries a one-line premium summary.
 - **leaps.py** — LEAP (15+ month deep-ITM call) candidate panel on the dashboard. Reuses the DCA tier for the underlying and adds premium cost: ATM implied vol vs 90d realised vol, IV rank (from `iv_history.json`, needs 60 daily snapshots), delta-targeted strike with bid/ask, extrinsic %, breakeven and open interest. Index tickers use ETF proxies (`OPTION_PROXY`). Never scored. The only Telegram exposure is a **LEAP strong setups** section appended to the daily digest when a favoured name also has a fair premium and a liquid contract (`leaps.digest` in config); Setup/Watch/Thin/Avoid are dashboard-only.
 
@@ -116,6 +117,7 @@ When adding a level-based trigger, persist fired levels in `cycle_state.json` wi
 - `alerts/iv_history.json` — Daily ATM LEAP implied-vol snapshot per ticker, written by `dashboard.py` and committed by CI. Backs the IV rank column; only `leaps.py` reads it.
 - `docs/index.html` — Generated public dashboard (committed by CI, served by GitHub Pages)
 - `local-dashboard.html` — Private holdings view, **gitignored, never commit**
+- `alerts/leap_positions.json` — Held LEAPs, **gitignored, never commit**; mirrored into the `LEAP_POSITIONS_JSON` secret for CI
 - `.github/workflows/update.yml` — CI: runs signal_checker then dashboard, commits results back
 
 ## Slash Commands

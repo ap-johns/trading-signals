@@ -27,6 +27,8 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # Held LEAPs (git-ignored locally; same JSON stored as a repo secret).
+          LEAP_POSITIONS_JSON: ${{ secrets.LEAP_POSITIONS_JSON }}
         working-directory: alerts
         run: python signal_checker.py
 

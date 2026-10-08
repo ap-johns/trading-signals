@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 .env
 local-dashboard.html
+alerts/leap_positions.json

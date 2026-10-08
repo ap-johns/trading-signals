@@ -718,6 +718,30 @@ def check_treasury_premiums(config, state):
     return alerts, summaries
 
 
+def check_leap_positions(config, state, rows=None):
+    """Status of held LEAPs (alerts/leap_positions.py). Returns (alerts, digest_lines).
+    An exit-rule alert fires once per (position, rule) and is remembered in
+    cycle_state under '_leap_positions' -> {id: [rules]}; it re-arms when the rule
+    stops being true. Tier comes from the DCA ranking rows when supplied."""
+    import leap_positions as lp
+    positions = lp.load_positions()
+    if not positions:
+        return [], []
+    by_name = {r["name"]: r for r in (rows or [])}
+    statuses = lp.evaluate(positions, config, tier_lookup=lambda tk: by_name.get(tk))
+    mem = state.setdefault("_leap_positions", {})
+    alerts = []
+    for s in statuses:
+        if "error" in s:
+            continue
+        fired = set(mem.get(s["id"], []))
+        now = set(s["flags"])
+        for f in sorted(now - fired):
+            alerts.append(lp.format_alert(s, f))
+        mem[s["id"]] = sorted(now)          # re-arm anything no longer true
+    return alerts, lp.format_digest_lines(statuses)
+
+
 def leap_strong_setups(rows, config):
     """Strong LEAP setups among the favoured picks: favoured DCA tier AND premium
     not rich AND liquid contract (leaps.leap_flag == 'strong'). Only favoured
@@ -766,7 +790,7 @@ def format_leap_lines(setups) -> list:
     return lines
 
 
-def format_dca_digest(rows, leap_setups=None, treasury_lines=None) -> str:
+def format_dca_digest(rows, leap_setups=None, treasury_lines=None, position_lines=None) -> str:
     """DCA digest: the favoured picks per asset class (see in_digest). `rows` is
     the ranked output of dca_rank.analyse(), already ordered tier-then-score."""
     TIER_DOT = {"favoured": "\U0001f7e2", "cheap_shallow": "\U0001f7e1",
@@ -805,6 +829,8 @@ def format_dca_digest(rows, leap_setups=None, treasury_lines=None) -> str:
         lines.append("")
 
     lines.extend(format_leap_lines(leap_setups))
+    if position_lines:
+        lines.extend(position_lines)
     if treasury_lines:
         lines.append("\U0001f3e6 Treasury premiums (EV mNAV): " + " · ".join(treasury_lines))
 
@@ -817,7 +843,17 @@ def send_dca_digest(bot_token, chat_id, config=None, treasury_lines=None):
     from dca_rank import analyse  # lazy import (pulls dashboard/yfinance)
     rows = analyse()
     leap_setups = leap_strong_setups(rows, config or {})
-    msg = format_dca_digest(rows, leap_setups, treasury_lines)
+    position_lines = []
+    try:
+        state = load_cycle_state()
+        p_alerts, position_lines = check_leap_positions(config or {}, state, rows)
+        for m in p_alerts:
+            print("  LEAP position alert"); send_telegram(bot_token, chat_id, m)
+        if p_alerts:
+            save_cycle_state(state)
+    except Exception as e:  # noqa: BLE001
+        print(f"LEAP positions check error: {e}")
+    msg = format_dca_digest(rows, leap_setups, treasury_lines, position_lines)
     print("Sending DCA digest...")
     send_telegram(bot_token, chat_id, msg)
 

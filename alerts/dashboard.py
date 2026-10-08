@@ -1797,6 +1797,21 @@ def generate_html(all_data, config, holdings=None):
     analyst_section = analyst_targets_section_html(all_data, config)
     leap_section = leap_section_html(all_data, config)
     treasury_section = treasury_section_html(config)
+    positions_section = ""
+    if holdings is not None or (holdings is None and "--private" in sys.argv):
+        # Private view only: held LEAPs never reach the public page.
+        try:
+            import leap_positions as lp
+            from dca_rank import analyse_ticker
+            pos = lp.load_positions()
+            if pos:
+                def _tier(tk):
+                    name = next((n for cat in config["watchlist"].values() for y, n in cat.items() if y == tk or n == tk), tk)
+                    yf_t = next((y for cat in config["watchlist"].values() for y, n in cat.items() if n == name), tk)
+                    return analyse_ticker(yf_t, name, "Stocks", config)
+                positions_section = lp.status_html(lp.evaluate(pos, config, tier_lookup=_tier))
+        except Exception as e:  # noqa: BLE001
+            positions_section = f'<p class="error">LEAP positions: {e}</p>'
     season_banner = seasonality_banner_html(seasonality_context(datetime.now().month))
     macro_banner = macro_banner_html(macro_context(config))
 
@@ -2399,6 +2414,7 @@ def generate_html(all_data, config, holdings=None):
     {fib_section}
     {ia_section}
     {analyst_section}
+    {positions_section}
     {leap_section}
     {treasury_section}
     <div class="legend">

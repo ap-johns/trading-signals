@@ -29,6 +29,69 @@ def load_config():
         return json.load(f)
 
 
+def analyse_ticker(yf_ticker, name, cat, cfg, sectors=None, buy_as=None):
+    """Score one ticker exactly as analyse() does. Returns the row dict, or None
+    when there is no usable fib swing / price history. Raises on fetch errors."""
+    fc = cfg.get("fib_alerts", {})
+    sectors = sectors if sectors is not None else cfg.get("sectors", {})
+    buy_as = buy_as if buy_as is not None else {k: v for k, v in cfg.get("buy_as", {}).items() if not k.startswith("_")}
+    fp = fib_params(fc, cat)
+    d = yf.Ticker(yf_ticker).history(period="365d", interval="1d").dropna(subset=["Close"])  # match dashboard window
+    dw = yf.Ticker(yf_ticker).history(period="max", interval="1wk").dropna()
+    if d.empty or dw.empty:
+        return None
+    price = d["Close"].iloc[-1]
+    fib = calculate_fib_levels(dw["High"], dw["Low"], lookback=fp["lookback"],
+                               min_gain=fp["min_gain"], reversal=fp["reversal"],
+                               ratios=fp["levels"])
+    if not fib:
+        return None
+    sl, sh = fib["swing_low"], fib["swing_high"]
+    frac = (sh - price) / (sh - sl)
+
+    ema200d = calculate_sma(d["Close"], 200)
+    pc = ((d["Close"] - ema200d) / ema200d * 100).dropna()
+    z = float((pc.iloc[-1] - pc.mean()) / pc.std()) if len(pc) > 1 and pc.std() > 0 else None
+    d200v = ema200d.iloc[-1]
+    d200 = (price - d200v) / d200v * 100 if pd.notna(d200v) else None
+
+    s50 = calculate_sma(d["Close"], 50)
+    s50v = s50.iloc[-1]
+    has50 = pd.notna(s50v)
+    s50_dist = (price - s50v) / s50v * 100 if has50 else None
+    if has50 and len(s50) > 21 and pd.notna(s50.iloc[-21]):
+        chg = (s50v - s50.iloc[-21]) / s50.iloc[-21] * 100
+        s50_dir = "up" if chg > 0.5 else ("down" if chg < -0.5 else "flat")
+    else:
+        s50_dir = None
+
+    sup = nearest_support(d["Low"], price)
+    sup_dist = (price - sup) / price * 100 if sup else None
+
+    ema200w = calculate_ema(dw["Close"], 200).iloc[-1] if len(dw) >= 104 else None
+    w200 = (price - ema200w) / ema200w * 100 if ema200w else None
+
+    ow = calculate_ott(dw["Open"], 10, 3.0)
+    wk_bull = bool(ow["mavg"].iloc[-1] > ow["ott"].iloc[-1])
+
+    score = favorability(frac, z, s50_dist, s50_dir, sup_dist, w200, wk_bull, d200)
+    return {
+        "name": name, "yf_ticker": yf_ticker, "category": cat, "sector": sectors.get(name),
+        "buy_as": buy_as.get(name),
+        "price": round(float(price), 2), "retrace_pct": round(frac * 100),
+        "level": level_reached(frac), "z": round(z, 1) if z is not None else None,
+        "sma50_dist_pct": round(s50_dist) if s50_dist is not None else None,
+        "sma50_dir": s50_dir,
+        "above_200d_pct": round(d200) if d200 is not None else None,
+        "support_dist_pct": round(sup_dist) if sup_dist is not None else None,
+        "above_200w_pct": round(w200) if w200 is not None else None,
+        "weekly_ott_bull": wk_bull,
+        "gain_pct": round(fib["gain"] * 100),
+        "swing_low": round(sl, 2), "swing_high": round(sh, 2),
+        "score": score, "tier": tier(frac, z, w200, wk_bull, d200),
+    }
+
+
 def analyse():
     cfg = load_config()
     fc = cfg.get("fib_alerts", {})
@@ -44,61 +107,9 @@ def analyse():
     rows = []
     for yf_ticker, name, cat in tickers:
         try:
-            fp = fib_params(fc, cat)
-            d = yf.Ticker(yf_ticker).history(period="365d", interval="1d")  # match dashboard window
-            dw = yf.Ticker(yf_ticker).history(period="max", interval="1wk").dropna()
-            if d.empty or dw.empty:
-                continue
-            price = d["Close"].iloc[-1]
-            fib = calculate_fib_levels(dw["High"], dw["Low"], lookback=fp["lookback"],
-                                       min_gain=fp["min_gain"], reversal=fp["reversal"],
-                                       ratios=fp["levels"])
-            if not fib:
-                continue
-            sl, sh = fib["swing_low"], fib["swing_high"]
-            frac = (sh - price) / (sh - sl)
-
-            ema200d = calculate_sma(d["Close"], 200)
-            pc = ((d["Close"] - ema200d) / ema200d * 100).dropna()
-            z = float((pc.iloc[-1] - pc.mean()) / pc.std()) if len(pc) > 1 and pc.std() > 0 else None
-            d200v = ema200d.iloc[-1]
-            d200 = (price - d200v) / d200v * 100 if pd.notna(d200v) else None
-
-            s50 = calculate_sma(d["Close"], 50)
-            s50v = s50.iloc[-1]
-            has50 = pd.notna(s50v)
-            s50_dist = (price - s50v) / s50v * 100 if has50 else None
-            if has50 and len(s50) > 21 and pd.notna(s50.iloc[-21]):
-                chg = (s50v - s50.iloc[-21]) / s50.iloc[-21] * 100
-                s50_dir = "up" if chg > 0.5 else ("down" if chg < -0.5 else "flat")
-            else:
-                s50_dir = None
-
-            sup = nearest_support(d["Low"], price)
-            sup_dist = (price - sup) / price * 100 if sup else None
-
-            ema200w = calculate_ema(dw["Close"], 200).iloc[-1] if len(dw) >= 104 else None
-            w200 = (price - ema200w) / ema200w * 100 if ema200w else None
-
-            ow = calculate_ott(dw["Open"], 10, 3.0)
-            wk_bull = bool(ow["mavg"].iloc[-1] > ow["ott"].iloc[-1])
-
-            score = favorability(frac, z, s50_dist, s50_dir, sup_dist, w200, wk_bull, d200)
-            rows.append({
-                "name": name, "yf_ticker": yf_ticker, "category": cat, "sector": sectors.get(name),
-                "buy_as": buy_as.get(name),
-                "price": round(float(price), 2), "retrace_pct": round(frac * 100),
-                "level": level_reached(frac), "z": round(z, 1) if z is not None else None,
-                "sma50_dist_pct": round(s50_dist) if s50_dist is not None else None,
-                "sma50_dir": s50_dir,
-                "above_200d_pct": round(d200) if d200 is not None else None,
-                "support_dist_pct": round(sup_dist) if sup_dist is not None else None,
-                "above_200w_pct": round(w200) if w200 is not None else None,
-                "weekly_ott_bull": wk_bull,
-                "gain_pct": round(fib["gain"] * 100),
-                "swing_low": round(sl, 2), "swing_high": round(sh, 2),
-                "score": score, "tier": tier(frac, z, w200, wk_bull, d200),
-            })
+            row = analyse_ticker(yf_ticker, name, cat, cfg, sectors, buy_as)
+            if row:
+                rows.append(row)
         except Exception as e:
             print(f"# skip {name}: {e!r}", file=sys.stderr)
 
