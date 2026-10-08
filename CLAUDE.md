@@ -126,6 +126,12 @@ When adding a level-based trigger, persist fired levels in `cycle_state.json` wi
 - `/js:dca-review` — rank tickers by DCA favorability and explain the picks
 - `/js:invest-answers-jacob` — load Jacob's weekly buy levels into `analyst_levels.json`
 - `/js:private-dashboard` — build the local dashboard with Trading 212 holdings
+- `/js:regen-dashboard` — rebuild the public dashboard, commit and push, handling the CI rebase and merging `iv_history.json`
+- `/js:leap-review` — today's LEAP candidates (Strong setup / Setup), the contract to buy, and whether a 2x ETP is the better vehicle
+- `/js:leap-positions` — held LEAPs from IBKR against the exit rules
+- `/js:treasury-premiums` — mNAV of the tracked crypto treasury stocks against the cheap / derisk / sell bands
+- `/js:crypto-plan` — the Q4 2026 crypto deployment tranches and rules against current prices
+- `/js:add-ticker SYMBOL` — verify the Yahoo symbol, add to the watchlist with a sector, rebuild and push
 
 ## Data Flow
 
