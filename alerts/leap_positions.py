@@ -99,6 +99,20 @@ def load_positions(path=POSITIONS_PATH):
         if not p.get("entry_spot") and p.get("entry_date"):
             p["entry_spot"] = _entry_spot(p["ticker"], p["entry_date"])
         merged.append(p)
+    # The Flex statement runs to the previous business day, so a contract
+    # bought today (or over a weekend) isn't in it yet. Keep local entries
+    # whose entry_date is recent; anything older that IBKR no longer lists
+    # is treated as closed and dropped.
+    live_ids = {position_id(p) for p in live}
+    for p in local:
+        if position_id(p) in live_ids or not p.get("entry_date"):
+            continue
+        try:
+            age = (date.today() - date.fromisoformat(p["entry_date"])).days
+        except ValueError:
+            age = 0
+        if age <= 4:
+            merged.append(p)
     if not os.environ.get("GITHUB_ACTIONS"):
         try:
             save_positions(merged, path)
