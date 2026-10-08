@@ -48,8 +48,7 @@ RULE_LABEL = {
 }
 
 
-def load_positions(path=POSITIONS_PATH):
-    """Env var first (CI), then the local file. Returns a list; empty if neither."""
+def _local_positions(path):
     raw = os.environ.get("LEAP_POSITIONS_JSON")
     if raw and raw.strip():
         try:
@@ -62,6 +61,50 @@ def load_positions(path=POSITIONS_PATH):
             data = json.load(f)
         return data if isinstance(data, list) else data.get("positions", [])
     return []
+
+
+def _entry_spot(ticker, entry_date):
+    """Underlying close on the entry date (yfinance), for the +40% rule."""
+    try:
+        h = yf.Ticker(ticker).history(start=entry_date, period=None, interval="1d")
+        h = h.dropna(subset=["Close"])
+        return round(float(h["Close"].iloc[0]), 4) if len(h) else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def load_positions(path=POSITIONS_PATH):
+    """Positions from IBKR via Flex when IBKR_FLEX_TOKEN / IBKR_FLEX_QUERY_ID are
+    set, merged with any hand-kept extras (entry_spot, note) from the local file
+    or LEAP_POSITIONS_JSON; otherwise the local data alone. When Flex is used
+    locally the merged result is written back to the file as a cache/fallback."""
+    local = _local_positions(path)
+    try:
+        import ibkr_flex
+        live = ibkr_flex.fetch_positions()
+    except Exception as e:  # noqa: BLE001
+        print(f"IBKR Flex unavailable ({e}); using local positions")
+        live = None
+    if live is None:
+        return local
+    by_id = {position_id(p): p for p in local}
+    merged = []
+    for p in live:
+        extra = by_id.get(position_id(p), {})
+        for k in ("entry_spot", "note", "account"):
+            if extra.get(k) and not p.get(k):
+                p[k] = extra[k]
+        if extra.get("entry_spot"):
+            p["entry_spot"] = extra["entry_spot"]
+        if not p.get("entry_spot") and p.get("entry_date"):
+            p["entry_spot"] = _entry_spot(p["ticker"], p["entry_date"])
+        merged.append(p)
+    if not os.environ.get("GITHUB_ACTIONS"):
+        try:
+            save_positions(merged, path)
+        except OSError:
+            pass
+    return merged
 
 
 def save_positions(positions, path=POSITIONS_PATH):

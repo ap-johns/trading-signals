@@ -29,6 +29,9 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           # Held LEAPs (git-ignored locally; same JSON stored as a repo secret).
           LEAP_POSITIONS_JSON: ${{ secrets.LEAP_POSITIONS_JSON }}
+          # IBKR Flex Web Service (read-only): overrides the JSON above when set.
+          IBKR_FLEX_TOKEN: ${{ secrets.IBKR_FLEX_TOKEN }}
+          IBKR_FLEX_QUERY_ID: ${{ secrets.IBKR_FLEX_QUERY_ID }}
         working-directory: alerts
         run: python signal_checker.py
 
