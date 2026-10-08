@@ -63,6 +63,23 @@ def _local_positions(path):
     return []
 
 
+def _gbpusd_on(entry_date):
+    """GBPUSD close on (or just after) a date, for the sterling cost."""
+    try:
+        h = yf.Ticker("GBPUSD=X").history(start=entry_date, period=None, interval="1d")["Close"].dropna()
+        return round(float(h.iloc[0]), 5) if len(h) else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _gbpusd_now():
+    try:
+        h = yf.Ticker("GBPUSD=X").history(period="5d")["Close"].dropna()
+        return float(h.iloc[-1]) if len(h) else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def _entry_spot(ticker, entry_date):
     """Underlying close on the entry date (yfinance), for the +40% rule."""
     try:
@@ -98,6 +115,10 @@ def load_positions(path=POSITIONS_PATH):
             p["entry_spot"] = extra["entry_spot"]
         if not p.get("entry_spot") and p.get("entry_date"):
             p["entry_spot"] = _entry_spot(p["ticker"], p["entry_date"])
+        if extra.get("entry_gbpusd"):
+            p["entry_gbpusd"] = extra["entry_gbpusd"]
+        if not p.get("entry_gbpusd") and p.get("entry_date"):
+            p["entry_gbpusd"] = _gbpusd_on(p["entry_date"])
         merged.append(p)
     # The Flex statement runs to the previous business day, so a contract
     # bought today (or over a weekend) isn't in it yet. Keep local entries
@@ -152,6 +173,7 @@ def evaluate(positions, config, tier_lookup=None):
     optionally supplies the DCA ranking row (tier) so it isn't recomputed."""
     out = []
     today = date.today()
+    fx_now = _gbpusd_now()
     for p in positions:
         tk = p["ticker"]
         t = yf.Ticker(tk)
@@ -171,6 +193,10 @@ def evaluate(positions, config, tier_lookup=None):
         pnl = (value - cost) if value is not None else None
         entry_spot = p.get("entry_spot")
         stock_move = (spot / float(entry_spot) - 1) if entry_spot else None
+        fx_entry = p.get("entry_gbpusd") or _gbpusd_on(p["entry_date"]) if p.get("entry_date") else None
+        cost_gbp = (cost / fx_entry) if fx_entry else None
+        value_gbp = (value / fx_now) if (value is not None and fx_now) else None
+        pnl_gbp = (value_gbp - cost_gbp) if (value_gbp is not None and cost_gbp is not None) else None
 
         # Stock sell rule, applied from the entry date onwards: the most recent
         # daily OTT crossover *after* entry is a sell, and price is above the
@@ -210,6 +236,7 @@ def evaluate(positions, config, tier_lookup=None):
             "bid": bid, "ask": ask, "mid": mid, "iv": iv, "delta": delta,
             "intrinsic": intrinsic, "extrinsic": (mid - intrinsic) if mid else None,
             "cost": cost, "value": value, "pnl": pnl, "pnl_pct": (pnl / cost) if (pnl is not None and cost) else None,
+            "fx_entry": fx_entry, "fx_now": fx_now, "cost_gbp": cost_gbp, "value_gbp": value_gbp, "pnl_gbp": pnl_gbp,
             "stock_move": stock_move, "ott_bear": ott_bear, "above_200": above_200, "tier": tier,
             "flags": flags,
         })
@@ -229,8 +256,11 @@ def format_digest_lines(statuses):
             lines.append(f"{head} — {s['error']}")
             continue
         bits = [f"{s['months']:.0f}mo left"]
+        cost_txt = f"cost ${s['cost']:,.0f}" + (f" (£{s['cost_gbp']:,.0f})" if s.get("cost_gbp") else "")
+        bits.append(cost_txt)
         if s["mid"]:
-            bits.append(f"mid ${s['mid']:.2f} vs ${float(p['entry_price']):.2f} in ({s['pnl_pct']:+.0%}, ${s['pnl']:+,.0f})")
+            pnl_txt = f"{s['pnl_pct']:+.0%}, ${s['pnl']:+,.0f}" + (f" / £{s['pnl_gbp']:+,.0f}" if s.get("pnl_gbp") is not None else "")
+            bits.append(f"mid ${s['mid']:.2f} vs ${float(p['entry_price']):.2f} in ({pnl_txt})")
         if s["delta"] is not None:
             bits.append(f"Δ{s['delta']:.2f}")
         if s["stock_move"] is not None:
@@ -251,7 +281,8 @@ def format_alert(s, flag):
     exp = datetime.strptime(p["expiry"], "%Y-%m-%d").strftime("%b %y")
     body = [f"\U0001f4bc <b>LEAP exit rule: {p['ticker']} ${p['strike']:g}C {exp}</b>", RULE_LABEL[flag]]
     if s.get("mid"):
-        body.append(f"Mid ${s['mid']:.2f} vs ${float(p['entry_price']):.2f} entry · P&L {s['pnl_pct']:+.0%} (${s['pnl']:+,.0f})")
+        gbp = f" / £{s['pnl_gbp']:+,.0f}" if s.get("pnl_gbp") is not None else ""
+        body.append(f"Mid ${s['mid']:.2f} vs ${float(p['entry_price']):.2f} entry · P&L {s['pnl_pct']:+.0%} (${s['pnl']:+,.0f}{gbp}) · cost ${s['cost']:,.0f}" + (f" (£{s['cost_gbp']:,.0f})" if s.get("cost_gbp") else ""))
     extra = [f"{s['months']:.0f} months left"]
     if s.get("delta") is not None:
         extra.append(f"Δ{s['delta']:.2f}")
@@ -275,8 +306,10 @@ def status_html(statuses):
             rows += f'<tr><td class="ticker">{p["ticker"]} ${p["strike"]:g}C {exp}</td><td colspan="8" class="error">{s["error"]}</td></tr>\n'
             continue
         flags = " ".join(f'<span class="leap-flag" style="color:#ff5252;border-color:#ff5252;" title="{RULE_LABEL[f]}">{f.replace("_", " ")}</span>' for f in s["flags"]) or '<span class="leap-flag" style="color:#00e676;border-color:#00e676;">hold</span>'
-        pnl = (f'<span style="color:{"#00e676" if s["pnl"] >= 0 else "#ff5252"};font-weight:700;">{s["pnl_pct"]:+.0%}</span> <span class="fib-dt">${s["pnl"]:+,.0f}</span>'
+        gbp_pnl = f' / &pound;{s["pnl_gbp"]:+,.0f}' if s.get("pnl_gbp") is not None else ""
+        pnl = (f'<span style="color:{"#00e676" if s["pnl"] >= 0 else "#ff5252"};font-weight:700;">{s["pnl_pct"]:+.0%}</span> <span class="fib-dt">${s["pnl"]:+,.0f}{gbp_pnl}</span>'
                if s["pnl"] is not None else '<span class="fib-dt">&mdash;</span>')
+        outlay = f'${s["cost"]:,.0f}' + (f' / &pound;{s["cost_gbp"]:,.0f}' if s.get("cost_gbp") else "")
         mcol = "#ff5252" if s["dte"] <= ROLL_DAYS else ("#f0d060" if s["dte"] <= CAUTION_DAYS else "var(--ink)")
         dl = f'{s["delta"]:.2f}' if s["delta"] is not None else "&mdash;"
         dcol = "#ff5252" if (s["delta"] or 0) >= DELTA_EXIT else "var(--ink)"
@@ -285,7 +318,7 @@ def status_html(statuses):
         ott_html = ' · <span style="color:#ff5252;">OTT bear</span>' if s["ott_bear"] else ""
         rows += (f'<tr><td>{flags}</td><td class="ticker">{p["ticker"]} ${p["strike"]:g}C {exp}'
                  f'<span class="fib-sector">{p.get("account", "")}</span></td>'
-                 f'<td>{int(p.get("contracts", 1))} @ ${float(p["entry_price"]):.2f} <span class="fib-dt">{p["entry_date"]}</span></td>'
+                 f'<td>{int(p.get("contracts", 1))} @ ${float(p["entry_price"]):.2f} <span class="fib-dt">{p["entry_date"]}</span><br><span class="fib-dt">outlay {outlay}</span></td>'
                  f'<td>{mid}</td><td>{pnl}</td><td style="color:{mcol};">{s["months"]:.1f} mo</td>'
                  f'<td style="color:{dcol};">{dl}</td><td>${s["spot"]:.2f} <span class="fib-dt">{mv}</span></td>'
                  f'<td>{s["tier"] or "&mdash;"}{ott_html}</td></tr>\n')
