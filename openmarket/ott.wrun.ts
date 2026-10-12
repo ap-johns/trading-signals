@@ -9,21 +9,22 @@
 // The weekly OTT (the digest's "weekly trend intact" gate, +3 in the favorability score) runs the
 // same engine on Monday-start UTC weeks built from the chart's own bars, fed each week's open.
 // It is drawn as a stepped line, green while weekly MAvg is above it and red below.
+// The buy/sell triangles start hidden (the band's colour change marks them); switch them on in Style.
 
 param.int("period", 10, { min: 2, max: 100, label: "OTT period" });
 param.number("percent", 3, { min: 0.1, max: 20, label: "OTT percent" });
 param.bool("show_weekly", true, { label: "Show weekly OTT" });
 
-// The two lines start hidden (the fill alone shows the trend); switch them on in the Style tab.
-output("mavg", line, overlay, { color: "#0585E1", width: 1, label: "MAvg", format: "price", visible: false });
-output("ott", line, overlay, { color: "#B800D9", width: 2, label: "OTT", format: "price", visible: false });
+// Drawn like the Larsson Line: MAvg and OTT as a band, olive lines on yellow while MAvg is above
+// OTT (uptrend), violet on lavender below. The colour flips on the bar a buy or sell fires.
+output("mavg", line, overlay, { color_by: "d_regime", colors: ["#7C6CFF", "#BFAE3A"], width: 1.5, label: "MAvg", format: "price" });
+output("ott", line, overlay, { color_by: "d_regime", colors: ["#7C6CFF", "#BFAE3A"], width: 1.5, label: "OTT", format: "price" });
 output("d_regime", none, overlay, { label: "Daily trend (1 up, 0 down)" });
-// Shade between MAvg and OTT: green while MAvg is above OTT (uptrend), red below.
-fill("mavg", "ott", { color_by: "d_regime", colors: ["#ef4444", "#22c55e"], opacity: 0.15 });
+fill("mavg", "ott", { color_by: "d_regime", colors: ["#9C8CF2", "#FFEB3B"], opacity: 0.45 });
 output("wk_ott", line, overlay, { color_by: "wk_regime", colors: ["#ef4444", "#22c55e"], width: 1, step: true, line_style: "dashed", label: "Weekly OTT", format: "price" });
 output("wk_regime", none, overlay, { label: "Weekly trend (1 bullish, 0 bearish)" });
-output("buy", shape, overlay, { shape: "triangle_up", location: "below_bar", width: 12, color: "#22c55e", shape_where: "is_buy", label: "OTT buy" });
-output("sell", shape, overlay, { shape: "triangle_down", location: "above_bar", width: 12, color: "#ef4444", shape_where: "is_sell", label: "OTT sell" });
+output("buy", shape, overlay, { shape: "triangle_up", location: "below_bar", width: 12, color: "#22c55e", shape_where: "is_buy", label: "OTT buy", visible: false });
+output("sell", shape, overlay, { shape: "triangle_down", location: "above_bar", width: 12, color: "#ef4444", shape_where: "is_sell", label: "OTT sell", visible: false });
 const isBuy = output("is_buy", none);
 const isSell = output("is_sell", none);
 alert("ott_buy", { when: isBuy, message: "{{symbol}}: OTT buy at {{close}}", description: "Daily OTT buy (MAvg crossed above OTT)" });
