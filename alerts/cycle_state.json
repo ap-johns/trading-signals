@@ -177,13 +177,13 @@
   },
   "MSTR": {
     "zscore_neg": [],
-    "mnav_alerted": []
+    "mnav_alerted": [
+      "cheap"
+    ]
   },
   "PURR": {
     "zscore_neg": [],
-    "mnav_alerted": [
-      "derisk"
-    ]
+    "mnav_alerted": []
   },
   "UMAC": {
     "zscore_neg": []
