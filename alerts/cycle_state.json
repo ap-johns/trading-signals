@@ -30,7 +30,9 @@
   "MAGS": {
     "zscore_neg": [],
     "fib_alerted": [],
-    "fib_swing_high": 71.16000366210938
+    "fib_swing_high": 71.16000366210938,
+    "index_dip_ref": 68.73999786376953,
+    "index_dip_alerted": false
   },
   "ALAB": {
     "zscore_neg": [],
