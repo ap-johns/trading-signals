@@ -18,14 +18,16 @@
     "fib_swing_high": 7620.89990234375
   },
   "QQQ": {
-    "zscore_neg": [],
+    "zscore_neg": [
+      2.5
+    ],
     "fib_alerted": [],
     "fib_swing_high": 747.8281862002862,
     "analyst_alerted": [
       708.51
     ],
     "index_dip_ref": 704.4000244140625,
-    "index_dip_alerted": false
+    "index_dip_alerted": true
   },
   "MAGS": {
     "zscore_neg": [],
@@ -57,7 +59,8 @@
   "ASML": {
     "zscore_neg": [
       2.0,
-      2.5
+      2.5,
+      3.0
     ],
     "fib_alerted": [
       0.382
@@ -118,8 +121,13 @@
     "fib_swing_high": 1254.807069757193
   },
   "NVDA": {
-    "zscore_neg": [],
-    "analyst_alerted": [],
+    "zscore_neg": [
+      2.5,
+      3.0
+    ],
+    "analyst_alerted": [
+      189.0
+    ],
     "fib_alerted": [
       0.382,
       0.5
@@ -139,10 +147,15 @@
       0.786
     ],
     "fib_swing_high": 498.8299865722656,
-    "analyst_alerted": []
+    "analyst_alerted": [
+      368.0
+    ]
   },
   "TSM": {
-    "zscore_neg": [],
+    "zscore_neg": [
+      2.5,
+      3.0
+    ],
     "fib_alerted": [
       0.382
     ],
