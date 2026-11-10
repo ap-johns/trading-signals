@@ -27,7 +27,7 @@
       708.51
     ],
     "index_dip_ref": 704.4000244140625,
-    "index_dip_alerted": true
+    "index_dip_alerted": false
   },
   "MAGS": {
     "zscore_neg": [],
@@ -147,9 +147,7 @@
       0.786
     ],
     "fib_swing_high": 498.8299865722656,
-    "analyst_alerted": [
-      368.0
-    ]
+    "analyst_alerted": []
   },
   "TSM": {
     "zscore_neg": [
