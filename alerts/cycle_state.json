@@ -74,7 +74,9 @@
       0.5
     ],
     "fib_swing_high": 494.21780481836413,
-    "analyst_alerted": []
+    "analyst_alerted": [
+      362.48
+    ]
   },
   "GOOG": {
     "zscore_neg": [
@@ -161,7 +163,9 @@
     "zscore_neg": []
   },
   "COPA": {
-    "zscore_neg": [],
+    "zscore_neg": [
+      2.5
+    ],
     "fib_alerted": [],
     "fib_swing_high": 57.75
   },
