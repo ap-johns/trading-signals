@@ -1,7 +1,9 @@
 {
   "BTCUSD": {
     "window_alerted": true,
-    "alerted_levels": [],
+    "alerted_levels": [
+      -10
+    ],
     "analyst_alerted": []
   },
   "ETHUSD": {
@@ -27,7 +29,7 @@
       708.51
     ],
     "index_dip_ref": 704.4000244140625,
-    "index_dip_alerted": false
+    "index_dip_alerted": true
   },
   "MAGS": {
     "zscore_neg": [],
