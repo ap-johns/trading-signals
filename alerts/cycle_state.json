@@ -18,14 +18,16 @@
   },
   "SPX": {
     "zscore_neg": [
-      2.5
+      2.5,
+      3.0
     ],
     "fib_alerted": [],
     "fib_swing_high": 7620.89990234375
   },
   "QQQ": {
     "zscore_neg": [
-      2.5
+      2.5,
+      3.0
     ],
     "fib_alerted": [],
     "fib_swing_high": 747.8281862002862,
@@ -36,7 +38,9 @@
     "index_dip_alerted": true
   },
   "MAGS": {
-    "zscore_neg": [],
+    "zscore_neg": [
+      2.5
+    ],
     "fib_alerted": [],
     "fib_swing_high": 71.16000366210938,
     "index_dip_ref": 68.73999786376953,
@@ -153,7 +157,9 @@
       0.786
     ],
     "fib_swing_high": 498.8299865722656,
-    "analyst_alerted": []
+    "analyst_alerted": [
+      368.0
+    ]
   },
   "TSM": {
     "zscore_neg": [
